@@ -387,3 +387,137 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 - **Custom sitemap overflow:** Limited to 1000 static routes
 - **File load failure:** Cached as `undefined` to prevent retry storms
 - **API proxy timeout:** 5-second timeout returns 504
+
+---
+
+## System Limits
+
+### Request Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxRequestSize` | 10 MB | Maximum request body size |
+| `maxHeaderSize` | 16 KB | Maximum header size |
+| `maxUrlLength` | 8,192 | Maximum URL length |
+| `maxConcurrentRequests` | 100 | Maximum concurrent requests |
+
+### Response Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxResponseSize` | 50 MB | Maximum response body size |
+| `maxSsrTimeout` | 10,000ms | Maximum SSR render time |
+| `maxProxyTimeout` | 30,000ms | Maximum proxy request time |
+
+### Cache Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxProjectCacheSize` | 100 | Projects in memory cache |
+| `maxProjectCacheTtl` | 10,000ms | Project cache TTL |
+| `maxFileCacheSize` | 1,000 | Files in memory cache |
+
+### Enforcement
+
+- **Request size:** 413 Payload Too Large
+- **SSR timeout:** 504 Gateway Timeout with error page
+- **Concurrent requests:** 429 Too Many Requests
+
+---
+
+## Invariants
+
+### Request Invariants
+
+1. **I-SRV-METHOD-VALID:** HTTP method MUST be supported (GET, POST, etc.).
+2. **I-SRV-URL-VALID:** URL MUST be parseable.
+3. **I-SRV-HEADERS-SAFE:** Headers MUST NOT contain CRLF injection.
+
+### Response Invariants
+
+4. **I-SRV-STATUS-VALID:** Response status MUST be valid HTTP status.
+5. **I-SRV-CONTENT-TYPE:** Response MUST have appropriate Content-Type.
+6. **I-SRV-CORS-HEADERS:** CORS headers MUST be set for cross-origin requests.
+
+### Proxy Invariants
+
+7. **I-SRV-PROXY-URL-ABSOLUTE:** Proxy destination MUST be absolute URL.
+8. **I-SRV-PROXY-NO-RECURSION:** Rewrites MUST NOT create infinite loops.
+9. **I-SRV-PROXY-HEADERS-SANITIZED:** Proxy headers MUST be sanitized.
+
+### Cache Invariants
+
+10. **I-SRV-CACHE-TTL-POSITIVE:** Cache TTL MUST be positive.
+11. **I-SRV-CACHE-KEY-DETERMINISTIC:** Same inputs MUST produce same cache key.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-SRV-URL-VALID | Request parsing | 400 Bad Request |
+| I-SRV-PROXY-NO-RECURSION | Loop detection | 500 Internal Server Error |
+| I-SRV-CACHE-TTL-POSITIVE | Config validation | Use default TTL |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Response |
+|------------|------|----------|
+| `BadRequestError` | Invalid request | 400 Bad Request |
+| `NotFoundError` | Route/component missing | 404 Not Found |
+| `ServerError` | Internal error | 500 Internal Server Error |
+| `TimeoutError` | SSR/proxy timeout | 504 Gateway Timeout |
+| `RateLimitError` | Too many requests | 429 Too Many Requests |
+
+### Error Response Format
+
+```typescript
+interface ErrorResponse {
+  error: {
+    type: string;
+    message: string;
+    requestId?: string;
+  }
+}
+```
+
+### Graceful Degradation
+
+When SSR fails:
+1. Log error with request context
+2. Return static error page (pre-rendered)
+3. Include Retry-After header if transient
+
+---
+
+## Health Monitoring
+
+### Health Check Endpoints
+
+| Path | Purpose |
+|------|---------|
+| `/health` | Basic liveness check |
+| `/health/ready` | Readiness check (DB connected) |
+| `/health/live` | Liveness with dependencies |
+
+### Metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `request_count` | Counter | Total requests |
+| `request_duration` | Histogram | Request latency |
+| `error_rate` | Gauge | Error percentage |
+| `cache_hit_rate` | Gauge | Cache effectiveness |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with request, response, and cache limits
+- Added Invariants section with 11 request, response, proxy, and cache invariants
+- Added Error Handling section with error types and graceful degradation
+- Added Health Monitoring section with health checks and metrics
