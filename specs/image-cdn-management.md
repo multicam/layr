@@ -180,3 +180,46 @@ This ensures image URLs are crawlable for SEO while blocking other Cloudflare CD
 | `URL` constructor | Resolving relative paths to absolute URLs |
 | `applyFormula()` | Evaluating icon path from project config |
 | `escapeAttrValue()` | HTML attribute escaping for generated tags |
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

@@ -492,3 +492,46 @@ The hydration JSON data is placed in a `<script type="application/json">` tag (n
 | [Font System](./font-system.md) | `getFontCssUrl()` generates font preload links |
 | [Build and Deployment](./build-and-deployment.md) | `cacheBuster` ties into release versioning |
 | [Package Management](./package-management.md) | Package thumbnails used for og:image on package projects |
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

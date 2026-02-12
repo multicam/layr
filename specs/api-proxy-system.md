@@ -563,3 +563,56 @@ Custom error detection formulas receive an isolated context containing only the 
 - **Upstream timeout:** Direct proxy returns 504. SSR fetch wraps timeout errors as 504 response with error message.
 - **Non-body response codes (101, 204, 205, 304):** Response body is `undefined` (not an empty stream).
 - **FormData content-type:** When body is `multipart/form-data`, the `content-type` header is deleted from the request so the runtime can set the proper boundary parameter.
+
+---
+
+## System Limits
+
+### Operation Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxCount` | 1,000 | Maximum items processed |
+
+### Enforcement
+
+- **Size limit:** Truncate with warning
+- **Time limit:** Cancel with error
+- **Count limit:** Stop processing
+
+---
+
+## Invariants
+
+1. **I-OP-VALID:** Operations MUST be valid.
+2. **I-OP-SAFE:** Operations MUST be safe.
+3. **I-OP-DETERMINISTIC:** Results MUST be deterministic.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-OP-VALID | Build | Error: validation |
+| I-OP-SAFE | Runtime | Reject operation |
+| I-OP-DETERMINISTIC | Testing | CI failure |
+
+---
+
+## Error Handling
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `OperationError` | Operation fails | Log, continue |
+| `TimeoutError` | Time exceeded | Cancel |
+| `SizeError` | Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

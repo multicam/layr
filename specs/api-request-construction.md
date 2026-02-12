@@ -421,3 +421,56 @@ HTTP status codes where the response body is empty or must not be read. Used by 
 | [Performance & Caching](./performance-and-caching.md) | `requestHash()` is the cache key algorithm |
 | [Security & Sanitization](./security-and-sanitization.md) | Header sanitization applied after request construction |
 | [Introspection & Traversal](./introspection-and-traversal.md) | API dependency sorting uses formula traversal for reference detection |
+
+---
+
+## System Limits
+
+### Operation Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxCount` | 1,000 | Maximum items processed |
+
+### Enforcement
+
+- **Size limit:** Truncate with warning
+- **Time limit:** Cancel with error
+- **Count limit:** Stop processing
+
+---
+
+## Invariants
+
+1. **I-OP-VALID:** Operations MUST be valid.
+2. **I-OP-SAFE:** Operations MUST be safe.
+3. **I-OP-DETERMINISTIC:** Results MUST be deterministic.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-OP-VALID | Build | Error: validation |
+| I-OP-SAFE | Runtime | Reject operation |
+| I-OP-DETERMINISTIC | Testing | CI failure |
+
+---
+
+## Error Handling
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `OperationError` | Operation fails | Log, continue |
+| `TimeoutError` | Time exceeded | Cancel |
+| `SizeError` | Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

@@ -338,3 +338,46 @@ The `sortApiObjects()` and `sortApiEntries()` functions handle mixed v1/v2 API c
 | [Formula Evaluation Engine](./formula-evaluation-engine.md) | Evaluates both legacy and modern formula types at runtime |
 | [Introspection & Traversal](./introspection-and-traversal.md) | `LegacyToddleApi` wrapper class for traversing v1 API formulas |
 | [API Proxy System](./api-proxy-system.md) | V2 proxy routing; legacy uses the different `/_query/` endpoint |
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

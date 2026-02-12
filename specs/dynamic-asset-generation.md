@@ -290,3 +290,46 @@ All resource endpoints read configuration from project config:
 - **Custom element without custom code:** Bundle imports empty formula/action objects
 - **Relative favicon path:** Resolved against request origin for correct URL construction
 - **Service worker no-cache:** Intentionally omits cache headers so browsers can detect updates
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

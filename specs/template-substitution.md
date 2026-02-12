@@ -360,3 +360,46 @@ When `api.server.proxy.enabled` evaluates to `false`, the request is sent direct
 | `URLSearchParams` | Form-urlencoded body parsing/serialization |
 | `Headers` API | Header manipulation and iteration |
 | `AbortSignal.timeout()` | 5-second timeout on proxied requests |
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

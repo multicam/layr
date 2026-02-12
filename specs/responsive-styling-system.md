@@ -372,3 +372,46 @@ Connects reactive signal to CSS property:
 - **Media query specificity conflicts:** Multiple variants with different media queries on the same property resolve via CSS cascade order (last defined wins)
 - **Legacy style-variables:** Old `node['style-variables']` array format is not processed by SSR; only `node.customProperties` object format is supported
 - **Missing @property definition:** Custom properties without theme definitions work as generic CSS variables but lose animation interpolation support
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section

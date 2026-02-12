@@ -326,3 +326,46 @@ Cache invalidates when any dependency key's reference changes. Relies on the sig
 - **Browser navigation during API fetch:** Abort controller cancels in-flight requests on unmount
 - **Custom element without host toddle:** `loadCorePlugins()` accepts optional toddle object, falls back to creating its own
 - **Preview iframe reload:** `reload` command triggers full page reload, requiring editor to re-send all component data
+
+---
+
+## System Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxItems` | 10,000 | Maximum items |
+
+### Enforcement
+
+- Size: Truncate with warning
+- Time: Cancel with error
+- Items: Stop processing
+
+---
+
+## Invariants
+
+1. Operations MUST be valid
+2. Operations MUST be safe
+3. Results MUST be deterministic
+
+---
+
+## Error Handling
+
+| Error | Recovery |
+|-------|----------|
+| Operation fails | Log, continue |
+| Timeout | Cancel |
+| Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section
+- Added Invariants section
+- Added Error Handling section
