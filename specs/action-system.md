@@ -396,3 +396,133 @@ abortController.abort(`Component ${component.name} unmounted`)
 - **Custom action error:** Caught at top level, logged, does not halt action sequence
 - **Duplicate action registration:** Legacy actions log error and skip (no override)
 - **Set theme requirement:** Requires `style-variables-v2` feature flag
+
+---
+
+## System Limits
+
+### Execution Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxActionDepth` | 100 | 500 | Maximum nested action depth (Switch→Fetch→callback) |
+| `maxActionsPerEvent` | 1,000 | 5,000 | Maximum actions in single event handler |
+| `maxSwitchCases` | 20 | 100 | Maximum cases in Switch action |
+| `maxWorkflowDepth` | 50 | 200 | Maximum nested workflow calls |
+
+### Time Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxActionExecutionTime` | 5,000ms | Maximum synchronous action execution time |
+| `maxSleepDuration` | 60,000ms | Maximum sleep/interval duration |
+
+### Enforcement
+
+- **Depth limit:** Throws `LimitExceededError` if exceeded
+- **Time limit:** Logs warning in dev, continues in production
+- **Action count:** Truncates with warning if exceeded
+
+---
+
+## Invariants
+
+### Structural Invariants
+
+1. **I-ACT-TYPE:** Every action MUST have a `type` field matching one of the 10 types.
+2. **I-ACT-SWITCH-CASES:** Switch MUST have at least 1 case.
+3. **I-ACT-SWITCH-DEFAULT:** Switch MUST have a default.
+4. **I-ACT-FETCH-API:** Fetch MUST reference an existing API.
+
+### Execution Invariants
+
+5. **I-ACT-SEQUENTIAL:** Actions execute sequentially in definition order.
+6. **I-ACT-STATE-PROPAGATION:** Each action sees changes from previous actions.
+7. **I-ACT-ABORT-CLEANUP:** All pending operations MUST clean up on abort signal.
+
+### Workflow Invariants
+
+8. **I-ACT-WORKFLOW-REF:** TriggerWorkflow MUST reference existing workflow.
+9. **I-ACT-CALLBACK-SCOPE:** WorkflowCallback only valid inside workflow context.
+10. **I-ACT-RECURSION-LIMIT:** Maximum workflow depth MUST be enforced.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-ACT-TYPE | Build | Error: schema validation |
+| I-ACT-FETCH-API | Runtime | Warning: skip action |
+| I-ACT-WORKFLOW-REF | Runtime | Warning: skip action |
+| I-ACT-RECURSION-LIMIT | Runtime | Error: throw `LimitExceededError` |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `ActionExecutionError` | Action throws | Log, continue to next action |
+| `LimitExceededError` | Depth/count exceeded | Stop execution |
+| `ApiNotFoundError` | Fetch references missing API | Skip, continue |
+| `WorkflowNotFoundError` | Workflow not found | Skip, continue |
+
+### Per-Action Error Handling
+
+```typescript
+try {
+  await executeAction(action, data, ctx);
+} catch (e) {
+  console.error(`Action ${action.type} failed:`, e);
+  // Continue to next action (don't halt sequence)
+}
+```
+
+### Nested Action Errors
+
+- **Switch case error:** Case fails, subsequent cases not evaluated, default runs
+- **Fetch callback error:** Error logged, other callbacks still execute
+- **Custom action error:** Error logged, sequence continues
+
+---
+
+## Recursion Prevention
+
+### Problem
+
+Workflows can call themselves directly or indirectly:
+- A → TriggerWorkflow('B') → B → TriggerWorkflow('A') → cycle
+
+### Detection
+
+```typescript
+interface ActionContext {
+  workflowStack: string[];  // ['workflowA', 'workflowB']
+}
+
+function executeWorkflow(name: string, ctx: ActionContext) {
+  if (ctx.workflowStack.includes(name)) {
+    throw new LimitExceededError(
+      'workflow', 
+      'maxWorkflowDepth', 
+      ctx.workflowStack.length, 
+      LIMITS.maxWorkflowDepth
+    );
+  }
+  
+  ctx.workflowStack.push(name);
+  // ... execute workflow
+  ctx.workflowStack.pop();
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with execution, time, and depth limits
+- Added Invariants section with 10 structural, execution, and workflow invariants
+- Added Error Handling section with error types and recovery
+- Added Recursion Prevention section with workflow cycle detection
