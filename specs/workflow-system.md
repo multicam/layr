@@ -373,3 +373,127 @@ When a descendant triggers a context provider's workflow, the workflow actions e
 | `mapValues()` | Transforms parameter map from formulas to values |
 | Context provider system | Resolves ancestor workflow providers |
 | Signal system | Reads current component data via `dataSignal.get()` |
+
+---
+
+## System Limits
+
+### Workflow Definition Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxWorkflowsPerComponent` | 30 | 100 | Workflows per component |
+| `maxParametersPerWorkflow` | 20 | 50 | Parameters per workflow |
+| `maxCallbacksPerWorkflow` | 20 | 50 | Callbacks per workflow |
+| `maxActionsPerWorkflow` | 100 | 500 | Actions per workflow |
+
+### Execution Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxWorkflowDepth` | 50 | Maximum nested workflow calls |
+| `maxWorkflowExecutionTime` | 5,000ms | Maximum execution time |
+| `maxCallbackChain` | 20 | Maximum callback chain length |
+
+### Enforcement
+
+- **Depth limit:** Throws `LimitExceededError` with workflow path
+- **Time limit:** Logs warning, continues execution
+- **Action count:** Truncates with warning
+
+---
+
+## Invariants
+
+### Definition Invariants
+
+1. **I-WF-NAME-UNIQUE:** Workflow names MUST be unique within component.
+2. **I-WF-PARAMS-NAMED:** All parameters MUST have unique names.
+3. **I-WF-CALLBACKS-NAMED:** All callbacks MUST have unique names.
+
+### Execution Invariants
+
+4. **I-WF-PARAMS-EVALUATED:** Parameters MUST be evaluated before action execution.
+5. **I-WF-CALLBACK-SCOPE:** Callbacks only valid during workflow execution.
+6. **I-WF-CONTEXT-ISOLATED:** Context changes MUST NOT leak to caller.
+
+### Recursion Invariants
+
+7. **I-WF-NO-DIRECT-RECURSION:** Workflow MUST NOT call itself without depth tracking.
+8. **I-WF-DEPTH-TRACKED:** Call depth MUST be tracked and limited.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-WF-NAME-UNIQUE | Build | Error: schema validation |
+| I-WF-NO-DIRECT-RECURSION | Runtime | Stack overflow error |
+| I-WF-DEPTH-TRACKED | Runtime | Throw at limit |
+
+---
+
+## Recursion Prevention
+
+### Problem
+
+Workflows can trigger themselves:
+- Direct: Workflow A triggers Workflow A
+- Indirect: A → B → C → A cycle
+
+### Detection
+
+```typescript
+interface WorkflowContext {
+  workflowStack: string[];
+  maxDepth: number;
+}
+
+function executeWorkflow(name: string, ctx: WorkflowContext) {
+  if (ctx.workflowStack.length >= ctx.maxDepth) {
+    throw new LimitExceededError(
+      'workflow',
+      'maxWorkflowDepth',
+      ctx.workflowStack.length,
+      ctx.maxDepth
+    );
+  }
+  
+  ctx.workflowStack.push(name);
+  // ... execute workflow
+  ctx.workflowStack.pop();
+}
+```
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `WorkflowNotFoundError` | Workflow not found | Skip, continue |
+| `WorkflowDepthError` | Max depth exceeded | Stop execution |
+| `ParameterError` | Parameter evaluation fails | Use null |
+
+### Error Context
+
+```typescript
+interface WorkflowError extends Error {
+  workflowName: string;
+  componentName: string;
+  parameterName?: string;
+  actionIndex?: number;
+  callStack: string[];
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with definition and execution limits
+- Added Invariants section with 8 definition, execution, and recursion invariants
+- Added Recursion Prevention section with depth tracking
+- Added Error Handling section with error types and context
