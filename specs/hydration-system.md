@@ -422,3 +422,195 @@ APIs where `autoFetch` is statically `false` are not evaluated during SSR and no
 | `requestHash()` | Generating cache keys for API response matching |
 | `removeTestData()` | Stripping editor metadata from component definitions |
 | `hash()` | Deterministic string hashing for cache keys |
+
+---
+
+## System Limits
+
+### Payload Size Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxHydrationPayloadSize` | 10 MB | Maximum JSON payload size |
+| `maxCachedApis` | 50 | Maximum API responses in cache |
+| `maxCachedComponents` | 200 | Maximum components in payload |
+
+### Performance Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxHydrationTime` | 500ms | Target time for client hydration |
+| `maxParseTime` | 100ms | Target time for JSON parsing |
+
+### Enforcement
+
+- **Payload size:** Log warning if `payload.length > 80%` of limit
+- **Hydration time:** Log warning if `performance.now() - start > maxHydrationTime`
+- **Client impact:** Large payloads increase LCP; consider lazy-loading strategies
+
+---
+
+## Invariants
+
+### Data Invariants
+
+1. **I-HYDR-JSON-VALID:** Hydration payload MUST be valid JSON.
+2. **I-HYDR-SCRIPT-ESCAPED:** All `</script>` sequences MUST be escaped.
+3. **I-HYDR-COOKIE-NAMES-ONLY:** Cookie values MUST NOT appear in payload.
+4. **I-HYDR-TEST-DATA-REMOVED:** Editor test data MUST be stripped.
+
+### Cache Invariants
+
+5. **I-HYDR-CACHE-KEY-DETERMINISTIC:** Same request MUST produce same cache key on server and client.
+6. **I-HYDR-CACHE-HASH-EXCLUDES-HOST:** Host header MUST NOT affect cache key.
+7. **I-HYDR-CACHE-HASH-EXCLUDES-COOKIE:** Cookie header MUST NOT affect cache key.
+
+### Lifecycle Invariants
+
+8. **I-HYDR-ISPAGELOADED-FALSE:** `isPageLoaded` MUST start as `false`.
+9. **I-HYDR-ISPAGELOADED-ONCE:** `isPageLoaded` MUST be set to `true` exactly once after hydration.
+10. **I-HYDR-VARIABLES-REINIT:** Client-side variables MUST be re-evaluated (not reused from SSR).
+
+### Component Invariants
+
+11. **I-HYDR-COMPONENT-COMPLETE:** All referenced components MUST be included.
+12. **I-HYDR-COMPONENT-ACYCLIC:** Component tree MUST be acyclic (no circular deps).
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-HYDR-JSON-VALID | `JSON.parse()` | Hydration fails, page broken |
+| I-HYDR-SCRIPT-ESCAPED | SSR | Auto-escape |
+| I-HYDR-COOKIE-NAMES-ONLY | SSR | Auto-strip values |
+| I-HYDR-CACHE-KEY-DETERMINISTIC | Runtime | Cache miss, fresh fetch |
+
+---
+
+## Error Handling
+
+### Server-Side Errors
+
+| Error | When | Behavior |
+|-------|------|----------|
+| `TypeError: Circular reference` | API response has circular refs | Skip API from cache, log error |
+| `TypeError: Not serializable` | Response contains `Blob`, etc | Skip API from cache, log error |
+| JSON serialization fails | Any stringify error | Return error page |
+
+### Client-Side Errors
+
+| Error | When | Behavior |
+|-------|------|----------|
+| `SyntaxError: JSON.parse` | Malformed hydration JSON | Page broken, log error |
+| `TypeError: Cannot read property` | Missing expected data | Graceful degradation |
+| Cache hash mismatch | Request params changed | Fresh fetch (expected) |
+
+### Variable Re-initialization Errors
+
+When a variable formula throws during client re-init:
+1. Log error with variable name and component context
+2. Set variable to `null`
+3. Continue hydration (don't break entire page)
+
+```typescript
+try {
+  variableValue = applyFormula(variable.initialValue, ctx);
+} catch (e) {
+  console.error(`Variable ${name} re-init failed:`, e);
+  variableValue = null;
+}
+```
+
+---
+
+## Hydration Mismatch Detection
+
+### Definition
+
+A hydration mismatch occurs when:
+1. Server renders content based on state X
+2. Client re-initializes variables to state Y ≠ X
+3. Client renders content that doesn't match server HTML
+
+### Common Causes
+
+| Cause | Example | Detection |
+|-------|---------|-----------|
+| Browser-only APIs | `localStorage.getItem()` | `isServer` check |
+| Random values | `Math.random()` | Deterministic seed |
+| Time-dependent | `Date.now()` | Server timestamp |
+| User agent sniffing | `navigator.userAgent` | Server UA header |
+
+### Prevention Strategies
+
+1. **Use `isServer` guard:**
+```typescript
+const value = isServer 
+  ? defaultValue 
+  : localStorage.getItem('key');
+```
+
+2. **Stabilize timestamps:**
+```typescript
+const now = isServer 
+  ? env.request.timestamp 
+  : Date.now();
+```
+
+3. **Mark client-only sections:**
+```html
+<div data-client-only="true">
+  <!-- Rendered only on client -->
+</div>
+```
+
+### Client-Side Detection
+
+After hydration, optionally compare key DOM nodes:
+```typescript
+function detectMismatch(ssrNode, csrNode) {
+  if (ssrNode.textContent !== csrNode.textContent) {
+    console.warn('Hydration mismatch:', {
+      expected: ssrNode.textContent,
+      actual: csrNode.textContent
+    });
+  }
+}
+```
+
+---
+
+## Performance Monitoring
+
+### Key Metrics
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Payload parse time | < 100ms | `performance.now()` around `JSON.parse()` |
+| Variable re-init time | < 50ms | Sum of all variable evaluations |
+| Cache hit rate | > 90% | Cached APIs / Total APIs |
+| Hydration complete | < 500ms | Time from script start to `isPageLoaded = true` |
+
+### Logging (Development Mode)
+
+```typescript
+const hydrationStart = performance.now();
+
+// ... hydration code ...
+
+const hydrationTime = performance.now() - hydrationStart;
+if (hydrationTime > 500) {
+  console.warn(`Hydration took ${hydrationTime}ms`);
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with payload size and performance limits
+- Added Invariants section with 12 data, cache, lifecycle, and component invariants
+- Added Error Handling section with server and client error handling
+- Added Hydration Mismatch Detection section with causes and prevention
+- Added Performance Monitoring section with key metrics
