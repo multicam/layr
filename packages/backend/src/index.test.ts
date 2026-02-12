@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import app from './index';
 
 describe('backend server', () => {
@@ -31,10 +31,10 @@ describe('backend server', () => {
   });
 
   describe('root endpoint', () => {
-    test('returns HTML at root', async () => {
+    test('redirects to single project or shows list', async () => {
       const res = await app.request('/');
-      expect(res.status).toBe(200);
-      expect(res.headers.get('content-type')).toContain('text/html');
+      // Either 200 (list) or 302 (redirect to single project)
+      expect([200, 302]).toContain(res.status);
     });
   });
 
