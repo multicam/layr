@@ -35,7 +35,7 @@ app.get('/:projectId/*', async (c) => {
   return handlePage(c, projectId);
 });
 
-// Root redirect
+// Root redirect or list
 app.get('/', (c) => {
   const projects = listProjects();
   if (projects.length === 1) {
@@ -59,11 +59,21 @@ export default app;
 // Start server when run directly
 if (import.meta.main) {
   const port = Number(process.env.PORT) || 3000;
+  const host = process.env.HOST || '0.0.0.0';
   
-  console.log(`Server starting on http://localhost:${port}`);
+  console.log(`Server starting on http://${host}:${port}`);
   
-  Bun.serve({
-    port,
-    fetch: app.fetch,
-  });
+  try {
+    Bun.serve({
+      port,
+      hostname: host,
+      fetch: app.fetch,
+    });
+  } catch (e: any) {
+    if (e.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Kill the process or use PORT=3001 bun run dev`);
+      process.exit(1);
+    }
+    throw e;
+  }
 }

@@ -1,8 +1,0 @@
-# Runtime files (not for sharing)
-*.lock
-*.tmp
-agents/
-executions/
-attachments/
-context-chat/
-context-dismissed
