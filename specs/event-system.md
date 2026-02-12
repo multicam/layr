@@ -340,3 +340,84 @@ This is registered via `ctx.dataSignal.subscribe(() => {}, { destroy: cleanup })
 - **Missing custom action**: If neither v2 nor legacy handler is found, logs `'Missing custom action'` to console
 - **Duplicate repeat keys**: Falls back to array index as key with a console warning
 - **DOM modified externally**: Conditional toggle logs errors/warnings if parent element is missing or duplicate `data-id` exists
+
+---
+
+## System Limits
+
+### Event Handler Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxEventHandlers` | 50 | 200 | Event handlers per node |
+| `maxEventActions` | 100 | 500 | Actions per event handler |
+| `maxEventDepth` | 20 | 50 | Maximum nested event dispatch depth |
+
+### Event Payload Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxEventPayloadSize` | 1 MB | Maximum event payload size |
+| `maxClipboardItems` | 50 | Maximum clipboard items parsed |
+
+### Enforcement
+
+- **Handler count:** Truncate with warning
+- **Action count:** Continue execution, log warning
+- **Event depth:** Throw `LimitExceededError`
+
+---
+
+## Invariants
+
+### Event Definition Invariants
+
+1. **I-EVENT-NAME-VALID:** Event names MUST be valid DOM event names or custom identifiers.
+2. **I-EVENT-HANDLER-NOT-NULL:** Event handlers MUST NOT be null (use empty action array).
+3. **I-EVENT-ACTION-SEQUENTIAL:** Actions execute in definition order.
+
+### Execution Invariants
+
+4. **I-EVENT-DATA-IMMUTABLE:** Original event object MUST NOT be mutated.
+5. **I-EVENT-PROPAGATION-RESPECTED:** `stopPropagation()` MUST halt dispatch.
+6. **I-EVENT-CLEANUP-GUARANTEED:** All listeners MUST be removed on unmount.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-EVENT-HANDLER-NOT-NULL | Build | Error: schema validation |
+| I-EVENT-DATA-IMMUTABLE | Runtime | Clone before augmentation |
+| I-EVENT-CLEANUP-GUARANTEED | Runtime | AbortSignal cleanup |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `EventHandlerError` | Action execution fails | Log, continue |
+| `EventPayloadError` | Payload parse fails | Set `Event.data` to null |
+| `EventDepthError` | Max depth exceeded | Stop propagation |
+
+### Event Error Context
+
+```typescript
+interface EventError extends Error {
+  eventName: string;
+  nodeId: string;
+  componentContext: string;
+  actionIndex: number;
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with event handler and payload limits
+- Added Invariants section with 6 event definition and execution invariants
+- Added Error Handling section with error types and context
