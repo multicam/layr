@@ -372,3 +372,103 @@ Extracts all `fontFamily` / `font-family` references from all component nodes (b
 - **Size property auto-conversion:** Only applies to numeric values in `SIZE_PROPERTIES`
 - **Legacy variant support:** Variants stored in `node.style.variants` (deprecated path) still supported
 - **Deep clean mode:** `unregisterProperty` with `deepClean` removes entire empty CSS rules (editor preview only)
+
+---
+
+## System Limits
+
+### Theme Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxThemes` | 20 | 100 | Named theme definitions |
+| `maxTokensPerCategory` | 100 | 500 | Tokens per category (color, spacing, etc.) |
+| `maxCustomProperties` | 200 | 1,000 | CSS custom property definitions |
+| `maxFontFamilies` | 20 | 100 | Font family definitions |
+
+### Style Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxVariantsPerNode` | 50 | Style variants per node |
+| `maxAnimationsPerComponent` | 20 | Animation definitions per component |
+| `maxCssRulesPerPage` | 10,000 | CSS rules per page stylesheet |
+
+### Font Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxFontWeights` | 9 | Font weights per family |
+| `maxFontVariants` | 18 | Font variants (weight × style) per family |
+| `maxFontFileSize` | 5 MB | Maximum font file size |
+
+### Enforcement
+
+- **Token count:** Warn at 80%, error at 100%
+- **CSS rules:** Truncate with warning
+- **Font variants:** Limit silently
+
+---
+
+## Invariants
+
+### Token Invariants
+
+1. **I-STYLE-TOKEN-NAME-UNIQUE:** Token names MUST be unique within category.
+2. **I-STYLE-TOKEN-VALUE-VALID:** Token values MUST be valid CSS values.
+3. **I-STYLE-VARIABLE-REFERENCE:** Variable-type tokens MUST reference existing tokens.
+
+### Theme Invariants
+
+4. **I-STYLE-THEME-DEFAULT:** If themes defined, one MUST be default.
+5. **I-STYLE-THEME-NAME-VALID:** Theme names MUST be valid CSS identifiers.
+6. **I-STYLE-CUSTOM-PROPERTY-SYNTAX:** Custom property syntax MUST be valid CSS syntax.
+
+### CSS Invariants
+
+7. **I-STYLE-CLASS-HASH-UNIQUE:** Class hashes MUST be unique per style set.
+8. **I-STYLE-ANIMATION-NAME-UNIQUE:** Animation names MUST be unique per component.
+9. **I-STYLE-PROPERTY-SERIALIZABLE:** All style values MUST be CSS-serializable.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-STYLE-TOKEN-NAME-UNIQUE | Build | Error: duplicate token |
+| I-STYLE-VARIABLE-REFERENCE | Runtime | Fallback to initial value |
+| I-STYLE-PROPERTY-SERIALIZABLE | SSR | Skip property, warn |
+
+---
+
+## Error Handling
+
+### Style Errors
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `InvalidTokenError` | Invalid token value | Skip token, use fallback |
+| `MissingTokenError` | Referenced token missing | Use initial value |
+| `CssSerializationError` | Cannot serialize to CSS | Skip property |
+
+### Theme Errors
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `MissingDefaultThemeError` | No default specified | Use first theme |
+| `InvalidCustomPropertyError` | Syntax error | Skip property definition |
+
+### Font Loading Errors
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `FontLoadError` | Font file 404 | Fallback to system font |
+| `FontParseError` | Invalid font format | Skip font, log error |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with theme, style, and font limits
+- Added Invariants section with 9 token, theme, and CSS invariants
+- Added Error Handling section with style, theme, and font error handling
