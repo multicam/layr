@@ -417,6 +417,217 @@ The `getFormulasInFormula` generator recursively walks formula trees, yielding e
 
 ---
 
+## System Limits
+
+### Evaluation Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxFormulaDepth` | 256 | 1,024 | Maximum AST nesting depth |
+| `maxEvaluationTime` | 1,000ms | 5,000ms | Maximum evaluation time per formula |
+| `maxPathLength` | 50 | 200 | Maximum segments in path operation |
+| `maxSwitchCases` | 10 | 50 | Maximum cases in switch operation |
+| `maxLogicalArgs` | 50 | 200 | Maximum arguments in or/and operations |
+| `maxFunctionArgs` | 50 | 200 | Maximum arguments to function call |
+| `maxArrayElements` | 10,000 | 100,000 | Maximum elements in array operation |
+
+### Cycle Detection Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxApplyChain` | 100 | Maximum nested `apply` calls (A calls B calls C...) |
+| `maxRecursionDepth` | 256 | Maximum call stack depth during evaluation |
+
+### Size Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxFormulaSize` | 100 KB | Maximum serialized formula size |
+| `maxResultSize` | 10 MB | Maximum result value size |
+
+### Enforcement
+
+- **Build time:** Formula depth validated during schema check
+- **Runtime:** Depth counter tracked in evaluation context; throws `LimitExceededError` if exceeded
+- **Timeout:** Evaluation wrapped in timeout; throws `EvaluationTimeoutError` if exceeded
+
+---
+
+## Invariants
+
+### Structural Invariants
+
+1. **I-FORM-TYPE:** Every formula MUST have a `type` field matching one of the 10 operation types.
+2. **I-FORM-PATH-ARRAY:** `PathOperation.path` MUST be a non-empty array of strings.
+3. **I-FORM-SWITCH-CASES:** `SwitchOperation.cases` MUST have at least 1 case.
+4. **I-FORM-SWITCH-DEFAULT:** `SwitchOperation.default` MUST be present.
+5. **I-FORM-OBJECT-NAMES:** `ObjectOperation.arguments` entries MUST have unique `name` values.
+
+### Reference Invariants
+
+6. **I-FORM-FUNCTION-NAME:** `FunctionOperation.name` MUST reference an existing formula (built-in or custom).
+7. **I-FORM-APPLY-NAME:** `ApplyOperation.name` MUST reference a formula in `component.formulas`.
+8. **I-FORM-ARG-MATCH:** `FunctionArgument.name` MUST match a parameter name in the referenced formula.
+
+### Evaluation Invariants
+
+9. **I-FORM-NO-CYCLE:** Formula evaluation MUST NOT create infinite cycles (A calls B, B calls A).
+10. **I-FORM-ARGS-CHAIN:** Nested higher-order formulas MUST chain `Args` with `@toddle.parent`.
+11. **I-FORM-CACHE-KEY:** Memoization cache key MUST be deterministic based on `ComponentData`.
+
+### Type Invariants
+
+12. **I-FORM-NULL-SAFE:** Formula evaluation MUST return `null` on any error, never throw to caller.
+13. **I-FORM-BOOLEAN-OR-AND:** `or`/`and` operations MUST return `boolean`, not the actual value.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-FORM-TYPE, I-FORM-PATH-ARRAY | Build | Error: schema validation fails |
+| I-FORM-FUNCTION-NAME | Runtime | Warning: return `null` |
+| I-FORM-APPLY-NAME | Runtime | Warning: return `null` |
+| I-FORM-NO-CYCLE | Runtime | Error: throw `FormulaCycleError` |
+| I-FORM-NULL-SAFE | Runtime | Catch, push to errors, return `null` |
+
+---
+
+## Cycle Detection
+
+### Problem Definition
+
+Cycles occur when formula evaluation creates infinite recursion:
+- **Direct:** Formula A's body contains `apply` to formula A
+- **Indirect:** A → B → C → A chain
+- **Cross-package:** Formula in package X calls package Y which calls package X
+
+### Detection Strategy
+
+1. **Stack tracking:** Maintain evaluation stack during `applyFormula()`
+2. **Key generation:** Create unique key from `componentName/formulaName/argsHash`
+3. **Cycle detection:** If key already in stack, cycle detected
+4. **Error reporting:** Include full cycle path in error message
+
+### Implementation
+
+```typescript
+interface EvaluationStack {
+  keys: Set<string>;
+  path: string[];
+}
+
+function applyFormula(formula: Formula, ctx: FormulaContext, stack?: EvaluationStack): unknown {
+  stack = stack ?? { keys: new Set(), path: [] };
+  
+  if (formula.type === 'apply') {
+    const key = `${ctx.component?.name}/${formula.name}`;
+    
+    if (stack.keys.has(key)) {
+      throw new FormulaCycleError(
+        [...stack.path, key].join(' → ')
+      );
+    }
+    
+    if (stack.keys.size > LIMITS.maxApplyChain) {
+      throw new LimitExceededError('formula', 'maxApplyChain', stack.keys.size, LIMITS.maxApplyChain);
+    }
+    
+    stack.keys.add(key);
+    stack.path.push(key);
+    // ... evaluate
+    stack.keys.delete(key);
+    stack.path.pop();
+  }
+}
+```
+
+### Error Format
+
+```typescript
+interface FormulaCycleError extends Error {
+  type: 'formula-cycle';
+  path: string[];  // ['componentA/formulaX', 'componentA/formulaY', 'componentA/formulaX']
+  formulaName: string;
+  componentName: string;
+}
+```
+
+---
+
+## Memoization
+
+### Cache Behavior
+
+Component formulas with `memoize: true` cache results:
+
+1. **Cache key:** Deterministic hash of `ComponentData` (excluding `ListItem`, `Event`, `Args`)
+2. **Cache scope:** Per-component instance (not global)
+3. **Cache invalidation:** Cleared on component unmount
+4. **Cache hit:** Returns cached result without re-evaluation
+
+### Cache Key Computation
+
+```typescript
+function computeCacheKey(data: ComponentData): string {
+  // Exclude volatile fields that don't affect formula result
+  const stable = {
+    Location: data.Location,
+    Attributes: data.Attributes,
+    Variables: data.Variables,
+    Contexts: data.Contexts,
+    Apis: data.Apis,
+    Page: data.Page,
+  };
+  return hash(stable);
+}
+```
+
+### Cache Warnings
+
+- **Stale data risk:** Memoized formulas referencing `ListItem` or `Event` may return stale results
+- **Warning at save:** Editor warns if memoized formula references volatile paths
+
+---
+
+## Error Attribution
+
+### Error Context
+
+All formula errors include attribution for debugging:
+
+```typescript
+interface FormulaEvaluationError extends Error {
+  type: 'formula-evaluation';
+  formulaType: string;        // 'path', 'function', 'apply', etc.
+  formulaName?: string;       // For function/apply operations
+  path?: string[];            // For path operations
+  componentContext: string;   // Component name
+  dataContext?: string;       // Relevant ComponentData path
+  suggestion?: string;        // Hint for fixing the error
+}
+```
+
+### Error Collection
+
+Errors are collected rather than thrown to allow evaluation to continue:
+
+1. Error caught at top of `applyFormula()`
+2. Pushed to `ctx.toddle.errors[]`
+3. Logged to console if `ctx.env.logErrors === true`
+4. `null` returned to caller
+
+### Error Recovery Patterns
+
+| Error Type | Recovery Pattern |
+|------------|-----------------|
+| Path not found | Return `null`, use `defaultTo()` for fallback |
+| Function not found | Return `null`, check formula registration |
+| Type mismatch | Return `null`, use type-checking formulas |
+| Cycle detected | Throw immediately, cannot recover |
+| Timeout exceeded | Throw immediately, formula too complex |
+
+---
+
 ## Validation
 
 Formulas are validated via Zod schemas:
@@ -431,3 +642,14 @@ Formulas are validated via Zod schemas:
 - `FunctionArgument.name` must match the formula definition's argument name
 - `PathOperation.path` must be an array of strings
 - Built-in formula names must be prefixed with `@toddle/`
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with evaluation, cycle detection, and size limits
+- Added Invariants section with 13 structural, reference, evaluation, and type invariants
+- Added Cycle Detection section with detection strategy and error format
+- Added Memoization section with cache behavior, key computation, and warnings
+- Added Error Attribution section with error context and recovery patterns
