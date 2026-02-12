@@ -225,3 +225,119 @@ If a component declares `contexts` but no matching provider exists (and not in p
 - **Formula System** — `applyFormula()` evaluates exposed formulas
 - **Action System** — `TriggerWorkflow` action type handles cross-component workflow invocation
 - **Component System** — Provider/consumer relationships defined in component data model
+
+---
+
+## System Limits
+
+### Provider Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxContextsPerComponent` | 10 | 30 | Context subscriptions per component |
+| `maxExposedFormulas` | 20 | 100 | Exposed formulas per provider |
+| `maxExposedWorkflows` | 20 | 100 | Exposed workflows per provider |
+| `maxProviderDepth` | 20 | 50 | Maximum provider nesting depth |
+
+### Subscription Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSubscriptionsPerSignal` | 1,000 | Subscribers per provider signal |
+| `maxProviderChainLength` | 50 | Maximum ancestor provider chain |
+
+### Enforcement
+
+- **Context count:** Truncate with warning
+- **Depth limit:** Throw `LimitExceededError`
+- **Subscription limit:** Log warning in dev mode
+
+---
+
+## Invariants
+
+### Registration Invariants
+
+1. **I-CTX-PROVIDER-UNIQUE:** Provider key MUST be unique in `ctx.providers`.
+2. **I-CTX-SIGNAL-LINKED:** Provider formula signals MUST be linked to component signal.
+3. **I-CTX-CLEANUP-CASCADE:** Provider unmount MUST destroy all subscriber signals.
+
+### Subscription Invariants
+
+4. **I-CTX-RESOLVE-BEFORE-RENDER:** Context MUST be resolved before component renders.
+5. **I-CTX-SUBSCRIBE-REACTIVE:** Context subscriptions MUST be reactive (update on change).
+6. **I-CTX-CLEANUP-ON-UNMOUNT:** Consumer unmount MUST unsubscribe from provider.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-CTX-PROVIDER-UNIQUE | Runtime | Warning, overwrite |
+| I-CTX-CLEANUP-CASCADE | Runtime | Destroy subscribers |
+| I-CTX-RESOLVE-BEFORE-RENDER | Runtime | Use undefined/null |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `ProviderNotFoundError` | Provider component missing | Use undefined |
+| `FormulaNotExposedError` | Formula not in exposed list | Return null |
+| `WorkflowNotExposedError` | Workflow not in exposed list | Skip action |
+| `ContextDepthError` | Max depth exceeded | Stop resolution |
+
+### Error Context
+
+```typescript
+interface ContextError extends Error {
+  providerName: string;
+  formulaName?: string;
+  workflowName?: string;
+  consumerComponent: string;
+  providerComponent: string;
+}
+```
+
+---
+
+## Memory Management
+
+### Subscription Lifecycle
+
+```
+Provider Mount
+  ├── Register provider in ctx.providers
+  ├── Create formula signals (derived from component data)
+  └── Ready for subscriptions
+      │
+      ▼ (consumer subscribes)
+Consumer Subscribe
+  ├── Look up provider
+  ├── Subscribe to formula signal
+  └── Update ComponentData.Contexts on change
+      │
+      ▼ (provider unmounts)
+Provider Unmount
+  ├── Destroy formula signals
+  ├── Cascade destroy to all subscribers
+  └── Remove from ctx.providers
+```
+
+### Leak Prevention
+
+- All subscriptions registered with cleanup callback
+- Provider destruction cascades to all consumers
+- Abort signal linked to component lifecycle
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with provider and subscription limits
+- Added Invariants section with 6 registration and subscription invariants
+- Added Error Handling section with error types and context
+- Added Memory Management section with lifecycle and leak prevention
