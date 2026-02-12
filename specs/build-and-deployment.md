@@ -399,3 +399,83 @@ dist/
 | [Custom Code System](./custom-code-system.md) | Custom code bundles generated during asset sync |
 | [Standard Library](./standard-library.md) | Built via generate.js + validate.ts |
 | [Element Definitions](./element-definitions.md) | Editor metadata generated during release |
+
+---
+
+## System Limits
+
+### Build Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxBuildTime` | 5 minutes | Maximum build duration |
+| `maxBundleSize` | 5 MB | Maximum bundle size |
+| `maxAssetSize` | 10 MB | Maximum static asset size |
+| `maxRoutes` | 500 | Maximum routes per build |
+
+### Deployment Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxConcurrentDeploys` | 5 | Concurrent deployments |
+| `maxDeployRetries` | 3 | Deployment retry attempts |
+| `deployTimeout` | 10 minutes | Deployment timeout |
+
+### Enforcement
+
+- **Build time:** Cancel with timeout error
+- **Bundle size:** Warn in CI, continue
+- **Deploy timeout:** Rollback to previous version
+
+---
+
+## Invariants
+
+### Build Invariants
+
+1. **I-BLD-REPRODUCIBLE:** Same input MUST produce same output.
+2. **I-BLD-FROZEN-LOCKFILE:** Lockfile MUST NOT change during build.
+3. **I-BLD-SCHEMA-VALID:** All files MUST pass schema validation.
+
+### Deployment Invariants
+
+4. **I-DEPLOY-VERSION-UNIQUE:** Each deploy MUST have unique version.
+5. **I-DEPLOY-ROLLBACK-CAPABLE:** Previous version MUST be restorable.
+6. **I-DEPLOY-HEALTH-CHECK:** Deployment MUST pass health check.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-BLD-REPRODUCIBLE | CI | Build failure |
+| I-BLD-FROZEN-LOCKFILE | CI | Install failure |
+| I-DEPLOY-HEALTH-CHECK | Post-deploy | Automatic rollback |
+
+---
+
+## Error Handling
+
+### Build Errors
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `BuildTimeoutError` | Build exceeds limit | Cancel, log |
+| `SchemaValidationError` | File fails validation | List errors, fail |
+| `BundleSizeError` | Bundle too large | Warn, continue |
+
+### Deployment Errors
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `DeployTimeoutError` | Deploy exceeds limit | Rollback |
+| `HealthCheckError` | Health check fails | Rollback |
+| `RollbackError` | Rollback fails | Alert, manual |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with build and deployment limits
+- Added Invariants section with 6 build and deployment invariants
+- Added Error Handling section with build and deployment errors

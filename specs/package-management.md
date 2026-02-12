@@ -434,3 +434,79 @@ When a package's `commit` hash is outdated relative to the source:
 | [Custom Code System](./custom-code-system.md) | Bundles package formulas/actions per entry point |
 | [Search and Linting](./search-and-linting.md) | Validates package references |
 | [Build and Deployment](./build-and-deployment.md) | Tree-shakes packages during route splitting |
+
+---
+
+## System Limits
+
+### Package Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxPackagesPerProject` | 50 | 200 | Installed packages |
+| `maxPackageSize` | 5 MB | 20 MB | Package JSON size |
+| `maxComponentsPerPackage` | 100 | 500 | Components per package |
+| `maxDependencyDepth` | 10 | 20 | Package dependency chain |
+
+### Enforcement
+
+- **Package count:** Warn at 80%, error at 100%
+- **Package size:** Reject with error
+- **Dependency depth:** Throw `CircularDependencyError`
+
+---
+
+## Invariants
+
+### Installation Invariants
+
+1. **I-PKG-VERSION-LOCKED:** Package MUST be locked to specific commit.
+2. **I-PKG-NO-CYCLE:** Package dependencies MUST be acyclic.
+3. **I-PKG-EXPORT-MARKED:** Only exported components are consumable.
+
+### Resolution Invariants
+
+4. **I-PKG-LOCAL-WINS:** Local components override package components.
+5. **I-PKG-PACKAGE-ORDER:** Package order determines precedence for collisions.
+6. **I-PKG-COMPLETE-INSTALL:** All dependencies MUST be installed.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-PKG-NO-CYCLE | Build | Error: cycle detected |
+| I-PKG-VERSION-LOCKED | Build | Error: version required |
+| I-PKG-LOCAL-WINS | Runtime | Local used |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `PackageNotFoundError` | Package missing from registry | Abort install |
+| `PackageVersionError` | Version not found | Prompt for update |
+| `CircularDependencyError` | Cycle in dependencies | Abort with cycle path |
+| `PackageSizeError` | Package exceeds limit | Reject with warning |
+
+### Dependency Resolution
+
+```typescript
+interface DependencyError extends Error {
+  type: 'circular' | 'missing' | 'version';
+  packageName: string;
+  chain: string[];
+  suggestion?: string;
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with package and dependency limits
+- Added Invariants section with 6 installation and resolution invariants
+- Added Error Handling section with dependency errors

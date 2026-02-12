@@ -332,3 +332,79 @@ Each formula includes a `formula.json` metadata file:
 | `category` | Category for editor organization |
 
 Validated against `libFormula.schema.json`.
+
+---
+
+## System Limits
+
+### Formula Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxFormulaArgs` | 10 | Maximum arguments per formula |
+| `maxArraySize` | 10,000 | Maximum array size for operations |
+| `maxStringLength` | 1,000,000 | Maximum string length for operations |
+| `maxNestingDepth` | 100 | Maximum nested formula calls |
+
+### Enforcement
+
+- **Arg count:** Ignore extra args, use defaults for missing
+- **Array size:** Truncate with warning
+- **String length:** Truncate with warning
+- **Depth limit:** Return null on exceed
+
+---
+
+## Invariants
+
+### Formula Definition Invariants
+
+1. **I-LIB-NAME-UNIQUE:** Formula names MUST be unique in registry.
+2. **I-LIB-ARGS-NAMED:** All arguments MUST have unique names.
+3. **I-LIB-NULL-SAFE:** Formulas MUST return null on invalid input.
+
+### Execution Invariants
+
+4. **I-LIB-DETERMINISTIC:** Same inputs MUST produce same output.
+5. **I-LIB-NO-SIDE-EFFECTS:** Formulas MUST NOT modify inputs.
+6. **I-LIB-SYNC-EXECUTION:** Formulas MUST execute synchronously.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-LIB-NULL-SAFE | Runtime | Return null |
+| I-LIB-DETERMINISTIC | Testing | CI failure |
+| I-LIB-NO-SIDE-EFFECTS | Testing | CI failure |
+
+---
+
+## Error Handling
+
+### Formula Error Categories
+
+| Category | Examples | Recovery |
+|----------|----------|----------|
+| Type error | Number expected, got string | Return null |
+| Range error | Division by zero, sqrt(-1) | Return null |
+| Parse error | Invalid JSON, bad URL | Return null |
+| Not found | Missing key, index out of bounds | Return null |
+
+### Error Context
+
+```typescript
+interface FormulaError extends Error {
+  formulaName: string;
+  args: Record<string, unknown>;
+  errorType: 'type' | 'range' | 'parse' | 'not_found';
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with formula and operation limits
+- Added Invariants section with 6 definition and execution invariants
+- Added Error Handling section with error categories
