@@ -501,3 +501,46 @@ describe('utility formulas', () => {
     expect(fn({ items: ['a', 'b', 'c'], index: -1 }, ctx)).toBeNull();
   });
 });
+
+describe('random formula', () => {
+  test('@toddle/random returns value in range', () => {
+    const fn = getFormula('@toddle/random')!;
+    for (let i = 0; i < 100; i++) {
+      const result = fn({ min: 0, max: 10 }, ctx);
+      expect(result).toBeGreaterThanOrEqual(0);
+      expect(result).toBeLessThanOrEqual(10);
+    }
+  });
+
+  test('@toddle/random with custom range', () => {
+    const fn = getFormula('@toddle/random')!;
+    const result = fn({ min: 100, max: 200 }, ctx);
+    expect(result).toBeGreaterThanOrEqual(100);
+    expect(result).toBeLessThanOrEqual(200);
+  });
+
+  test('@toddle/random defaults to 0-1', () => {
+    const fn = getFormula('@toddle/random')!;
+    const result = fn({}, ctx);
+    expect(result).toBeGreaterThanOrEqual(0);
+    expect(result).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('string edge cases', () => {
+  test('@toddle/char-at returns null for out of bounds', () => {
+    const fn = getFormula('@toddle/char-at')!;
+    expect(fn({ text: 'hello', index: 10 }, ctx)).toBeNull();
+    expect(fn({ text: 'hello', index: -1 }, ctx)).toBeNull();
+  });
+
+  test('@toddle/char-at returns empty string for empty text', () => {
+    const fn = getFormula('@toddle/char-at')!;
+    expect(fn({ text: '', index: 0 }, ctx)).toBeNull();
+  });
+
+  test('@toddle/string-index-of returns -1 for not found', () => {
+    const fn = getFormula('@toddle/string-index-of')!;
+    expect(fn({ text: 'hello', search: 'xyz' }, ctx)).toBe(-1);
+  });
+});
