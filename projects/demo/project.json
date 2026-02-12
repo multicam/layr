@@ -1,0 +1,70 @@
+{
+  "project": {
+    "id": "demo-001",
+    "name": "Demo Project",
+    "type": "app",
+    "short_id": "demo"
+  },
+  "commit": "initial",
+  "files": {
+    "components": {
+      "home": {
+        "name": "home",
+        "route": { "path": "/" },
+        "nodes": {
+          "root": {
+            "id": "root",
+            "type": "element",
+            "tag": "div",
+            "attrs": {
+              "class": { "type": "value", value: "container" }
+            },
+            "children": ["title", "description"]
+          },
+          "title": {
+            "id": "title",
+            "type": "element",
+            "tag": "h1",
+            "children": ["titleText"]
+          },
+          "titleText": {
+            "id": "titleText",
+            "type": "text",
+            "value": { "type": "value", "value": "Welcome to Layr" }
+          },
+          "description": {
+            "id": "description",
+            "type": "element",
+            "tag": "p",
+            "children": ["descText"]
+          },
+          "descText": {
+            "id": "descText",
+            "type": "text",
+            "value": { "type": "value", "value": "Build visual applications with ease." }
+          }
+        }
+      },
+      "about": {
+        "name": "about",
+        "route": { "path": "/about" },
+        "nodes": {
+          "root": {
+            "id": "root",
+            "type": "element",
+            "tag": "div",
+            "children": ["aboutText"]
+          },
+          "aboutText": {
+            "id": "aboutText",
+            "type": "text",
+            "value": { "type": "value", "value": "About page" }
+          }
+        }
+      }
+    },
+    "config": {
+      "theme": {}
+    }
+  }
+}
