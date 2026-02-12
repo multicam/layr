@@ -15,6 +15,112 @@ The Project Data Model defines the canonical structure of a Layr project — the
 
 ---
 
+## System Limits
+
+The Project Data Model enforces limits to prevent runaway scenarios (OOM, stack overflow, infinite loops). These limits are validated at build time and enforced at runtime.
+
+### Project Size Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxComponents` | 1,000 | 10,000 | Total components in `files.components` |
+| `maxPackages` | 50 | 200 | Installed packages in `files.packages` |
+| `maxProjectFormulas` | 200 | 1,000 | Project-level custom formulas |
+| `maxProjectActions` | 100 | 500 | Project-level custom actions |
+| `maxRoutes` | 100 | 500 | Custom route definitions |
+| `maxThemes` | 20 | 100 | Named theme definitions |
+| `maxServices` | 20 | 100 | API service definitions |
+
+### Component Limits (per component)
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxNodes` | 10,000 | 50,000 | Nodes in `component.nodes` record |
+| `maxAttributes` | 50 | 200 | Component attribute definitions |
+| `maxVariables` | 50 | 200 | Component variable definitions |
+| `maxFormulas` | 100 | 500 | Component formula definitions |
+| `maxApis` | 30 | 100 | Component API definitions |
+| `maxWorkflows` | 30 | 100 | Component workflow definitions |
+| `maxEvents` | 20 | 50 | Declared component events |
+| `maxContexts` | 10 | 30 | Context subscriptions |
+
+### Nesting Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxComponentDepth` | 50 | Maximum parent→child→grandchild nesting |
+| `maxPackageDepth` | 10 | Maximum package dependency chain |
+| `maxFormulaDepth` | 256 | Maximum formula AST nesting |
+| `maxActionDepth` | 100 | Maximum nested action execution (Switch→Fetch→callbacks) |
+
+### Size Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxProjectFileSize` | 50 MB | Maximum total project JSON size |
+| `maxComponentSize` | 5 MB | Maximum single component JSON size |
+| `maxHydrationPayloadSize` | 10 MB | Maximum SSR→CSR transfer size |
+
+### Validation Behavior
+
+- **Build time:** Limits are validated during `splitRoutes()`. Exceeding limits produces build errors.
+- **Runtime:** Exceeding runtime limits throws `LimitExceededError` with category, limit name, and current value.
+- **Editor:** Limits are enforced in the UI; exceeding shows warnings before save.
+
+```typescript
+interface LimitExceededError extends Error {
+  category: 'project' | 'component' | 'nesting' | 'size';
+  limit: string;
+  value: number;
+  max: number;
+}
+```
+
+---
+
+## Invariants
+
+The following invariants MUST be maintained by all conforming implementations:
+
+### Structural Invariants
+
+1. **I-ROOT:** Every component's `nodes` record MUST contain a key `'root'` pointing to the root node.
+2. **I-NODE-ID:** Node IDs MUST be unique within their containing component.
+3. **I-COMPONENT-KEY:** The key in `files.components[key]` MUST match `component.name`.
+4. **I-PACKAGE-KEY:** The key in `files.packages[key]` MUST match `package.manifest.name`.
+5. **I-NO-DANGLING:** Every node reference (parent→child, slot→children) MUST resolve to an existing node ID.
+
+### Reference Invariants
+
+6. **I-COMPONENT-REF:** Every `ComponentNodeModel` MUST reference an existing component (project, package, or standard library).
+7. **I-FORMULA-REF:** Every `apply` operation MUST reference a formula defined in `component.formulas`.
+8. **I-WORKFLOW-REF:** Every `TriggerWorkflow` action MUST reference a workflow defined in `component.workflows` or a context provider.
+9. **I-API-REF:** Every `Fetch` action MUST reference an API defined in `component.apis`.
+
+### Type Invariants
+
+10. **I-PROJECT-TYPE:** `project.type` MUST be either `'app'` or `'package'`.
+11. **I-PAGE-ROUTE:** Components with `type: 'app'` that have a `route` field are pages.
+12. **I-PACKAGE-EXPORT:** Components in packages with `exported: true` are consumable by other projects.
+
+### Consistency Invariants
+
+13. **I-COMMIT-MATCH:** The `commit` hash MUST match a deterministic hash of the project content.
+14. **I-NO-CYCLE-PACKAGE:** Package dependency graph MUST be acyclic.
+15. **I-NO-CYCLE-COMPONENT:** Component parent→child graph MUST be acyclic (no direct self-reference).
+16. **I-ROUTE-UNIQUE:** No two pages MAY have identical route patterns (same path segments with same types).
+
+### Invariant Violation Handling
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-ROOT, I-NO-DANGLING | Build time | Error: project fails to build |
+| I-COMPONENT-REF, I-FORMULA-REF, etc. | Runtime | Warning: skip rendering, return empty |
+| I-NO-CYCLE-* | Build + Runtime | Error: cycle detected, operation rejected |
+| I-ROUTE-UNIQUE | Build time | Warning: first defined wins |
+
+---
+
 ## Top-Level Envelope
 
 A Layr project JSON file has four root fields:
@@ -166,6 +272,45 @@ When a `ComponentNodeModel` references a package component, it uses:
 - `package`: the package name (e.g., `best_like_button`)
 
 The resolver looks up `files.packages[package].components[name]`.
+
+### Package Dependency Resolution
+
+#### Resolution Order
+
+When resolving a component, formula, or action reference, the system follows this order:
+
+1. **Local project:** `files.components[name]`, `files.formulas[name]`, `files.actions[name]`
+2. **Installed packages:** `files.packages[packageName].components[name]` (in package install order)
+3. **Standard library:** Built-in formulas/actions via `@toddle/` prefix
+
+**Collision handling:** If a local component has the same name as a package component, the local component takes precedence. Package order determines priority when multiple packages export the same component name.
+
+#### Circular Dependency Detection
+
+Package dependencies MUST form a directed acyclic graph (DAG). Circular dependencies are detected and rejected at build time.
+
+**Detection algorithm:**
+1. Build dependency graph from `InstalledPackage` entries
+2. Perform depth-first search (DFS) from each package
+3. If a package is visited twice in the same DFS path, a cycle exists
+4. Report error with full cycle path (e.g., `A → B → C → A`)
+
+**Error format:**
+```typescript
+interface CircularDependencyError extends Error {
+  type: 'circular-package-dependency';
+  cycle: string[];  // ['packageA', 'packageB', 'packageC', 'packageA']
+}
+```
+
+#### Topological Sorting
+
+For correct initialization order, packages are sorted topologically (dependencies before dependents):
+
+1. Build dependency graph
+2. Perform topological sort using Kahn's algorithm
+3. Result: array of package names in dependency order
+4. Packages with no dependencies sort first; most-dependent packages sort last
 
 ---
 
@@ -485,6 +630,99 @@ Components are resolved through a namespace hierarchy:
 - Projects with no pages have no routable URLs; the server returns 404 for all paths
 - Projects with no themes use the built-in default theme from `packages/core/src/styling/theme.const.ts`
 
+### Route Conflict Resolution
+
+When multiple pages have route patterns that could match the same URL:
+
+1. **Specificity ordering:** Routes are sorted by specificity:
+   - Static segments rank higher than dynamic segments
+   - Pattern: `/products/featured` > `/products/:id` > `/:category/:id`
+2. **Definition order:** For equal specificity, the first-defined route wins
+3. **Warning at build:** Build warns if routes have equal specificity (potential conflict)
+
+**Specificity calculation:**
+```
+specificity = path.map(segment => segment.type === 'static' ? '1' : '2').join('.')
+// Examples:
+// /products/featured → "1.1" (most specific)
+// /products/:id → "1.2"
+// /:category/:id → "2.2" (least specific)
+```
+
+### Commit Hash Verification
+
+The `commit` field serves as a content-addressable version identifier:
+
+1. **Generation:** Computed as SHA-256 hash of canonical JSON serialization
+2. **Canonical form:** Alphabetically sorted keys, no whitespace, UTF-8 encoding
+3. **Verification:** At load time, hash is optionally verified against content
+4. **Mismatch behavior:** Log warning in development; continue serving in production
+
+**Hash computation:**
+```typescript
+function computeCommit(project: ProjectFiles): string {
+  const canonical = JSON.stringify(sortKeysDeep(project));
+  return sha256(canonical);
+}
+```
+
+### Recursive Component Prevention
+
+Components must not create infinite rendering loops:
+
+1. **Direct self-reference:** A component cannot reference itself as a direct child
+2. **Indirect cycles:** A→B→A cycles detected at render time
+3. **Maximum depth:** Rendering stops at `maxComponentDepth` (50 by default)
+
+**Detection:**
+- Build time: Static analysis detects obvious self-references
+- Runtime: Component context tracks depth counter; throws if exceeded
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `LimitExceededError` | Size/count limit exceeded | Reject operation, show error |
+| `CircularDependencyError` | Package cycle detected | Reject build, require fix |
+| `MissingResourceError` | Referenced component/formula not found | Log warning, skip gracefully |
+| `ValidationError` | Schema validation fails | Reject save, show errors |
+| `InvariantViolationError` | Structural invariant broken | Depends on invariant |
+
+### Missing Resource Handling
+
+When a reference cannot be resolved:
+
+| Reference Type | Behavior | Logged As |
+|---------------|----------|-----------|
+| Missing component | Render nothing, return empty array | `warn` |
+| Missing formula | Return `null` value | `warn` |
+| Missing workflow | Skip action, continue chain | `warn` |
+| Missing API | Skip Fetch action | `error` |
+| Missing context provider | Skip context subscription | `warn` |
+| Missing package | Skip package components | `error` |
+
+### Partial Loading
+
+`ProjectFiles.components` is `Partial<Record>` to support lazy loading:
+
+1. **Initial load:** Only page components loaded
+2. **On-demand:** Referenced components loaded as needed
+3. **Missing handling:** If key exists but value is `undefined`, treat as "not yet loaded"
+4. **Failed load:** If load fails, treat as "missing component"
+
+### Validation Levels
+
+| Level | When | Strictness |
+|-------|------|------------|
+| **Schema** | Save/Load | Full Zod validation |
+| **Structural** | Build time | Invariant checking |
+| **Semantic** | Build time | Reference resolution |
+| **Runtime** | Execution | Limit enforcement, cycle detection |
+
 ---
 
 ## External Dependencies
@@ -510,3 +748,18 @@ Components are resolved through a namespace hierarchy:
 | [Backend Server](./backend-server.md) | Loads and serves the project data model |
 | [SSR Pipeline](./ssr-pipeline.md) | Processes project files for server-side rendering |
 | [Standard Library](./standard-library.md) | Provides built-in formulas/actions referenced by `@toddle/` prefix |
+| [Error Handling and Debug](./error-handling-debug.md) | Defines error types and handling patterns |
+| [Build and Deployment](./build-and-deployment.md) | Validates limits and invariants at build time |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with size/nesting constraints
+- Added Invariants section with 16 structural and reference invariants
+- Added Package Dependency Resolution with cycle detection
+- Added Route Conflict Resolution with specificity algorithm
+- Added Commit Hash Verification section
+- Added Recursive Component Prevention
+- Added comprehensive Error Handling section
