@@ -1,0 +1,94 @@
+{
+  "id": "session-2d9e89cf-7983-4728-8563-b370fa2bdd4a",
+  "projectPath": "/media/ssdev/multicam/layr",
+  "chatSessionId": "2d9e89cf-7983-4728-8563-b370fa2bdd4a",
+  "mode": "existing",
+  "phase": "discovery",
+  "phaseStatuses": {
+    "research": "not_started",
+    "requirements": "not_started",
+    "discovery": "in_progress",
+    "planning": "not_started",
+    "export": "not_started"
+  },
+  "context": {
+    "what": null,
+    "why": null,
+    "who": null,
+    "done": null,
+    "notes": [],
+    "constraints": [],
+    "nonGoals": []
+  },
+  "spec": null,
+  "researchConfig": {
+    "agents": [
+      {
+        "id": "architecture",
+        "name": "Architecture Research",
+        "description": "Research architecture patterns, system design, and technical approaches",
+        "outputFilename": "architecture.md",
+        "templateName": "research_architecture",
+        "enabled": true,
+        "requiresCodebase": false
+      },
+      {
+        "id": "codebase",
+        "name": "Codebase Analysis",
+        "description": "Analyze existing codebase structure, patterns, and conventions",
+        "outputFilename": "codebase.md",
+        "templateName": "research_codebase",
+        "enabled": true,
+        "requiresCodebase": true
+      },
+      {
+        "id": "best_practices",
+        "name": "Best Practices",
+        "description": "Research industry best practices and recommended approaches",
+        "outputFilename": "best_practices.md",
+        "templateName": "research_best_practices",
+        "enabled": true,
+        "requiresCodebase": false
+      },
+      {
+        "id": "risks",
+        "name": "Risks & Challenges",
+        "description": "Identify potential risks, challenges, and mitigation strategies",
+        "outputFilename": "risks.md",
+        "templateName": "research_risks",
+        "enabled": true,
+        "requiresCodebase": false
+      },
+      {
+        "id": "ideas",
+        "name": "Ideas & Improvements",
+        "description": "Analyze codebase and suggest improvements, quick wins, and feature ideas",
+        "outputFilename": "ideas.md",
+        "templateName": "ideas_analysis",
+        "enabled": true,
+        "requiresCodebase": true
+      }
+    ],
+    "parallel": true,
+    "timeoutSecs": 600,
+    "skipOnFailure": true,
+    "cliAgentType": "claude",
+    "model": null
+  },
+  "researchStatus": {
+    "agents": [],
+    "synthesisComplete": false,
+    "completionPercentage": 0
+  },
+  "requirements": {},
+  "dependencyGraph": {
+    "dependsOn": {},
+    "blocks": {}
+  },
+  "categoryCounters": {},
+  "executionMode": "sequential",
+  "createdAt": "2026-02-12T06:12:11.821659952Z",
+  "updatedAt": "2026-02-12T06:12:11.821659952Z",
+  "isComplete": false,
+  "error": null
+}

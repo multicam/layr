@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@layr/types": ["packages/types/src"],
+      "@layr/core": ["packages/core/src"],
+      "@layr/lib": ["packages/lib/src"],
+      "@layr/ssr": ["packages/ssr/src"],
+      "@layr/runtime": ["packages/runtime/src"],
+      "@layr/backend": ["packages/backend/src"],
+      "@layr/editor": ["packages/editor/src"],
+      "@layr/test-harness": ["packages/test-harness/src"]
+    }
+  }
+}
