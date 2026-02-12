@@ -421,3 +421,65 @@ If the View Transitions API is not supported, DOM mutations happen immediately w
 - **Formula System** — `applyFormula()` for evaluating dynamic values
 - **fast-deep-equal** — Overlay rect change detection
 - **View Transitions API** — Smooth drag-drop animations (with fallback)
+
+---
+
+## System Limits
+
+### Editor Communication Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxMessageSize` | 10 MB | Maximum message size |
+| `maxMessageRate` | 100/s | Maximum messages per second |
+| `maxPendingUpdates` | 50 | Maximum pending updates |
+
+### Enforcement
+
+- **Message size:** Truncate with warning
+- **Message rate:** Throttle messages
+- **Pending updates:** Drop oldest
+
+---
+
+## Invariants
+
+### Communication Invariants
+
+1. **I-EDIT-MSG-ORIGIN:** Messages MUST come from editor origin.
+2. **I-EDIT-MSG-TYPE:** Messages MUST have valid type field.
+3. **I-EDIT-MSG-JSON:** Messages MUST be JSON-serializable.
+
+### State Invariants
+
+4. **I-EDIT-STATE-SYNC:** Preview state MUST match editor state.
+5. **I-EDIT-UPDATE-ATOMIC:** Updates MUST be atomic.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-EDIT-MSG-ORIGIN | Runtime | Reject message |
+| I-EDIT-MSG-TYPE | Runtime | Log error, ignore |
+| I-EDIT-STATE-SYNC | Runtime | Request resync |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `EditorMessageError` | Invalid message | Log, ignore |
+| `EditorSyncError` | State mismatch | Request resync |
+| `EditorTimeoutError` | Response timeout | Retry |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with communication limits
+- Added Invariants section with 5 communication and state invariants
+- Added Error Handling section with error types

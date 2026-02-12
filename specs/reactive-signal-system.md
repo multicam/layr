@@ -265,3 +265,73 @@ In browser environments, the signal factory and equality function are exposed on
 | Memory model | Hierarchical destruction via destroy callbacks |
 | Dependency tracking | Explicit via `.subscribe()` and `.map()`, not automatic |
 | Thread safety | N/A (single-threaded, main thread only) |
+
+---
+
+## System Limits
+
+### Signal Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxSubscribersPerSignal` | 10,000 | 100,000 | Subscribers per signal |
+| `maxSignalDepth` | 100 | 500 | Maximum derived signal chain |
+| `maxSignalSize` | 1 MB | 10 MB | Maximum signal value size |
+
+### Update Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxUpdateDepth` | 100 | Maximum cascade depth |
+| `maxUpdateTime` | 16ms | Target update time (60fps) |
+
+### Enforcement
+
+- **Subscriber count:** Log warning, continue
+- **Update depth:** Throw `LimitExceededError`
+- **Update time:** Log warning in dev mode
+
+---
+
+## Invariants
+
+### State Invariants
+
+1. **I-SIG-VALUE-IMMUTABLE:** Signal values MUST NOT be mutated directly.
+2. **I-SIG-UPDATE-ATOMIC:** Updates MUST be atomic (all-or-nothing).
+3. **I-SIG-DESTROY-IDEMPOTENT:** `destroy()` MUST be idempotent.
+
+### Subscription Invariants
+
+4. **I-SIG-NOTIFY-IMMEDIATE:** Subscribe MUST notify immediately.
+5. **I-SIG-CLEANUP-ORDERED:** Cleanup MUST run children before parents.
+6. **I-SIG-NO-CIRCULAR:** Derived signals MUST NOT create cycles.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-SIG-VALUE-IMMUTABLE | Runtime | Deep clone on set |
+| I-SIG-DESTROY-IDEMPOTENT | Runtime | Guard with flag |
+| I-SIG-NO-CIRCULAR | Runtime | Throw on cycle |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `SignalDestroyedError` | Access after destroy | Return undefined |
+| `SignalCycleError` | Circular derivation | Throw |
+| `SignalDepthError` | Max depth exceeded | Throw |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with signal and update limits
+- Added Invariants section with 6 state and subscription invariants
+- Added Error Handling section with error types

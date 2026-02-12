@@ -333,3 +333,65 @@ The `update()` function is the core render loop:
 - **Missing component on switch:** Previous component cleaned up regardless; new component renders as empty
 - **Preview in test mode:** Click events are ignored; component behaves like production
 - **Theme preview with dark mode:** Generates scoped `@media (prefers-color-scheme: dark)` overrides
+
+---
+
+## System Limits
+
+### Preview Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxPreviewSize` | 5 MB | Maximum preview payload |
+| `maxPreviewTime` | 5,000ms | Maximum preview render time |
+| `maxPreviewUpdates` | 100/s | Maximum preview updates |
+
+### Enforcement
+
+- **Preview size:** Truncate component tree
+- **Preview time:** Show error placeholder
+- **Updates:** Throttle preview refresh
+
+---
+
+## Invariants
+
+### Preview Invariants
+
+1. **I-PREVIEW-ISOLATED:** Preview MUST run in isolated context.
+2. **I-PREVIEW-RESPONSIVE:** Preview MUST respond to parent messages.
+3. **I-PREVIEW-CLEAN:** Preview MUST clean up on unmount.
+
+### Update Invariants
+
+4. **I-PREVIEW-UPDATE-ORDERED:** Updates MUST apply in order.
+5. **I-PREVIEW-STATE-CONSISTENT:** State MUST be consistent after update.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-PREVIEW-ISOLATED | Runtime | Sandbox |
+| I-PREVIEW-RESPONSIVE | Runtime | Show error |
+| I-PREVIEW-STATE-CONSISTENT | Runtime | Reset preview |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `PreviewRenderError` | Render fails | Show error screen |
+| `PreviewTimeoutError` | Render timeout | Show timeout screen |
+| `PreviewSyncError` | State mismatch | Request resync |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with preview limits
+- Added Invariants section with 5 preview invariants
+- Added Error Handling section with error types

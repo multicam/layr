@@ -404,3 +404,65 @@ After the page is hydrated, subscribes to the data signal to dynamically update 
 | [Hydration System](./hydration-system.md) | Client-side URL parsing runs during hydration |
 | [Component System](./component-system.md) | Route/query params feed into `ComponentData.Attributes` and `URL parameters` |
 | [SEO & Web Standards](./seo-web-standards.md) | Dynamic head updates maintain SEO correctness on client-side navigation |
+
+---
+
+## System Limits
+
+### Navigation Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxHistoryEntries` | 50 | Maximum history entries tracked |
+| `maxNavigationDepth` | 100 | Maximum consecutive navigations |
+| `navigationTimeout` | 10,000ms | Navigation completion timeout |
+
+### Enforcement
+
+- **History entries:** LRU eviction
+- **Navigation depth:** Break with error
+- **Timeout:** Cancel navigation
+
+---
+
+## Invariants
+
+### Navigation Invariants
+
+1. **I-NAV-URL-VALID:** Target URL MUST be valid.
+2. **I-NAV-HISTORY-SYNC:** Browser history MUST match signal state.
+3. **I-NAV-PARAMS-PRESERVED:** Non-changed params preserved.
+
+### Popstate Invariants
+
+4. **I-NAV-POPSTATE-REACTIVE:** Popstate MUST update location signal.
+5. **I-NAV-NO-LOOP:** Navigation MUST NOT create loops.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-NAV-URL-VALID | Runtime | Cancel navigation |
+| I-NAV-HISTORY-SYNC | Runtime | Resync from browser |
+| I-NAV-NO-LOOP | Runtime | Break loop |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `NavigationError` | URL invalid | Cancel, log |
+| `NavigationTimeoutError` | Timeout exceeded | Cancel, restore |
+| `HistorySyncError` | History mismatch | Resync |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with navigation limits
+- Added Invariants section with 5 navigation invariants
+- Added Error Handling section with error types
