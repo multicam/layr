@@ -395,3 +395,157 @@ After hydration, reactive subscriptions update meta tags when data changes:
 - **Localhost requests:** Remove `cf-connecting-ip` and `host` headers
 - **Relative image paths:** Converted to absolute URLs via `transformRelativePaths()`
 - **Variables re-initialization on client:** Client may compute different initial values than server (e.g., localStorage-dependent)
+
+---
+
+## System Limits
+
+### SSR Performance Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSsrRenderTime` | 10,000ms | Maximum time for complete SSR render |
+| `maxApiFetchTime` | 5,000ms | Maximum time for single API fetch during SSR |
+| `maxApiConcurrent` | 10 | Maximum concurrent API requests |
+| `maxApisPerPage` | 50 | Maximum APIs evaluated per page |
+
+### Size Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxHydrationPayloadSize` | 10 MB | Maximum SSR→CSR transfer size |
+| `maxHtmlSize` | 50 MB | Maximum generated HTML size |
+| `maxHeadItems` | 100 | Maximum head items |
+
+### Timeout Enforcement
+
+- **Render timeout:** Exceeding `maxSsrRenderTime` throws `SsrTimeoutError`
+- **API timeout:** Individual API fetches capped at `maxApiFetchTime`
+- **Response:** Timeout returns 504 Gateway Timeout with error page
+
+---
+
+## Invariants
+
+### Rendering Invariants
+
+1. **I-SSR-HTML-VALID:** Generated HTML MUST be valid, parseable HTML5.
+2. **I-SSR-ESCAPED:** All dynamic content MUST be HTML-escaped.
+3. **I-SSR-NAMESPACE:** SVG/MathML namespaces MUST be correctly applied.
+4. **I-SSR-VOID-ELEMENTS:** Void elements MUST be self-closing.
+
+### Data Invariants
+
+5. **I-SSR-CACHE-SERIALIZABLE:** API cache MUST be JSON-serializable.
+6. **I-SSR-COOKIE-SECURE:** Cookie values MUST NOT be sent to client (names only).
+7. **I-SSR-TEST-DATA-REMOVED:** All `testValue` fields MUST be stripped before client delivery.
+
+### Hydration Invariants
+
+8. **I-SSR-HYDRATION-MATCH:** Hydration data MUST match server-rendered content.
+9. **I-SSR-COMPONENT-COMPLETE:** All referenced components MUST be included in hydration payload.
+10. **I-SSR-API-COMPLETE:** All API responses MUST be in cache or fetch-on-mount flagged.
+
+### Head Invariants
+
+11. **I-SSR-CHARSET-FIRST:** Charset meta MUST be first in head.
+12. **I-SSR-VIEWPORT-EARLY:** Viewport meta MUST be within first 1024 bytes.
+13. **I-SSR-STYLES-BEFORE-SCRIPTS:** Stylesheets MUST precede scripts in head.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-SSR-HTML-VALID | Post-render validation | Log warning, serve anyway |
+| I-SSR-HYDRATION-MATCH | Client hydration | Warning, use CSR result |
+| I-SSR-CACHE-SERIALIZABLE | JSON.stringify | Remove non-serializable, warn |
+| I-SSR-TEST-DATA-REMOVED | Build time | Auto-strip |
+
+---
+
+## Timeout Handling
+
+### Render Timeout
+
+```typescript
+interface SsrTimeoutError extends Error {
+  type: 'ssr-timeout';
+  pageName: string;
+  duration: number;
+  limit: number;
+}
+```
+
+### API Timeout
+
+Individual API fetches have their own timeout (default: 5000ms).
+
+### Fallback on Timeout
+
+When SSR times out:
+1. Log error with page name and duration
+2. Return static error page (pre-rendered)
+3. Set `Retry-After` header for client retry
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `SsrTimeoutError` | Render or API timeout | Error page |
+| `SsrRenderError` | Formula evaluation fails | Skip node, continue |
+| `ApiFetchError` | API request fails | Set error state, continue |
+| `RedirectError` | API returns redirect | HTTP redirect response |
+| `ComponentNotFoundError` | Component missing | Skip, render nothing |
+| `SsrSizeLimitError` | Payload exceeds limit | Truncate with warning |
+
+### Missing Resource Handling
+
+| Scenario | Behavior | Log Level |
+|----------|----------|-----------|
+| Component not found | Skip component, continue | `warn` |
+| Formula evaluation error | Return `null`, continue | `warn` |
+| API fetch error | Set `error` in status, continue | `warn` |
+| API timeout | Set `error: "timeout"`, continue | `warn` |
+| Redirect returned | Throw `RedirectError` | `info` |
+
+---
+
+## Hydration Mismatch Detection
+
+### Problem Definition
+
+Hydration mismatches occur when server-rendered HTML doesn't match what the client renders. Causes:
+- Formulas that depend on browser-only APIs (window, document)
+- Variables initialized differently on client (localStorage, random values)
+- Time-dependent formulas (Date.now())
+- User-agent sniffing
+
+### Prevention Guidelines
+
+1. **Avoid browser-only APIs** in SSR formulas
+2. **Use `isServer` check** before accessing browser APIs
+3. **Stabilize timestamps** - use server time for initial render
+4. **Mark client-only components** with `data-client-only` attribute
+5. **Test SSR parity** in CI pipeline
+
+### Client-Side Handling
+
+When mismatch detected:
+1. Log warning with mismatch details
+2. Use CSR result (client wins)
+3. Track mismatch rate for monitoring
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with SSR performance and size limits
+- Added Invariants section with 13 rendering, data, hydration, and head invariants
+- Added Timeout Handling section with render and API timeouts
+- Added Error Handling section with error types and recovery
+- Added Hydration Mismatch Detection section with prevention guidelines
