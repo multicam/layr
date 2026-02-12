@@ -386,3 +386,60 @@ Theme changes via `setTheme` action set the `nc-theme` cookie. The cookie-based 
 - **API System** — API initialization with SSR cache hydration
 - **Context Providers** — Provider registration for page-level context
 - **path-to-regexp** — Legacy URL pattern matching
+
+---
+
+## System Limits
+
+### Execution Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxDepth` | 256 | Maximum execution depth |
+| `maxTime` | 1,000ms | Maximum execution time |
+| `maxOperations` | 10,000 | Maximum operations |
+
+### Enforcement
+
+- **Depth limit:** Throw `LimitExceededError`
+- **Time limit:** Log warning, continue
+- **Operations limit:** Truncate with warning
+
+---
+
+## Invariants
+
+### Execution Invariants
+
+1. **I-EX-DETERMINISTIC:** Same inputs produce same outputs.
+2. **I-EX-NO-SIDE-EFFECTS:** Execution MUST NOT modify inputs.
+3. **I-EX-NULL-SAFE:** Errors MUST return null.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-EX-DETERMINISTIC | Testing | CI failure |
+| I-EX-NO-SIDE-EFFECTS | Testing | CI failure |
+| I-EX-NULL-SAFE | Runtime | Return null |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `ExecutionError` | Execution fails | Return null |
+| `TimeoutError` | Time limit exceeded | Return null |
+| `DepthError` | Depth exceeded | Throw |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with execution limits
+- Added Invariants section with 3 execution invariants
+- Added Error Handling section with error types
