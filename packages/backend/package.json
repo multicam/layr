@@ -12,11 +12,13 @@
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "@layr/types": "workspace:*",
     "@layr/core": "workspace:*",
+    "@layr/lib": "workspace:*",
     "hono": "^4.0.0"
   }
 }
