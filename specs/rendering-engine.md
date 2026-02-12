@@ -337,6 +337,208 @@ This creates a fully reactive system where any component data change propagates 
 
 ---
 
+## System Limits
+
+### Render Performance Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxRenderTime` | 100ms | Maximum time for single render cycle (target: 60fps) |
+| `maxUpdatesPerFrame` | 1,000 | Maximum DOM updates batched per animation frame |
+| `maxSubscribers` | 10,000 | Maximum subscribers per signal |
+
+### Structural Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxDOMDepth` | 1,000 | Maximum DOM tree depth |
+| `maxChildrenPerNode` | 10,000 | Maximum children per element |
+| `maxRepeatItems` | 10,000 | Maximum items in a repeat list |
+
+### Cleanup Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxCleanupDepth` | 100 | Maximum nested cleanup callbacks |
+| `cleanupTimeout` | 5,000ms | Maximum time for cleanup cascade |
+
+### Enforcement
+
+- **Render time:** If `maxRenderTime` exceeded, warn in dev mode, continue in production
+- **Updates per frame:** Excess updates deferred to next frame
+- **Subscribers:** Throw `LimitExceededError` if exceeded (likely memory leak)
+- **Repeat items:** Truncate with warning if exceeded
+
+---
+
+## Invariants
+
+### Rendering Invariants
+
+1. **I-REND-ROOT:** Every component render MUST produce at least one DOM element (or empty array).
+2. **I-REND-PATH-UNIQUE:** `data-id` attributes MUST be unique within a component's rendered output.
+3. **I-REND-NAMESPACE:** SVG/MathML namespaces MUST propagate to all descendants.
+4. **I-REND-SIGNAL-CLEANUP:** Every signal subscription MUST have a cleanup callback registered.
+
+### Lifecycle Invariants
+
+5. **I-REND-CLEANUP-CASCADE:** Destroying a parent signal MUST destroy all child signals.
+6. **I-REND-CLEANUP-ORDER:** Child signals destroyed BEFORE parent (leaf-to-root).
+7. **I-REND-EVENT-CLEANUP:** All event listeners MUST be removed on component unmount.
+
+### DOM Invariants
+
+8. **I-REND-DOM-CONSISTENCY:** Signal state and DOM state MUST be synchronized.
+9. **I-REND-NO-ORPHANS:** No element may exist in DOM without an active signal subscription.
+10. **I-REND-ABORT-LINK:** Component AbortController MUST be linked to signal destruction.
+
+### Conditional Rendering Invariants
+
+11. **I-REND-COND-ISOLATION:** Conditional child signals MUST be independently destroyable.
+12. **I-REND-COND-CLEANUP:** Toggling condition to false MUST fully destroy child content.
+
+### List Rendering Invariants
+
+13. **I-REND-KEY-UNIQUE:** Repeat keys MUST be unique within a list (or fall back to index).
+14. **I-REND-REUSE-PRESERVE:** Reusing a repeat item MUST preserve its DOM element.
+15. **I-REND-REMOVE-CLEANUP:** Removing a repeat item MUST destroy its signal and remove DOM.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-REND-SIGNAL-CLEANUP | Build + Runtime | Memory leak warning |
+| I-REND-CLEANUP-CASCADE | Runtime | Cascade continues despite errors |
+| I-REND-KEY-UNIQUE | Runtime | Warning, fallback to index |
+| I-REND-DOM-CONSISTENCY | Dev mode | Hydration mismatch warning |
+
+---
+
+## Timeout Handling
+
+### Render Timeout
+
+To prevent main thread blocking:
+
+```typescript
+const RENDER_TIMEOUT_MS = 100;
+
+function renderWithTimeout(fn: () => Element[]): Element[] | null {
+  const start = performance.now();
+  const result = fn();
+  const duration = performance.now() - start;
+  
+  if (duration > RENDER_TIMEOUT_MS) {
+    console.warn(`Render took ${duration}ms (limit: ${RENDER_TIMEOUT_MS}ms)`);
+    // In dev mode, could suggest optimization
+  }
+  
+  return result;
+}
+```
+
+### Long-Running Detection
+
+For components that exceed time budgets repeatedly:
+
+1. Log warning with component name and duration
+2. Suggest simplification (fewer nodes, fewer formulas)
+3. In extreme cases, mark component as "needs optimization"
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `ComponentNotFoundError` | Component lookup fails | Return empty array |
+| `SignalDestructionError` | Error during cleanup | Log, continue cascade |
+| `LimitExceededError` | Limits exceeded | Throw or degrade gracefully |
+| `HydrationMismatchError` | SSR/CSR mismatch | Warning, use CSR result |
+
+### Missing Resource Handling
+
+| Scenario | Behavior | Log Level |
+|----------|----------|-----------|
+| Component not found | Return empty array | `warn` |
+| Node not in nodes record | Skip node | `warn` |
+| Slot has no content/fallback | Render nothing | None |
+| Namespace unknown | Default to HTML | `warn` |
+
+### Cleanup Error Handling
+
+Cleanup errors MUST NOT prevent other cleanup:
+
+```typescript
+function destroy(signal: Signal): void {
+  if (signal.destroying) return; // Re-entrancy guard
+  signal.destroying = true;
+  
+  for (const subscriber of signal.subscribers) {
+    try {
+      subscriber.destroy?.();
+    } catch (e) {
+      console.error('Cleanup error:', e);
+      // Continue to next subscriber
+    }
+  }
+  
+  signal.subscribers.clear();
+  signal.destroying = false;
+}
+```
+
+---
+
+## Memory Management
+
+### Signal Lifecycle
+
+```
+Component Mount
+  ├── Create component data signal
+  ├── Create derived signals (formulas, conditions, repeats)
+  ├── Subscribe to context providers
+  └── Register cleanup callbacks
+      │
+      ▼ (on unmount)
+Component Unmount
+  ├── AbortController.abort() → cancels pending fetches
+  ├── All event listeners removed (via abort signal)
+  ├── Derived signals destroyed (cascade)
+  ├── Context subscriptions cleared
+  └── DOM elements removed
+```
+
+### Leak Detection (Dev Mode)
+
+```typescript
+interface LeakInfo {
+  signalId: string;
+  subscriberCount: number;
+  componentPath: string;
+  createdAt: number;
+}
+
+// In dev mode, expose leak detection
+window.__layrDebug = {
+  detectLeaks(): LeakInfo[] {
+    // Find signals with many subscribers or long-lived signals
+  }
+};
+```
+
+### Best Practices
+
+1. **Always use AbortSignal** for event listeners and fetch requests
+2. **Avoid closures** in signal subscriptions that capture DOM elements directly
+3. **Use identity maps** (`signal.map(x => x)`) for lifecycle isolation
+4. **Clear collections** (Maps, Sets) in destroy callbacks
+
+---
+
 ## Edge Cases
 
 ### Namespace Propagation
@@ -368,3 +570,14 @@ If a component reference cannot be resolved (missing from `ctx.components`), a `
 - **Action System** — `handleAction()` processes event handler actions
 - **Styling System** — `CustomPropertyStyleSheet` manages CSS rule updates
 - **fast-deep-equal** — Prevents redundant DOM updates via signal equality checks
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with performance, structural, and cleanup limits
+- Added Invariants section with 15 rendering, lifecycle, DOM, conditional, and list invariants
+- Added Timeout Handling section with render timeout and long-running detection
+- Added Error Handling section with error types, missing resources, and cleanup handling
+- Added Memory Management section with signal lifecycle, leak detection, and best practices
