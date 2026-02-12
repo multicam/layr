@@ -64,20 +64,6 @@ export interface ComponentEvent {
 }
 
 // ============================================================================
-// Page Route
-// ============================================================================
-
-export interface PageRoute {
-  path: string;
-  query?: Record<string, RouteQueryParam>;
-}
-
-export interface RouteQueryParam {
-  attribute: string;
-  default?: Formula;
-}
-
-// ============================================================================
 // Component API
 // ============================================================================
 
@@ -129,3 +115,4 @@ export interface EventModel {
 import type { NodeModel } from './node';
 import type { Formula } from './formula';
 import type { ActionModel } from './action';
+import type { PageRoute } from './route';

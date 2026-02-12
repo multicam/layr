@@ -8,3 +8,4 @@ export * from './theme';
 export * from './route';
 export * from './signal';
 export * from './utils';
+export * from './project';

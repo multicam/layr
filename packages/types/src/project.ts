@@ -1,0 +1,131 @@
+/**
+ * Project Data Model Types
+ * Based on specs/project-data-model.md
+ */
+
+import type { Component } from './component';
+import type { Theme } from './theme';
+import type { CustomRoute } from './route';
+import type { Formula } from './formula';
+import type { ActionModel } from './action';
+
+// ============================================================================
+// Project (Top-Level Envelope)
+// ============================================================================
+
+/**
+ * Top-level project envelope - the complete JSON structure
+ */
+export interface Project {
+  id: string; // UUID
+  project: ToddleProject;
+  commit: string; // SHA hash
+  files: ProjectFiles;
+}
+
+/**
+ * Project metadata (ToddleProject)
+ */
+export interface ToddleProject {
+  id: string; // UUID
+  name: string;
+  short_id: string; // URL-safe slug
+  type: 'app' | 'package';
+  description?: string;
+  emoji?: string | null;
+  thumbnail?: { path: string } | null;
+}
+
+/**
+ * Project files container - all functional assets
+ */
+export interface ProjectFiles {
+  components: Partial<Record<string, Component>>;
+  packages?: Partial<Record<string, InstalledPackage>>;
+  actions?: Record<string, PluginAction>;
+  formulas?: Record<string, PluginFormula>;
+  routes?: Record<string, CustomRoute>;
+  config?: ProjectConfig;
+  themes?: Record<string, Theme>;
+  services?: Record<string, ApiService>;
+}
+
+// ============================================================================
+// Installed Package
+// ============================================================================
+
+export interface InstalledPackage {
+  manifest: PackageManifest;
+  components: Partial<Record<string, Component>>;
+  actions?: Record<string, PluginAction>;
+  formulas?: Record<string, PluginFormula>;
+}
+
+export interface PackageManifest {
+  name: string;
+  commit: string; // SHA hash
+}
+
+// ============================================================================
+// Plugin Action
+// ============================================================================
+
+export interface PluginAction {
+  name: string;
+  // Additional fields based on action system spec
+  action: ActionModel;
+}
+
+// ============================================================================
+// Plugin Formula
+// ============================================================================
+
+export interface PluginFormula {
+  name: string;
+  // Additional fields based on formula system spec
+  formula: Formula;
+}
+
+// ============================================================================
+// Project Config
+// ============================================================================
+
+export interface ProjectConfig {
+  runtimeVersion?: string;
+  theme?: OldTheme;
+  meta?: ProjectMeta;
+}
+
+export interface ProjectMeta {
+  icon?: { formula: Formula } | null;
+  robots?: { formula: Formula } | null;
+  sitemap?: { formula: Formula } | null;
+  manifest?: { formula: Formula } | null;
+  serviceWorker?: { formula: Formula } | null;
+}
+
+/**
+ * Legacy V1 Theme
+ */
+export interface OldTheme {
+  spacing: number;
+  colors: Record<string, { order: number; variants: Record<string, { value: string; order: number }> }>;
+  fontFamily: Record<string, { value: string[]; order: number; default?: boolean }>;
+  fontWeight: Record<string, { value: string; order: number; default?: boolean }>;
+  fontSize: Record<string, { value: string; order: number; default?: boolean }>;
+  shadow: Record<string, { value: string; order: number }>;
+  breakpoints: Record<string, { value: number; order: number }>;
+}
+
+// ============================================================================
+// API Service
+// ============================================================================
+
+export interface ApiService {
+  name: string;
+  type: 'supabase' | 'xano' | 'custom';
+  baseUrl?: Formula;
+  docsUrl?: Formula;
+  apiKey?: Formula;
+  meta?: Record<string, unknown>;
+}
