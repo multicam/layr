@@ -11,40 +11,48 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 ```
 /layr
 ├── packages/
-│   ├── core/           # Signal system, component model, formulas, types
-│   ├── lib/            # Standard library (97 formulas, 19 actions)
-│   ├── ssr/            # Server-side rendering pipeline
-│   ├── runtime/        # Client-side CSR runtime
-│   ├── backend/        # Hono HTTP server
-│   └── editor/         # React visual editor
-├── projects/           # Local project working directories
-│   └── {project-id}/   # One folder per project
+│   ├── types/           # Shared TypeScript type definitions
+│   ├── core/            # Signal system, component model, formulas
+│   ├── lib/             # Standard library (97 formulas, 19 actions)
+│   ├── ssr/             # Server-side rendering pipeline
+│   ├── runtime/         # Client-side CSR runtime
+│   ├── backend/         # Hono HTTP server
+│   ├── editor/          # React visual editor
+│   └── test-harness/    # Component testing utilities
+├── projects/            # Local project working directories
+│   └── {project-id}/    # One folder per project
 │       ├── project.json
-│       └── .toddle/    # Build artifacts
-├── specs/              # Technical specifications (this directory)
-├── package.json        # Root workspace config
-├── bun.lock            # Lockfile
-└── tsconfig.json       # Base TypeScript config
+│       └── .toddle/     # Build artifacts
+├── specs/               # Technical specifications
+├── package.json         # Root workspace config
+├── bun.lock             # Lockfile
+└── tsconfig.json        # Base TypeScript config
 ```
 
 ---
 
 ## Package Responsibilities
 
+### packages/types
+- All TypeScript interfaces (`Component`, `NodeModel`, `Formula`, etc.)
+- Discriminated union types
+- Utility types (`DeepPartial`, `Nullable`)
+- No runtime code, only type definitions
+
 ### packages/core
 - Signal system (`Signal<T>`)
-- Component data model (`Component`, `NodeModel`, etc.)
-- Formula types and evaluation
-- Action types
+- Formula evaluation engine
+- Action execution
 - Context providers
 - Validation schemas (Zod)
-- **No runtime dependencies** (pure logic)
+- **Depends on:** types
 
 ### packages/lib
 - 97 built-in formulas
 - 19 built-in actions
 - Formula/action metadata
 - Auto-generated from `formula.json` files
+- **Depends on:** types, core
 
 ### packages/ssr
 - `renderPageBody()` - HTML string generation
@@ -52,6 +60,7 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 - API pre-fetching
 - Custom code tree-shaking
 - Head generation
+- **Depends on:** types, core
 
 ### packages/runtime
 - `renderComponent()` - CSR DOM creation
@@ -60,6 +69,7 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 - Event handling
 - Slot rendering
 - Custom element registration
+- **Depends on:** types, core
 
 ### packages/backend
 - Hono HTTP server
@@ -68,14 +78,23 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 - Font proxy
 - Static asset serving
 - Project loading from `/projects`
+- **Depends on:** types, core, ssr
 
 ### packages/editor
 - React application
 - Component tree visualization
-- Formula editor
+- Formula editor (Monaco)
 - Drag-drop
 - Live preview iframe
 - Project file management
+- **Depends on:** types, core, runtime
+
+### packages/test-harness
+- Component preview utilities
+- Mock API/context/formula
+- DOM query helpers
+- Interaction simulation
+- **Depends on:** types, core, runtime
 
 ---
 
@@ -121,7 +140,7 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
     "test": "bun test"
   },
   "dependencies": {
-    "@layr/core": "workspace:*"
+    "@layr/types": "workspace:*"
   }
 }
 ```
@@ -145,6 +164,7 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
+      "@layr/types": ["packages/types/src"],
       "@layr/core": ["packages/core/src"],
       "@layr/lib": ["packages/lib/src"],
       "@layr/ssr": ["packages/ssr/src"],
@@ -158,15 +178,29 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 
 ---
 
-## Development Commands
+## Dependency Graph
 
-| Command | Description |
-|---------|-------------|
-| `bun install` | Install all workspace dependencies |
-| `bun run dev` | Start all packages in dev mode |
-| `bun run build` | Build all packages |
-| `bun test` | Run all tests |
-| `bun run --filter @layr/core test` | Test specific package |
+```
+                 types
+                   │
+         ┌─────────┼─────────┐
+         │         │         │
+        core      lib        │
+         │         │         │
+    ┌────┴────┐    │         │
+    │         │    │         │
+ runtime    ssr   │         │
+    │         │    │         │
+    └────┬────┘    │         │
+         │         │         │
+      backend      │         │
+         │         │         │
+         └─────────┴─────────┘
+                   │
+                editor
+                   │
+             test-harness
+```
 
 ---
 
@@ -174,49 +208,14 @@ Defines the workspace layout for the Layr platform. A Bun workspaces monorepo wi
 
 ```typescript
 // From packages/runtime/src/createNode.ts
+import type { Component, NodeModel } from '@layr/types';
 import { Signal } from '@layr/core';
-import { Component, NodeModel } from '@layr/core';
-import { applyFormula } from '@layr/core';
-import { handleAction } from '@layr/runtime';
+import type { Signal as SignalType } from '@layr/types';
 
 // From packages/backend/src/index.ts
 import { renderPageBody } from '@layr/ssr';
-import { splitRoutes } from '@layr/ssr';
+import type { Component } from '@layr/types';
 ```
-
----
-
-## Dependency Graph
-
-```
-                    core
-                      │
-        ┌─────────────┼─────────────┐
-        │             │             │
-       lib          ssr         runtime
-        │             │             │
-        └──────┬──────┴──────┬──────┘
-               │             │
-            backend       editor
-```
-
-**Rules:**
-- `core` has no workspace dependencies
-- `lib` depends only on `core`
-- `ssr` and `runtime` depend on `core`
-- `backend` depends on `ssr` and `core`
-- `editor` depends on `runtime` and `core`
-
----
-
-## Build Artifacts
-
-Each package builds to `./dist/`:
-- `.js` files (ESM)
-- `.d.ts` files (types)
-- Source maps
-
-**Development mode:** Run directly from `src/` with `bun --watch`
 
 ---
 
@@ -236,11 +235,10 @@ Each package builds to `./dist/`:
 
 **Backend loads from:** `/projects/{project-id}/project.json`
 
-**SSR writes to:** `/projects/{project-id}/.toddle/`
-
 ---
 
 ## Changelog
 
 ### Unreleased
-- Initial specification
+- Added packages/types for shared type definitions
+- Updated dependency graph
