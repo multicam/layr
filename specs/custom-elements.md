@@ -295,3 +295,112 @@ Numbers set via `setAttribute('count', 42)` are stored as numbers in the signal 
 - **Standard Library** — Loaded via `loadCorePlugins()`
 - **SSR Utilities** — `takeIncludedComponents()`, `replaceTagInNodes()`, `removeTestData()`, `transformRelativePaths()`
 - **Backend** — Hono route handler for dynamic bundle generation
+
+---
+
+## System Limits
+
+### Element Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxCustomElementsPerPage` | 100 | 500 | Custom elements per page |
+| `maxAttributesPerElement` | 50 | 200 | Attributes per custom element |
+| `maxBundleSize` | 500 KB | 2 MB | Maximum bundle size per element |
+
+### Shadow DOM Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxShadowDepth` | 10 | Maximum nested shadow roots |
+| `maxSlotDepth` | 20 | Maximum nested slot projection |
+
+### Enforcement
+
+- **Element count:** Warn in dev mode
+- **Bundle size:** Truncate custom code, log warning
+- **Shadow depth:** Stop rendering, show placeholder
+
+---
+
+## Invariants
+
+### Registration Invariants
+
+1. **I-CE-TAG-VALID:** Custom element tag MUST contain hyphen.
+2. **I-CE-TAG-UNIQUE:** Custom element tags MUST be unique per project.
+3. **I-CE-NOT-PAGE:** Pages MUST NOT be exported as custom elements.
+
+### Lifecycle Invariants
+
+4. **I-CE-CONNECT-ONCE:** `connectedCallback` MUST only initialize once.
+5. **I-CE-DISCONNECT-CLEANUP:** `disconnectedCallback` MUST destroy all signals.
+6. **I-CE-ATTR-REACTIVE:** Attribute changes MUST update signal reactively.
+
+### Shadow DOM Invariants
+
+7. **I-CE-SHADOW-OPEN:** Shadow root MUST be `mode: 'open'`.
+8. **I-CE-STYLE-SCOPED:** Styles MUST be scoped to shadow root.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-CE-TAG-VALID | Build | Error: invalid tag name |
+| I-CE-NOT-PAGE | Runtime | Return 403 Forbidden |
+| I-CE-DISCONNECT-CLEANUP | Runtime | Abort signal cleanup |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `CustomElementRegistrationError` | Tag already defined | Skip with warning |
+| `CustomElementLoadError` | Bundle load fails | Render placeholder |
+| `ShadowDOMError` | Shadow root creation fails | Render in light DOM |
+
+### Error Context
+
+```typescript
+interface CustomElementError extends Error {
+  tagName: string;
+  componentName: string;
+  bundleUrl?: string;
+  attribute?: string;
+}
+```
+
+---
+
+## Performance Considerations
+
+### Bundle Loading
+
+Each custom element bundle includes:
+- Component definitions (tree-shaken)
+- Standard library (full)
+- Custom code (if any)
+
+**Optimization:** Share standard library via external module for multiple custom elements.
+
+### Style Injection
+
+Styles are injected into shadow root on connect:
+- Reset styles (base layer)
+- Component styles (scoped)
+- Theme custom properties
+
+**Caching:** Stylesheet strings are cached per component instance.
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with element and shadow DOM limits
+- Added Invariants section with 8 registration, lifecycle, and shadow DOM invariants
+- Added Error Handling section with error types
+- Added Performance Considerations section with bundle and style optimization
