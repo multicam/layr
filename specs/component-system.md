@@ -14,6 +14,223 @@ The Component System is the foundational domain of Layr. It defines the data mod
 
 ---
 
+## System Limits
+
+Component-level limits enforced to prevent runaway scenarios.
+
+### Component Size Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxNodes` | 10,000 | 50,000 | Nodes in `component.nodes` record |
+| `maxAttributes` | 50 | 200 | Attribute definitions |
+| `maxVariables` | 50 | 200 | Variable definitions |
+| `maxFormulas` | 100 | 500 | Formula definitions |
+| `maxApis` | 30 | 100 | API definitions |
+| `maxWorkflows` | 30 | 100 | Workflow definitions |
+| `maxEvents` | 20 | 50 | Declared events |
+| `maxContexts` | 10 | 30 | Context subscriptions |
+| `maxNodeChildren` | 500 | 2,000 | Children array per node |
+| `maxVariants` | 50 | 200 | Style variants per node |
+
+### Nesting Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxComponentDepth` | 50 | Maximum parent→child nesting |
+| `maxRepeatDepth` | 10 | Maximum nested repeat loops |
+| `maxConditionDepth` | 20 | Maximum nested conditional blocks |
+| `maxSlotDepth` | 20 | Maximum nested slot projection |
+
+### Enforcement
+
+- **Build time:** Validation warns if approaching limits (80% threshold)
+- **Runtime:** Throws `LimitExceededError` if limit exceeded
+- **Editor:** Prevents operations that would exceed limits
+
+---
+
+## Invariants
+
+### Structural Invariants
+
+1. **I-COMP-ROOT:** Every component's `nodes` MUST contain a `'root'` key.
+2. **I-COMP-NODE-ID:** Node IDs MUST be unique within their component.
+3. **I-COMP-NO-DANGLING:** Every `children` array entry MUST reference an existing node ID.
+4. **I-COMP-NO-SELF-REF:** A component MUST NOT directly reference itself as a child (see Recursive Components).
+5. **I-COMP-SLOT-NO-REPEAT:** `SlotNodeModel.repeat` MUST be `null`/`undefined`/`never`.
+
+### Reference Invariants
+
+6. **I-COMP-COMPONENT-REF:** Every `ComponentNodeModel.name` MUST resolve to an existing component.
+7. **I-COMP-FORMULA-REF:** Every `apply` operation MUST reference a formula in `component.formulas`.
+8. **I-COMP-WORKFLOW-REF:** Every `TriggerWorkflow` MUST reference a workflow in `component.workflows` or context provider.
+9. **I-COMP-API-REF:** Every `Fetch` action MUST reference an API in `component.apis`.
+10. **I-COMP-CONTEXT-REF:** Every `ComponentContext` MUST reference an existing context provider.
+
+### Type Invariants
+
+11. **I-COMP-PAGE-ROUTE:** Pages (components with `route`) MUST have `type: 'app'`.
+12. **I-COMP-PACKAGE-EXPORT:** Package components for external use MUST have `exported: true`.
+13. **I-COMP-CUSTOM-ELEMENT:** Only non-page components MAY have `customElement.enabled`.
+
+### Lifecycle Invariants
+
+14. **I-COMP-ONLOAD-ONCE:** `onLoad` actions execute exactly once per component mount.
+15. **I-COMP-ONATTR-CHANGE:** `onAttributeChange` only fires after initial attributes set.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-COMP-ROOT, I-COMP-NO-DANGLING | Build | Error: build fails |
+| I-COMP-NO-SELF-REF | Build + Runtime | Error: reject/render nothing |
+| I-COMP-*COMPONENT-REF | Runtime | Warning: skip, return empty |
+| I-COMP-*FORMULA-REF | Runtime | Warning: return `null` |
+| I-COMP-SLOT-NO-REPEAT | Build | Error: schema violation |
+
+---
+
+## Node Identification
+
+### Node ID Requirements
+
+Node IDs serve as stable references within a component:
+
+1. **Format:** Node IDs MUST be non-empty strings
+2. **Uniqueness:** MUST be unique within `component.nodes`
+3. **Stability:** IDs SHOULD NOT change during editing (use UUIDs, not indices)
+4. **Immutability:** Once created, ID SHOULD remain stable for reference integrity
+
+### Recommended ID Generation
+
+```typescript
+// Recommended: UUID-based IDs
+function generateNodeId(): string {
+  return crypto.randomUUID();
+}
+
+// NOT recommended: Index-based IDs (unstable on reorder)
+function badGenerateNodeId(index: number): string {
+  return `node-${index}`;
+}
+```
+
+### Reference Integrity
+
+When a node is deleted:
+1. All references in other nodes' `children` arrays are removed
+2. References in `repeat`, `condition`, and `slot` bindings are cleared
+3. Orphaned nodes (no parent reference) trigger build warnings
+
+---
+
+## Recursive Components
+
+### Problem Definition
+
+A component that renders itself (directly or indirectly) creates infinite recursion:
+- **Direct:** Component A's nodes contain a `ComponentNodeModel` referencing component A
+- **Indirect:** A → B → A cycle
+
+### Prevention Strategy
+
+1. **Build-time detection:** Static analysis flags direct self-references
+2. **Runtime depth tracking:** Component context maintains depth counter
+3. **Depth limit enforcement:** Throws error if `maxComponentDepth` exceeded
+
+### Runtime Depth Tracking
+
+```typescript
+interface ComponentRenderContext {
+  // ... existing fields
+  depth: number;           // Current nesting depth
+  ancestorPath: string[];  // Component names in current path
+}
+
+// In createComponent()
+if (ctx.depth > LIMITS.maxComponentDepth) {
+  throw new LimitExceededError('nesting', 'maxComponentDepth', ctx.depth, LIMITS.maxComponentDepth);
+}
+
+if (ctx.ancestorPath.includes(component.name)) {
+  console.warn(`Recursive component detected: ${ctx.ancestorPath.join(' → ')} → ${component.name}`);
+}
+```
+
+### Self-Reference Handling for Custom Elements
+
+Custom elements have special handling via `replaceTagInNodes()`:
+- Self-references are replaced with `<div>` to prevent infinite loops
+- Only applies when `env.runtime === 'custom-element'` AND component is root
+
+---
+
+## Signal Lifecycle
+
+### Destruction Order
+
+When a parent signal is destroyed, child signals are destroyed in a defined order:
+
+1. **Child-first cleanup:** Children destroyed before parents (leaf-to-root)
+2. **Sequential notification:** Each subscriber's `destroy` callback runs in registration order
+3. **Re-entrancy protection:** `destroying` flag prevents infinite loops during cascade
+
+### Destruction Cascade
+
+```
+Parent component signal destroyed
+  ├── All derived signals (formulas, conditions, repeats) destroyed
+  │     └── Their subscribers notified (cleanup callbacks fire)
+  ├── All API payload signals destroyed
+  │     └── In-flight requests aborted
+  ├── All event listeners removed (via abortSignal)
+  ├── All context subscriptions cleaned
+  └── DOM elements removed
+```
+
+### Memory Safety
+
+- Every `subscribe()` with a `destroy` callback is tracked
+- `destroy()` calls all cleanup callbacks even if some throw
+- Circular signal references are handled by `destroying` flag
+
+---
+
+## Lifecycle Timing
+
+### onLoad Timing
+
+| Phase | When | Description |
+|-------|------|-------------|
+| **Render** | Synchronous | Component nodes created and inserted into DOM |
+| **Batch Queue** | Same tick | `onLoad` queued in `BatchQueue` |
+| **Execution** | Next `requestAnimationFrame` | `onLoad` actions execute |
+
+**Timing guarantee:** `onLoad` fires AFTER initial DOM paint (browser has rendered).
+
+### onAttributeChange Timing
+
+| Phase | When | Description |
+|-------|------|-------------|
+| **Detection** | On signal update | Deep equality check detects actual changes |
+| **Batch Queue** | Same tick | Change handler queued in `BatchQueue` |
+| **Execution** | Next `requestAnimationFrame` | Actions execute with change details |
+
+**Change details:**
+```typescript
+Event.detail = {
+  [attributeName]: {
+    current: previousValue,
+    new: newValue
+  }
+}
+```
+
+**Only actual changes fire:** If `Attributes` is set to a deeply-equal value, no event fires.
+
+---
+
 ## Data Models
 
 ### Component
@@ -382,13 +599,69 @@ Actions are arrays executed sequentially. `Switch` and `Fetch` actions can conta
 
 ## Error Handling
 
-| Scenario | Behavior |
-|----------|----------|
-| Component not found | Console warning, return empty array |
-| Missing context provider | Console error, skip subscription |
-| Duplicate repeat keys | Console warning, fallback to index |
-| Formula evaluation error | Return `null`, log error if `logErrors` enabled |
-| API error | Set `error` in `Apis[name]`, trigger `onError` actions |
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `LimitExceededError` | Size/depth limit exceeded | Reject operation |
+| `ComponentNotFoundError` | Referenced component missing | Render nothing |
+| `FormulaEvaluationError` | Formula throws | Return `null` |
+| `SignalDestructionError` | Error during cleanup | Log, continue cascade |
+| `RecursiveComponentError` | Cycle detected | Render placeholder |
+
+### Missing Resource Handling
+
+| Scenario | Behavior | Log Level |
+|----------|----------|-----------|
+| Component not found | Return empty array, skip rendering | `warn` |
+| Formula not found | Return `null` value | `warn` |
+| Workflow not found | Skip action, continue chain | `warn` |
+| API not found | Skip fetch, continue | `error` |
+| Context provider not found | Skip subscription | `warn` |
+| Node not in nodes record | Skip node | `warn` |
+
+### Formula Evaluation Errors
+
+When `applyFormula()` throws:
+
+1. Error caught at top level
+2. Pushed to `ctx.toddle.errors[]` array
+3. Logged to console if `ctx.env.logErrors === true`
+4. Return `null` to formula caller
+
+**Error context preserved:**
+```typescript
+interface FormulaEvaluationError extends Error {
+  formulaName: string;
+  componentContext: string;
+  dataPath: string[];
+}
+```
+
+### API Error Handling
+
+| Phase | Error | Behavior |
+|-------|-------|----------|
+| **Request** | Network error | Set `Apis[name].error`, trigger `onFailed` |
+| **Request** | Timeout | Set `Apis[name].error = "Request timed out"` |
+| **Response** | HTTP 4xx/5xx | Check `isError` formula, may be success |
+| **Parse** | Invalid JSON | Set `Apis[name].error`, trigger `onFailed` |
+| **Stream** | Connection lost | Trigger `onError` with partial data |
+
+### Graceful Degradation
+
+Components should handle missing/error state gracefully:
+
+```typescript
+// Recommended pattern in formulas
+if (Apis.fetchUsers.error) {
+  return "Failed to load users";
+}
+if (Apis.fetchUsers.isLoading) {
+  return "Loading...";
+}
+return Apis.fetchUsers.data;
+```
 
 ---
 
@@ -401,3 +674,16 @@ Actions are arrays executed sequentially. `Switch` and `Fetch` actions can conta
 - **Batch queue:** Defer lifecycle hooks until after initial render
 - **API dependency sorting:** Ensure correct initialization order
 - **Lazy derived signals:** `map()` evaluates only when subscribed
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with component size and nesting constraints
+- Added Invariants section with 15 structural, reference, type, and lifecycle invariants
+- Added Node Identification section with ID requirements and stability
+- Added Recursive Components section with detection and prevention
+- Added Signal Lifecycle section with destruction order and memory safety
+- Added Lifecycle Timing section with precise onLoad/onAttributeChange timing
+- Enhanced Error Handling with error types, missing resources, and graceful degradation
