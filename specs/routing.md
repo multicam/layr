@@ -282,3 +282,99 @@ Wrapper for route traversal and analysis:
 | `formulasInRoute()` | Generator yielding all formulas in the route for analysis |
 
 Traversed formulas: `destination.url`, `destination.path[].formula`, `destination.queryParams[].formula`, `destination.queryParams[].enabled`
+
+---
+
+## System Limits
+
+### Route Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxRoutes` | 100 | 500 | Custom route definitions |
+| `maxRouteParams` | 20 | 50 | Parameters per route |
+| `maxRouteSegments` | 20 | 50 | Path segments per route |
+
+### Performance Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxRouteMatchTime` | 10ms | Maximum time for route matching |
+| `maxRedirectChain` | 10 | Maximum consecutive redirects |
+
+### Enforcement
+
+- **Route count:** Warn at 80%, error at 100%
+- **Redirect chain:** Break with "Too many redirects" error
+- **Match time:** Log warning in dev mode
+
+---
+
+## Invariants
+
+### Route Definition Invariants
+
+1. **I-ROUTE-SOURCE-VALID:** Route source MUST be valid route declaration.
+2. **I-ROUTE-DESTINATION-VALID:** Destination MUST be valid URL formula.
+3. **I-ROUTE-STATUS-VALID:** Redirect status MUST be valid HTTP redirect code.
+4. **I-ROUTE-NO-LOOP:** Routes MUST NOT create redirect loops.
+
+### Path Matching Invariants
+
+5. **I-ROUTE-PARAM-NAME-VALID:** Parameter names MUST be valid identifiers.
+6. **I-ROUTE-PARAM-UNIQUE:** Parameter names MUST be unique within route.
+7. **I-ROUTE-SEGMENT-ORDERED:** Segments MUST be in definition order.
+
+### Execution Invariants
+
+8. **I-ROUTE-ENABLED-CHECK:** `enabled` formula MUST be evaluated before route execution.
+9. **I-ROUTE-REDIRECT-CHAIN:** Maximum redirect chain length MUST be enforced.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-ROUTE-NO-LOOP | Runtime | 500 Internal Server Error |
+| I-ROUTE-PARAM-UNIQUE | Build | Error: schema validation |
+| I-ROUTE-REDIRECT-CHAIN | Runtime | 310 "Too many redirects" |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Response |
+|------------|------|----------|
+| `RouteNotFoundError` | No matching route | Falls through to pages |
+| `RouteLoopError` | Redirect loop | 500 Internal Server Error |
+| `RouteTimeoutError` | Matching timeout | 500 Internal Server Error |
+| `InvalidDestinationError` | Invalid URL formula | 500 Internal Server Error |
+
+### Redirect Loop Detection
+
+```typescript
+interface RedirectContext {
+  chain: string[];  // URLs in redirect chain
+  maxChain: number; // Maximum chain length
+}
+
+function checkRedirectLoop(url: string, ctx: RedirectContext): boolean {
+  if (ctx.chain.includes(url)) {
+    return true; // Loop detected
+  }
+  if (ctx.chain.length >= ctx.maxChain) {
+    return true; // Chain too long
+  }
+  return false;
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with route and performance limits
+- Added Invariants section with 9 route definition, matching, and execution invariants
+- Added Error Handling section with error types and loop detection
