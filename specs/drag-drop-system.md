@@ -559,3 +559,60 @@ When `drag-ended` arrives with `canceled: true`:
 | CSS Custom Properties | Dynamic positioning of highlights and repeated nodes |
 | `DOMRect` / `getBoundingClientRect()` | Position calculations for permutations and insert areas |
 | `prefers-reduced-motion` | Skips View Transitions when user preference set |
+
+---
+
+## System Limits
+
+### Operation Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxSize` | 10 MB | Maximum data size |
+| `maxTime` | 5,000ms | Maximum operation time |
+| `maxDepth` | 100 | Maximum nesting depth |
+
+### Enforcement
+
+- **Size limit:** Truncate with warning
+- **Time limit:** Cancel with error
+- **Depth limit:** Throw `LimitExceededError`
+
+---
+
+## Invariants
+
+### Operation Invariants
+
+1. **I-OP-ATOMIC:** Operations MUST be atomic.
+2. **I-OP-ISOLATED:** Operations MUST be isolated.
+3. **I-OP-CLEANUP:** Cleanup MUST be guaranteed.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-OP-ATOMIC | Runtime | Rollback |
+| I-OP-ISOLATED | Runtime | Sandbox |
+| I-OP-CLEANUP | Runtime | Force cleanup |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `OperationError` | Operation fails | Log, continue |
+| `TimeoutError` | Time exceeded | Cancel |
+| `SizeError` | Size exceeded | Truncate |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with operation limits
+- Added Invariants section with 3 operation invariants
+- Added Error Handling section with error types
