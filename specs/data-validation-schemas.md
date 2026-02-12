@@ -354,3 +354,68 @@ The system provides two validation depths:
 | Import/export pipeline | Validates component JSON files on read |
 | CLI tooling | Validates project files during build |
 | Documentation generation | Schema descriptions serve as field documentation |
+
+---
+
+## System Limits
+
+### Schema Validation Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxValidationDepth` | 256 | Maximum nested schema depth |
+| `maxValidationTime` | 1,000ms | Maximum validation time |
+| `maxErrorCount` | 100 | Maximum errors before stopping |
+
+### Enforcement
+
+- **Depth limit:** Throw `RangeError`
+- **Time limit:** Return partial validation
+- **Error count:** Truncate errors, return
+
+---
+
+## Invariants
+
+### Schema Invariants
+
+1. **I-SCHEMA-TYPE-MATCH:** Zod type MUST match TypeScript type.
+2. **I-SCHEMA-DESCRIPTION:** All schemas MUST have descriptions.
+3. **I-SCHEMA-NULLISH-OPTIONAL:** Optional fields use `.nullish()`.
+
+### Validation Invariants
+
+4. **I-VALIDATE-COMPLETE:** Validation MUST validate entire structure.
+5. **I-VALIDATE-ERROR-DETAIL:** Errors MUST include path and message.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-SCHEMA-TYPE-MATCH | TypeScript | Compile error |
+| I-SCHEMA-DESCRIPTION | Lint | Warning |
+| I-VALIDATE-COMPLETE | Runtime | Return all errors |
+
+---
+
+## Error Handling
+
+### Validation Error Format
+
+```typescript
+interface ValidationError {
+  path: string[];
+  message: string;
+  expected?: string;
+  received?: string;
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with validation limits
+- Added Invariants section with 5 schema and validation invariants
+- Added Error Handling section with error format

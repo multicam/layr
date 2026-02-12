@@ -248,3 +248,72 @@ Used by:
 
 - **`cookie`** (npm): Used in `getRequestCookies()` for parsing the `Cookie` header
 - **Hono**: HTTP framework for the server-side cookie endpoint and API proxy
+
+---
+
+## System Limits
+
+### Cookie Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxCookieSize` | 4 KB | Maximum cookie size |
+| `maxCookieCount` | 50 | Maximum cookies per domain |
+| `maxCookieAge` | 365 days | Maximum cookie TTL |
+
+### Template Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxTemplateDepth` | 5 | Maximum nested template substitution |
+| `maxTemplateSize` | 10 KB | Maximum template string size |
+
+### Enforcement
+
+- **Cookie size:** Truncate value with warning
+- **Cookie count:** LRU eviction of oldest
+- **Template depth:** Stop substitution, return partial
+
+---
+
+## Invariants
+
+### Cookie Invariants
+
+1. **I-CK-VALUE-STRING:** Cookie values MUST be strings.
+2. **I-CK-NAME-VALID:** Cookie names MUST be valid HTTP header tokens.
+3. **I-CK-NO-HTTPONLY-CLIENT:** HttpOnly cookies inaccessible client-side.
+
+### Template Invariants
+
+4. **I-CK-TEMPLATE-SYNTAX:** Templates MUST use `{{name}}` syntax.
+5. **I-CK-TEMPLATE-RESOLVED:** All templates MUST be resolved before request.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-CK-VALUE-STRING | Runtime | Convert to string |
+| I-CK-NAME-VALID | Build | Error: invalid name |
+| I-CK-NO-HTTPONLY-CLIENT | Runtime | Return null |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `CookieSizeError` | Cookie too large | Truncate |
+| `CookieParseError` | Malformed cookie | Skip |
+| `TemplateError` | Unresolved template | Leave as-is |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with cookie and template limits
+- Added Invariants section with 5 cookie and template invariants
+- Added Error Handling section with error types

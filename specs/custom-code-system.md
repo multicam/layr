@@ -310,3 +310,73 @@ export const formulas = {
 
 - **`@layr/core`**: Provides `ToddleComponent`, `actionUtils`, `formulaUtils`, `handlerUtils`, type definitions
 - No external npm dependencies beyond the core package
+
+---
+
+## System Limits
+
+### Code Size Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxCustomCodeSize` | 100 KB | 500 KB | Per-component custom code |
+| `maxTotalCustomCode` | 1 MB | 5 MB | Total custom code per project |
+| `maxHandlerSize` | 10 KB | 50 KB | Individual handler size |
+
+### Execution Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxExecutionTime` | 1,000ms | Handler execution timeout |
+| `maxStackDepth` | 100 | Maximum call stack depth |
+
+### Enforcement
+
+- **Code size:** Truncate with warning
+- **Execution time:** Abort with timeout error
+- **Stack depth:** Throw `RangeError`
+
+---
+
+## Invariants
+
+### Code Definition Invariants
+
+1. **I-CODE-HANDLER-FUNCTION:** Handler MUST be a function.
+2. **I-CODE-NAME-UNIQUE:** Handler names MUST be unique within scope.
+3. **I-CODE-SIGNATURE-MATCH:** Handler signature MUST match declared args.
+
+### Execution Invariants
+
+4. **I-CODE-NO-GLOBAL-MUTATION:** Handlers MUST NOT mutate global state.
+5. **I-CODE-CLEANUP-RETURNED:** Cleanup MUST be returned function.
+6. **I-CODE-ISOLATED-SCOPE:** Handlers run in isolated scope.
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-CODE-HANDLER-FUNCTION | Build | Error: validation fails |
+| I-CODE-NO-GLOBAL-MUTATION | Runtime | Warning in dev mode |
+| I-CODE-CLEANUP-RETURNED | Runtime | Call if function, ignore otherwise |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When | Recovery |
+|------------|------|----------|
+| `CodeExecutionError` | Handler throws | Log, return null |
+| `CodeTimeoutError` | Execution timeout | Abort, return null |
+| `CodeSizeError` | Code exceeds limit | Truncate, warn |
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with code size and execution limits
+- Added Invariants section with 6 definition and execution invariants
+- Added Error Handling section with error types
