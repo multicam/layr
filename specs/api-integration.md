@@ -441,3 +441,131 @@ Manages abort controllers for in-flight requests:
 ## Non-Body Response Codes
 
 Status codes `101`, `204`, `205`, `304` skip response body processing.
+
+---
+
+## System Limits
+
+### Request Limits
+
+| Limit | Default | Maximum | Description |
+|-------|---------|---------|-------------|
+| `maxApiTimeout` | 30,000ms | 300,000ms | Maximum request timeout |
+| `maxApiBodySize` | 10 MB | 100 MB | Maximum request/response body size |
+| `maxApiHeaderSize` | 16 KB | 64 KB | Maximum total headers size |
+| `maxConcurrentApis` | 10 | 50 | Maximum concurrent API requests |
+
+### Retry Limits
+
+| Limit | Default | Description |
+|-------|---------|-------------|
+| `maxApiRetries` | 3 | Maximum retry attempts |
+| `maxRetryDelay` | 30,000ms | Maximum delay between retries |
+
+### Enforcement
+
+- **Timeout:** Request aborted, `onError` triggered with timeout error
+- **Body size:** Response truncated with warning
+- **Concurrent:** Queued when limit reached
+
+---
+
+## Invariants
+
+### Request Invariants
+
+1. **I-API-METHOD-VALID:** HTTP method MUST be one of GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS.
+2. **I-API-URL-ABSOLUTE:** Final URL MUST be absolute (protocol + host + path).
+3. **I-API-HEADERS-STRING:** All header values MUST be strings (or convertible).
+4. **I-API-BODY-SERIALIZABLE:** Request body MUST be JSON-serializable (for JSON content-type).
+
+### Response Invariants
+
+5. **I-API-STATUS-NUMBER:** Response status MUST be a valid HTTP status code (100-599).
+6. **I-API-ERROR-DETECTION:** `isError` formula determines error state (not just HTTP status).
+7. **I-API-CACHE-KEY-DETERMINISTIC:** Same inputs MUST produce same cache key.
+
+### Lifecycle Invariants
+
+8. **I-API-ABORT-CLEANUP:** In-flight requests MUST be aborted on component unmount.
+9. **I-API-SIGNAL-DESTROY:** API signal MUST be destroyed with component signal.
+10. **I-API-CACHE-SCOPE:** Cache is per-component instance (not global).
+
+### Invariant Violation Behavior
+
+| Invariant | Detection | Behavior |
+|-----------|-----------|----------|
+| I-API-METHOD-VALID | Build | Error: schema validation |
+| I-API-URL-ABSOLUTE | Runtime | Error: skip request |
+| I-API-ABORT-CLEANUP | Runtime | Abort on unmount (guaranteed) |
+
+---
+
+## Error Handling
+
+### Error Types
+
+| Error Type | When Thrown | Recovery |
+|------------|-------------|----------|
+| `ApiTimeoutError` | Request exceeds timeout | `onError` with timeout |
+| `ApiNetworkError` | Network failure | Retry or `onError` |
+| `ApiAbortError` | Request aborted | Silent (expected) |
+| `ApiParseError` | Response body parse failure | `onError` with parse error |
+| `ApiSizeLimitError` | Response exceeds size limit | Truncate, warn |
+
+### Status Code Handling
+
+| Status Range | Behavior |
+|--------------|----------|
+| 200-299 | Check `isError` formula (may still be error) |
+| 300-399 | Follow redirect or treat as error |
+| 400-499 | Client error, `onError` |
+| 500-599 | Server error, `onError` |
+| 0 | Network error or CORS |
+
+### Retry Logic
+
+```typescript
+interface RetryConfig {
+  maxRetries: number;
+  retryDelay: number;  // Base delay in ms
+  retryBackoff: 'linear' | 'exponential';
+  retryOn: (status: number, error?: Error) => boolean;
+}
+
+async function fetchWithRetry(
+  request: RequestInfo,
+  config: RetryConfig
+): Promise<Response> {
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+    try {
+      const response = await fetch(request);
+      if (!config.retryOn(response.status)) {
+        return response;
+      }
+      lastError = new Error(`Status ${response.status}`);
+    } catch (e) {
+      lastError = e;
+    }
+    
+    const delay = config.retryBackoff === 'exponential'
+      ? config.retryDelay * Math.pow(2, attempt)
+      : config.retryDelay * (attempt + 1);
+    
+    await sleep(Math.min(delay, 30000));
+  }
+  
+  throw lastError;
+}
+```
+
+---
+
+## Changelog
+
+### Unreleased
+- Added System Limits section with request, retry, and size limits
+- Added Invariants section with 10 request, response, and lifecycle invariants
+- Added Error Handling section with error types, status handling, and retry logic
