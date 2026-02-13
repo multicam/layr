@@ -18,7 +18,6 @@ function createContext(data: any = {}): FormulaContext {
       ...data,
     },
     toddle: {
-      getFormula: () => undefined,
       getCustomFormula: () => undefined,
       errors: [],
     },

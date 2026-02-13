@@ -271,7 +271,7 @@ Creates a child component instance within the rendering tree.
 5. **Context subscription** — subscribe to ancestor context providers
 6. **Variable initialization** — evaluate `initialValue` formulas
 7. **AbortController** — linked to signal destruction
-8. **API creation** — sorted by dependency, legacy or v2 creation
+8. **API creation** — sorted by dependency order
 9. **Context provider registration** — if component exposes formulas/workflows
 10. **Children slotting** — group child elements by slot name
 11. **Theme store subscription** — link to global theme signal

@@ -148,7 +148,7 @@ Regex-based extraction (`/{{ cookies\.(.+?) }}/gm`) prevents injection attacks. 
 
 An API is fetched during SSR when ALL conditions are met:
 - `autoFetch` formula evaluates to truthy
-- `server.ssr.enabled` formula evaluates to truthy (or is undefined for legacy APIs)
+- `server.ssr.enabled` formula evaluates to truthy
 
 ### Cache Deduplication
 

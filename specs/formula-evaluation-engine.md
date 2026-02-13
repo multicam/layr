@@ -131,10 +131,9 @@ Returns boolean `true`/`false`.
 
 Invokes a registered formula (standard library, custom, or Toddle formula):
 
-**Resolution order:**
-1. Try `ctx.toddle.getCustomFormula(name, packageName)` — looks up v2 formulas
-2. If not found → try `ctx.toddle.getFormula(name)` — looks up legacy formulas
-3. If neither found → log error (if `logErrors` enabled), return `null`
+**Resolution:**
+1. Look up `ctx.toddle.getCustomFormula(name, packageName)`
+2. If not found → log error (if `logErrors` enabled), return `null`
 
 **Package resolution:** `formula.package ?? ctx.package ?? undefined`. The context package is set to the resolved package before argument evaluation, enabling nested formula calls within the same package.
 
@@ -152,7 +151,6 @@ Arguments are collected as a named record: `{ [arg.name ?? index]: evaluatedValu
 |-------------|-----------|
 | `ToddleFormula` (has `.formula` field) | Recursive `applyFormula()` with `data.Args = args` |
 | `CodeFormula` (has `.handler` field) | Direct call: `handler(args, { root, env })` |
-| Legacy formula (bare function) | Positional call: `handler(argsArray, ctx)` |
 
 **Error handling:** Errors from formula execution are caught, pushed to `ctx.toddle.errors`, logged if `logErrors` enabled, and `null` is returned.
 
@@ -255,8 +253,7 @@ FormulaContext = {
   root?: Document | ShadowRoot,        // DOM root (for custom formulas)
   package: string | null,              // Current package namespace (mutable)
   toddle: {                            // Global runtime
-    getFormula: FormulaLookup,         // Legacy formula lookup
-    getCustomFormula: CustomFormulaHandler, // v2 formula lookup
+    getCustomFormula: CustomFormulaHandler, // Formula lookup
     errors: Error[],                   // Error accumulator
   },
   env: ToddleEnv | undefined,         // Environment flags
@@ -376,7 +373,6 @@ The `isServer` flag is available to formulas but doesn't change evaluation behav
 - **Missing formula function:** Logs error and returns `null` — does not throw
 - **Package context mutation:** `ctx.package` is set to the resolved package during `function` evaluation; this is intentional side-effect for nested package resolution
 - **Record vs object:** Both `record` and `object` operation types produce identical output — `record` exists for backwards compatibility with older formula definitions
-- **Legacy formula handler:** Falls back to positional argument array when v2 lookup fails
 - **Apply without component:** If `ctx.component` is undefined, `apply` returns `null`
 - **Apply cache miss on first call:** Cache always misses on first evaluation (no previous input exists)
 - **Higher-order in non-nested context:** When `ctx.data.Args` is undefined (no parent higher-order call), the `@toddle.parent` key is not added — clean Args object

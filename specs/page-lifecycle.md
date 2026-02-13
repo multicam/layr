@@ -64,8 +64,7 @@ Sets up the global `window.toddle` API and runtime environment.
 3. **Build window.toddle object** with:
    - Project metadata (`project`, `branch`, `commit`)
    - Plugin registries (`formulas`, `actions`)
-   - Legacy registration functions (`registerFormula`, `registerAction`)
-   - V2 lookup functions (`getCustomFormula`, `getCustomAction`, `getArgumentInputData`)
+   - Lookup functions (`getCustomFormula`, `getCustomAction`, `getArgumentInputData`)
    - Location signal (reactive URL state)
    - Error collection array
    - SSR page state reference
@@ -303,15 +302,11 @@ Theme signal subscription:
 | `branch` | `string` | Branch name |
 | `commit` | `string` | Commit hash |
 | `errors` | `Error[]` | Accumulated formula/action errors |
-| `formulas` | `Record<string, Record<string, PluginFormula>>` | V2 formula registry |
-| `actions` | `Record<string, Record<string, PluginActionV2>>` | V2 action registry |
+| `formulas` | `Record<string, Record<string, PluginFormula>>` | Formula registry |
+| `actions` | `Record<string, Record<string, PluginActionV2>>` | Action registry |
 | `isEqual` | `(a, b) → boolean` | `fast-deep-equal` function |
-| `registerFormula` | `(name, handler, getArgInputData?) → void` | Legacy formula registration |
-| `registerAction` | `(name, handler) → void` | Legacy action registration |
-| `getFormula` | `(name) → FormulaHandler?` | Legacy formula lookup |
-| `getAction` | `(name) → ActionHandler?` | Legacy action lookup |
-| `getCustomFormula` | `(name, pkg?) → PluginFormula?` | V2 formula lookup |
-| `getCustomAction` | `(name, pkg?) → PluginActionV2?` | V2 action lookup |
+| `getCustomFormula` | `(name, pkg?) → PluginFormula?` | Formula lookup |
+| `getCustomAction` | `(name, pkg?) → PluginActionV2?` | Action lookup |
 | `getArgumentInputData` | `(name, args, idx, data) → ComponentData` | Autocomplete context |
 | `data` | `Record<string, unknown>` | Reserved for custom use |
 | `components` | `Component[]` | All project components |

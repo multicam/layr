@@ -158,19 +158,13 @@ All actions are one of 10 types:
 1. Look up API by name in `ctx.apis`
 2. Call API's `cancel()` method
 
-### Custom Action (v2)
+### Custom Action
 
 1. Create `triggerActionEvent` callback for sub-events
 2. Look up handler: `ctx.toddle.getCustomAction(name, package)`
 3. Evaluate all argument formulas into named `args` object
 4. Call `handler(args, { root, triggerActionEvent }, event)`
 5. If handler returns function or Promise: Subscribe cleanup to component destroy
-
-### Custom Action (Legacy)
-
-1. Look up handler: `ctx.toddle.getAction(name)`
-2. Evaluate arguments array or single `data` field
-3. Call `handler(args, { ...ctx, triggerActionEvent }, event)`
 
 ### URL Parameter Actions
 
@@ -181,7 +175,7 @@ All actions are one of 10 types:
 
 ## Action Handler Signatures
 
-### V2 Handler
+### Handler Signature
 
 ```
 (args: Record<string, unknown>, ctx: { triggerActionEvent, root }, event?) =>
@@ -194,17 +188,9 @@ All actions are one of 10 types:
 - `Promise<void>`: Async action
 - `Promise<() => void>`: Async action with cleanup
 
-### Legacy Handler
-
-```
-(args: unknown[], ctx: { triggerActionEvent, env, abortSignal }, event?) => void
-```
-
-**Differences from v2:** Array-based arguments, `abortSignal` instead of returned cleanup, no Promise support.
-
 ### Cleanup Pattern
 
-V2 cleanup functions are registered by subscribing to the component data signal's destroy lifecycle. When the signal is destroyed (component unmount), the cleanup function runs.
+Cleanup functions are registered by subscribing to the component data signal's destroy lifecycle. When the signal is destroyed (component unmount), the cleanup function runs.
 
 ---
 
@@ -304,17 +290,10 @@ When `contextProvider` is specified:
 
 ## Action Registration
 
-### V2 Actions
+### Action Lookup
 
 ```
 getCustomAction(name, packageName) → looks up in toddle.actions[packageName][name]
-```
-
-### Legacy Actions
-
-```
-registerAction(name, handler) → stores in legacyActions map
-getAction(name) → retrieves from legacyActions map
 ```
 
 ### Built-in Action Namespace
@@ -392,9 +371,8 @@ abortController.abort(`Component ${component.name} unmounted`)
 - **Nested data refresh:** Each nested action receives latest `{ ...data, ...ctx.dataSignal.get() }` to see previous action's changes
 - **Preview mode navigation:** `goToURL` is blocked and sends message to parent frame
 - **Timer cleanup:** Sleep and Interval register cleanup on `abortSignal` abort event
-- **V2 action cleanup:** Returned functions registered on signal destroy lifecycle
+- **Action cleanup:** Returned functions registered on signal destroy lifecycle
 - **Custom action error:** Caught at top level, logged, does not halt action sequence
-- **Duplicate action registration:** Legacy actions log error and skip (no override)
 - **Set theme requirement:** Requires `style-variables-v2` feature flag
 
 ---

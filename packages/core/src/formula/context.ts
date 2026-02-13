@@ -23,7 +23,6 @@ export interface FormulaContext {
   
   // Toddle runtime
   toddle: {
-    getFormula: (name: string) => Function | undefined;
     getCustomFormula: (name: string, packageName?: string) => any;
     errors: Error[];
   };

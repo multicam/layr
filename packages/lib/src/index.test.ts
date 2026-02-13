@@ -6,7 +6,7 @@ import type { FormulaContext } from '@layr/core';
 // Create a minimal formula context
 const ctx = {
   data: { Attributes: {}, Variables: {}, Apis: {} },
-  toddle: { getFormula: () => undefined, getCustomFormula: () => undefined, errors: [] },
+  toddle: { getCustomFormula: () => undefined, errors: [] },
 } as FormulaContext;
 
 describe('formula registration', () => {

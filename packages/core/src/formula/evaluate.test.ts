@@ -12,7 +12,6 @@ function createTestContext(data: any = {}): FormulaContext {
       ...data,
     },
     toddle: {
-      getFormula: () => undefined,
       getCustomFormula: () => undefined,
       errors: [],
     },
@@ -307,24 +306,6 @@ describe('applyFormula', () => {
         arguments: [{ name: 'x', formula: { type: 'value', value: 10 } }],
       }, ctx);
       expect(result).toBe(10);
-    });
-
-    test('calls legacy handler with positional args', () => {
-      const ctx = createTestContext();
-      ctx.toddle.getFormula = (name: string) => {
-        if (name === '@toddle/add') return (args: any[]) => args[0] + args[1];
-        return undefined;
-      };
-
-      const result = applyFormula({
-        type: 'function',
-        name: '@toddle/add',
-        arguments: [
-          { formula: { type: 'value', value: 5 } },
-          { formula: { type: 'value', value: 7 } },
-        ],
-      }, ctx);
-      expect(result).toBe(12);
     });
 
     test('handles higher-order function (isFunction: true)', () => {

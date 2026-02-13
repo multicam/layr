@@ -92,7 +92,6 @@ export interface PluginFormula {
 
 export interface ProjectConfig {
   runtimeVersion?: string;
-  theme?: OldTheme;
   meta?: ProjectMeta;
 }
 
@@ -102,19 +101,6 @@ export interface ProjectMeta {
   sitemap?: { formula: Formula } | null;
   manifest?: { formula: Formula } | null;
   serviceWorker?: { formula: Formula } | null;
-}
-
-/**
- * Legacy V1 Theme
- */
-export interface OldTheme {
-  spacing: number;
-  colors: Record<string, { order: number; variants: Record<string, { value: string; order: number }> }>;
-  fontFamily: Record<string, { value: string[]; order: number; default?: boolean }>;
-  fontWeight: Record<string, { value: string; order: number; default?: boolean }>;
-  fontSize: Record<string, { value: string; order: number; default?: boolean }>;
-  shadow: Record<string, { value: string; order: number }>;
-  breakpoints: Record<string, { value: number; order: number }>;
 }
 
 // ============================================================================

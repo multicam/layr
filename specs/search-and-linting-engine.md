@@ -164,19 +164,19 @@ ISSUE_RULES = [
 
 | Category | Count | Example Rules |
 |----------|-------|---------------|
-| actions | ~7 | no-console, legacy actions, unknown arguments |
-| apis | ~8 | unknown services, legacy APIs, fetch inputs |
+| actions | ~6 | no-console, unknown arguments |
+| apis | ~7 | unknown services, fetch inputs |
 | attributes | ~3 | attribute validation |
 | components | ~2 | unused components, component structure |
 | context | ~6 | provider/consumer validation |
 | dom | ~8 | accessibility (alt text, href), SEO, image dimensions |
 | events | ~2 | event trigger validation |
-| formulas | ~5 | legacy formulas, unknown references |
+| formulas | ~4 | unknown references |
 | logic | ~3 | static conditions, always-true/false |
 | miscellaneous | ~2 | unknown cookies, unreferenced nodes |
 | routing | ~4 | duplicate routes, URL parameters |
 | slots | ~2 | slot usage validation |
-| style | ~6 | invalid CSS syntax, unused variables, themes |
+| style | ~4 | invalid CSS syntax, unused variables |
 | variables | ~3 | unused variables, reference tracking |
 | workflows | ~3 | post-navigate actions |
 
@@ -186,7 +186,6 @@ ISSUE_RULES = [
 |----------|---------|
 | Unknown Reference | References to non-existent entities |
 | No References | Unused entities that can be removed |
-| Deprecation | Legacy APIs that should be updated |
 | Accessibility | Missing alt text, invalid structure |
 | SEO | Meta tags, page structure |
 | Performance | Images without dimensions |
@@ -216,18 +215,7 @@ visit: (report, args) → {
 }
 ```
 
-### Pattern 2: Deprecation Detection
-
-Detects legacy constructs and offers migration:
-
-```
-visit: (report, data) → {
-  if (data.value.type !== 'function' || !isLegacyFormula(data.value)) return
-  report(path, { name: data.value.name }, ['replace-legacy-formula'])
-}
-```
-
-### Pattern 3: DOM Validation
+### Pattern 2: DOM Validation
 
 Performance/accessibility checks on HTML elements:
 
@@ -342,7 +330,6 @@ Only first fix applies per pass (`!fixedFiles` guard).
 |-----|-------------|
 | `removeFromPathFix` | Simple deletion: `omit(files, path)` |
 | `removeNodeFromPathFix` | DOM node deletion: removes node, cleans parent references, recursively removes children |
-| Legacy formula migration | 660-line transformation: maps 50+ legacy formulas to modern equivalents (AND→and, IF→switch, etc.) |
 
 ---
 

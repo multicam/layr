@@ -156,7 +156,7 @@ A discriminated union on `type` with four variants:
 | `children` | `string[]` | Yes | Child node IDs |
 | `events` | `Record<string, EventModel>` | Yes | Event handlers |
 | `classes` | `Record<string, { formula? }>` | Yes | Conditional CSS classes |
-| `style-variables` | `Array<StyleVariable>?` | No | Design token definitions |
+| `customProperties` | `Record<CustomPropertyName, CustomProperty>?` | No | Custom CSS properties |
 | `condition` | `Formula?` | No | Conditional rendering |
 | `repeat` | `Formula?` | No | List rendering |
 | `repeatKey` | `Formula?` | No | Unique key for repeated items |
@@ -268,14 +268,13 @@ Top-level component and page schemas that compose all sub-schemas.
 | `key` | `string` | CSS property being animated |
 | `value` | `string` | CSS property value at this keyframe |
 
-### StyleVariable (Design Token)
+### CustomProperty (Design Token)
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `category` | `StyleTokenCategory` | One of: `spacing`, `color`, `font-size`, `font-weight`, `z-index`, `border-radius`, `shadow` |
-| `name` | `string` | Token name |
 | `formula` | `Formula` | Value formula |
 | `unit` | `string?` | CSS unit (e.g. `px`, `rem`) |
+| `syntax` | `CssSyntaxNode?` | CSS type definition for validation/animation |
 
 ### RouteSchema
 

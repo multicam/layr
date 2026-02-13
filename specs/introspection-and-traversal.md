@@ -39,7 +39,6 @@ Classes that compose Layer 1 functions to traverse complete entities:
 | `ToddleComponent` | `packages/core/src/component/ToddleComponent.ts` | `Component` | `formulasInComponent()`, `actionModelsInComponent()` |
 | `ToddleFormula` | `packages/core/src/formula/ToddleFormula.ts` | `Formula` (Toddle) | `formulasInFormula()` |
 | `ToddleApiV2` | `packages/core/src/api/ToddleApiV2.ts` | `ApiRequest` | `formulasInApi()`, `actionModelsInApi()` |
-| `LegacyToddleApi` | `packages/core/src/api/LegacyToddleApi.ts` | `LegacyComponentAPI` | `formulasInApi()` |
 | `ToddleApiService` | `packages/ssr/src/ToddleApiService.ts` | `ApiService` | `formulasInService()` |
 | `ToddleRoute` | `packages/ssr/src/ToddleRoute.ts` | `Route` | `formulasInRoute()` |
 
@@ -174,7 +173,7 @@ Generator that yields every formula in the component, traversing:
 2. **Component formulas**: Each `formulas[].formula`
 3. **Variable initial values**: Each `variables[].initialValue`
 4. **Workflow actions**: Each `workflows[].actions[]` (via `getFormulasInAction`)
-5. **API formulas**: Each API's `formulasInApi()` (via `ToddleApiV2` or `LegacyToddleApi`)
+5. **API formulas**: Each API's `formulasInApi()` (via `ToddleApiV2`)
 6. **Lifecycle actions**: `onLoad.actions[]` and `onAttributeChange.actions[]` (via `getFormulasInAction`)
 7. **Node formulas**: For each node in `nodes`:
    - `condition`, `repeat`, `repeatKey` (all node types except slot)

@@ -34,13 +34,3 @@ export interface TokenCategory {
   tokens: DesignToken[];
 }
 
-// ============================================================================
-// V1 Theme (Legacy)
-// ============================================================================
-
-export interface V1Theme {
-  name: string;
-  isDefault?: boolean;
-  colors: Record<string, string>;
-  fonts: Record<string, string>;
-}

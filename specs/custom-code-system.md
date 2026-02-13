@@ -9,7 +9,7 @@ The Custom Code system bridges user-written JavaScript (actions and formulas) wi
 - Collect all custom action and formula references reachable from an entry component
 - Tree-shake unused custom code to minimize bundle size
 - Generate self-contained TypeScript/JavaScript modules that export actions and formulas
-- Support both legacy (v1) and modern (v2) code formats
+- Support modern (v2) code format
 - Handle package-scoped code (code from installed packages vs project-level code)
 - Provide a fallback that includes all code when no entry component is specified
 
@@ -60,7 +60,6 @@ takeReferencedFormulasAndActions()
       ▼
 generateCustomCodeFile()
       │
-      ├── Legacy v1 code: inline handler strings into loadCustomCode()
       ├── V2 actions: structured export with argument metadata + handler wrapper
       ├── V2 formulas (code): structured export with handler wrapper
       └── V2 formulas (toddle): structured export with formula JSON (no handler)
@@ -99,8 +98,6 @@ A union type representing user-defined formulas:
 
 ### PluginAction (Custom Action)
 
-#### PluginActionV2 (modern)
-
 | Field | Type | Description |
 |-------|------|-------------|
 | `name` | `string` | Action identifier |
@@ -111,19 +108,6 @@ A union type representing user-defined formulas:
 | `variableArguments` | `boolean?` | Accepts variable arguments |
 | `exported` | `boolean?` | Whether exported in a package |
 | `handler` | `ActionHandlerV2` | `(args, ctx, event?) => void \| cleanup` |
-
-#### LegacyPluginAction (v1)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | `string` | Action identifier |
-| `description` | `string?` | Human-readable description |
-| `arguments` | `Array<{ name, formula }>?` | Named arguments |
-| `events` | `Record<string, { dummyEvent? }>?` | Events the action can emit |
-| `variableArguments` | `boolean?` | Accepts variable arguments |
-| `handler` | `string` | Raw JavaScript code string |
-
-**Discrimination:** `isLegacyPluginAction(action)` returns `true` if `!('version' in action)`.
 
 ### Handler Signatures
 
@@ -246,11 +230,6 @@ Returns `true` if the entry component references any custom actions or formulas.
 ```javascript
 export const project = "<projectId>"
 
-export const loadCustomCode = () => {
-  // Legacy v1 action handler strings (inlined)
-  // Legacy v1 formula handler strings (inlined)
-}
-
 export const actions = {
   "<projectId>": {
     "<actionName>": {
@@ -289,11 +268,10 @@ export const formulas = {
 
 ## Business Rules
 
-1. **Legacy code is project-only**: Packages are assumed to never contain legacy (v1) actions/formulas. Only project-level code is checked for legacy format.
-2. **ToddleFormula vs CodeFormula discrimination**: `isToddleFormula(f)` checks for the presence of `formula` field. CodeFormula has a `handler` field instead.
-3. **No entry = no tree-shaking**: When no entry component is specified, all custom code is included. This is the fallback for preview mode or full-project builds.
-4. **Package scoping**: References are scoped by package name. A formula `myFormula` in package `@mypackage` is referenced as `@mypackage/myFormula`.
-5. **Deduplication**: Sub-components are tracked by name to prevent duplicate traversal in diamond dependency scenarios.
+1. **ToddleFormula vs CodeFormula discrimination**: `isToddleFormula(f)` checks for the presence of `formula` field. CodeFormula has a `handler` field instead.
+2. **No entry = no tree-shaking**: When no entry component is specified, all custom code is included. This is the fallback for preview mode or full-project builds.
+3. **Package scoping**: References are scoped by package name. A formula `myFormula` in package `@mypackage` is referenced as `@mypackage/myFormula`.
+4. **Deduplication**: Sub-components are tracked by name to prevent duplicate traversal in diamond dependency scenarios.
 
 ---
 

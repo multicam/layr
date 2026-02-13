@@ -2,13 +2,12 @@
 
 ## Purpose
 
-The Plugin System enables extension of Layr with custom formulas and actions beyond the standard library. It supports two API versions (legacy v1 and v2), package-scoped registration, tree-shaking for production bundles, and different loading paths for CSR, SSR, and custom element runtimes.
+The Plugin System enables extension of Layr with custom formulas and actions beyond the standard library. It supports package-scoped registration, tree-shaking for production bundles, and different loading paths for CSR, SSR, and custom element runtimes.
 
 ### Jobs to Be Done
 
 - Register custom formulas (pure functions) and actions (side effects) at runtime
 - Support package-scoped plugins so different packages can define formulas/actions with the same name
-- Maintain backward compatibility with legacy v1 API while encouraging v2 adoption
 - Tree-shake unused formulas/actions from production bundles
 - Support action cleanup lifecycles (teardown on component unmount)
 - Enable editor autocomplete via `getArgumentInputData` functions
@@ -16,49 +15,9 @@ The Plugin System enables extension of Layr with custom formulas and actions bey
 
 ---
 
-## API Versions
+## API Version
 
-### Legacy v1
-
-The original plugin API using positional arguments.
-
-#### FormulaHandler (v1)
-
-```
-(args: unknown[], ctx: { component, data, root, env }) → T | null
-```
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `args` | `unknown[]` | Positional argument array |
-| `ctx.component` | `Component` | Current component definition |
-| `ctx.data` | `ComponentData` | Current component state |
-| `ctx.root` | `Document \| ShadowRoot` | DOM root |
-| `ctx.env` | `ToddleEnv` | Runtime environment |
-
-Returns the formula result or `null` on error.
-
-#### ActionHandler (v1)
-
-```
-(args: unknown[], ctx: { triggerActionEvent, env, abortSignal }, event?) → void
-```
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `args` | `unknown[]` | Positional argument array |
-| `ctx.triggerActionEvent` | `(trigger, data, event?) → void` | Emits action events |
-| `ctx.env` | `ToddleEnv` | Runtime environment |
-| `ctx.abortSignal` | `AbortSignal` | Signals component unmount |
-| `event` | `Event?` | Original DOM event |
-
-No return value. Uses `abortSignal` for cleanup.
-
-### V2 (Current)
-
-The modern plugin API using named arguments and structured return values.
-
-#### FormulaHandlerV2
+### FormulaHandler
 
 ```
 (args: Record<string, unknown>, ctx: { root, env }) → R | null
@@ -72,7 +31,7 @@ The modern plugin API using named arguments and structured return values.
 
 Returns the formula result or `null` on error. Minimal context (no component/data access).
 
-#### ActionHandlerV2
+### ActionHandler
 
 ```
 (args: Record<string, unknown>, ctx: { triggerActionEvent, root }, event?) → void | (() → void) | Promise<void> | Promise<(() → void)>
@@ -86,16 +45,6 @@ Returns the formula result or `null` on error. Minimal context (no component/dat
 | `event` | `Event?` | Original DOM event |
 
 Can return a cleanup function (sync or async) that runs on component unmount.
-
-### Key Differences
-
-| Aspect | v1 (Legacy) | v2 (Current) |
-|--------|-------------|--------------|
-| Arguments | Positional `unknown[]` | Named `Record<string, unknown>` |
-| Formula context | Full (component, data) | Minimal (root, env) |
-| Action cleanup | Via `abortSignal` listener | Return cleanup function |
-| Package scoping | None (flat namespace) | Package-scoped registry |
-| Version field | None / undefined | `version: 2` |
 
 ---
 
@@ -130,21 +79,17 @@ toddle.actions[packageName][actionName] = { handler, arguments, ... }
 
 ### Formula Lookup
 
-1. **V2 lookup** via `getCustomFormula(name, packageName)`:
+1. **Lookup** via `getCustomFormula(name, packageName)`:
    - Check `toddle.formulas[packageName][name]`
    - Fallback to `toddle.formulas[projectId][name]`
-2. **Legacy lookup** via `getFormula(name)`:
-   - Check `legacyFormulas[name]`
-3. **Not found**: log error, return `null`
+2. **Not found**: log error, return `null`
 
 ### Action Lookup
 
-1. **V2 lookup** via `getCustomAction(name, packageName)`:
+1. **Lookup** via `getCustomAction(name, packageName)`:
    - Check `toddle.actions[packageName][name]`
    - Fallback to `toddle.actions[projectId][name]`
-2. **Legacy lookup** via `getAction(name)`:
-   - Check `legacyActions[name]`
-3. **Not found**: log `console.error("Missing custom action", name)`, return
+2. **Not found**: log `console.error("Missing custom action", name)`, return
 
 ---
 
@@ -156,7 +101,7 @@ A formula implemented in JavaScript code.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `handler` | `FormulaHandlerV2` | The JavaScript handler function |
+| `handler` | `FormulaHandler` | The JavaScript handler function |
 | `arguments` | `Array<{ name, ... }>` | Argument definitions |
 | `version` | `2?` | Version indicator |
 
@@ -177,8 +122,7 @@ When `applyFormula` encounters a `function` type formula:
 2. Evaluate arguments (handling function arguments specially — see below)
 3. If **Toddle formula**: recursively call `applyFormula` with `{ data: { ...data, Args: evaluatedArgs } }`
 4. If **Code formula**: call `handler(args, { root, env })`
-5. If **not found**: try legacy `getFormula(name)` with positional args
-6. If **still not found**: log error, return `null`
+5. If **not found**: log error, return `null`
 
 ---
 
@@ -205,9 +149,7 @@ This enables the editor to show contextual autocomplete (e.g., `Args.item`, `Arg
 
 ## Action Cleanup Lifecycle
 
-### V2 Actions
-
-V2 action handlers can return a cleanup function:
+Action handlers can return a cleanup function:
 
 ```
 handler(args, ctx, event) → void | (() → void) | Promise<(() → void)>
@@ -222,13 +164,6 @@ For async cleanup:
 1. Handler returns `Promise<(() → void)>`
 2. On destroy, the promise is awaited, then the resolved function is called
 3. Errors are caught and logged
-
-### V1 Actions
-
-Legacy actions use `ctx.abortSignal` for cleanup:
-```
-ctx.abortSignal.addEventListener('abort', () => { clearInterval(id) })
-```
 
 ---
 
@@ -273,7 +208,7 @@ ctx.abortSignal.addEventListener('abort', () => { clearInterval(id) })
 
 1. Standard library loaded same as page runtime
 2. Packages loaded via `packages` PostMessage with namespaced formulas/actions
-3. Hot-reload support: `clearLegacyActions()` and `clearLegacyFormulas()` remove non-`@toddle/*` entries before re-registration
+3. Hot-reload support: clear non-`@toddle/*` entries before re-registration
 4. Core `@toddle/*` plugins are never cleared during hot-reload
 
 ---
@@ -284,10 +219,9 @@ ctx.abortSignal.addEventListener('abort', () => { clearInterval(id) })
 
 Produces a JavaScript module per component entry point:
 
-1. **Separate legacy from v2** — legacy code goes in `loadCustomCode()`, v2 in exports
-2. **Package scoping** — `__PROJECT__` replaced with actual project ID
-3. **Handler wrapping** — each handler wrapped in IIFE with safe function name
-4. **Tree-shaking** — only referenced formulas/actions included
+1. **Package scoping** — `__PROJECT__` replaced with actual project ID
+2. **Handler wrapping** — each handler wrapped in IIFE with safe function name
+3. **Tree-shaking** — only referenced formulas/actions included
 
 ### Reference Collection (`takeReferencedFormulasAndActions`)
 
@@ -301,7 +235,7 @@ Produces a JavaScript module per component entry point:
 
 ## Standard Library Registration
 
-All `@layr/std-lib` formulas and actions are registered as legacy plugins with `@toddle/` prefix:
+All `@layr/std-lib` formulas and actions are registered with `@toddle/` prefix:
 
 - **96+ formulas**: `@toddle/MAP`, `@toddle/FILTER`, `@toddle/GET`, `@toddle/ADD`, etc.
 - **20+ actions**: `@toddle/goToURL`, `@toddle/copyToClipboard`, `@toddle/setTheme`, etc.
@@ -315,16 +249,6 @@ Each action module exports:
 
 ---
 
-## Legacy Action Detection
-
-An action is classified as legacy when:
-1. `model.version` is undefined/null (v2 has `version: 2`)
-2. `model.name` is in the `LEGACY_CUSTOM_ACTIONS` allowlist
-
-The allowlist includes standard library actions like `If`, `PreventDefault`, `CopyToClipboard`, etc. and `@toddle/*` prefixed actions.
-
----
-
 ## Error Handling
 
 | Scenario | Behavior |
@@ -333,7 +257,7 @@ The allowlist includes standard library actions like `If`, `PreventDefault`, `Co
 | Missing action | Log `console.error("Missing custom action", name)` |
 | Formula handler throws | Catch error, push to `toddle.errors[]`, return `null` |
 | Action cleanup throws | Catch and log error |
-| Duplicate registration (v1) | Log `console.error`, reject duplicate |
+| Duplicate registration | Log `console.error`, reject duplicate |
 | Custom code fails to load | Element still renders; custom formulas/actions undefined |
 
 ---

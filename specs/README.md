@@ -10,19 +10,19 @@ This directory contains technical specifications for the Layr visual development
 
 | Category | Implemented | In Progress | Not Started | Total |
 |----------|-------------|-------------|-------------|-------|
-| Core | 12 | 1 | 2 | 15 |
-| Backend | 5 | 0 | 7 | 12 |
-| SSR | 2 | 1 | 3 | 6 |
-| Runtime | 5 | 1 | 6 | 12 |
+| Core | 14 | 1 | 0 | 15 |
+| Backend | 5 | 0 | 3 | 8 |
+| SSR | 2 | 1 | 2 | 5 |
+| Runtime | 5 | 1 | 3 | 9 |
 | Editor | 0 | 2 | 4 | 6 |
-| Infrastructure | 5 | 0 | 3 | 8 |
-| **Total** | **29** | **5** | **25** | **59** |
+| Infrastructure | 9 | 0 | 0 | 9 |
+| **Total** | **35** | **4** | **12** | **52** |
 
 ---
 
 ## Active Specifications
 
-### Infrastructure (5 specs)
+### Infrastructure (9 specs)
 | Spec | Status | Description |
 |------|--------|-------------|
 | [monorepo-structure.md](monorepo-structure.md) | ✅ | Bun workspaces, package layout |
@@ -30,8 +30,12 @@ This directory contains technical specifications for the Layr visual development
 | [test-harness.md](test-harness.md) | ✅ | Testing utilities |
 | [package-architecture.md](package-architecture.md) | ✅ | Package internals |
 | [development-state.md](development-state.md) | ✅ | **Current status summary** |
+| [api-request-construction.md](api-request-construction.md) | 📝 | URL building, query params, hashing |
+| [api-service-management.md](api-service-management.md) | 📝 | Reusable API services |
+| [plugin-system.md](plugin-system.md) | 📝 | Custom formulas/actions |
+| [error-handling-debug.md](error-handling-debug.md) | 📝 | Panic screen, toasts, logging |
 
-### Core Types (4 specs)
+### Core Types (5 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [project-data-model.md](project-data-model.md) | ✅ | @layr/types |
@@ -40,7 +44,7 @@ This directory contains technical specifications for the Layr visual development
 | [action-system.md](action-system.md) | ✅ | @layr/types |
 | [element-definitions.md](element-definitions.md) | 📝 | @layr/types |
 
-### Core Logic (4 specs)
+### Core Logic (6 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [reactive-signal-system.md](reactive-signal-system.md) | ✅ | @layr/core |
@@ -49,6 +53,8 @@ This directory contains technical specifications for the Layr visual development
 | [context-providers.md](context-providers.md) | ⚠️ | @layr/core |
 | [introspection-and-traversal.md](introspection-and-traversal.md) | 📝 | @layr/core |
 | [data-validation-schemas.md](data-validation-schemas.md) | 📝 | @layr/core |
+| [workflow-system.md](workflow-system.md) | 📝 | @layr/core |
+| [package-management.md](package-management.md) | 📝 | @layr/core |
 
 ### Standard Library (2 specs)
 | Spec | Status | Package |
@@ -56,16 +62,12 @@ This directory contains technical specifications for the Layr visual development
 | [standard-library.md](standard-library.md) | ✅ | @layr/lib |
 | [standard-library-architecture.md](standard-library-architecture.md) | ✅ | @layr/lib |
 
-### Backend (5 specs)
+### Backend (3 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [backend-server.md](backend-server.md) | ✅ | @layr/backend |
 | [routing.md](routing.md) | ✅ | @layr/backend |
 | [route-matching-system.md](route-matching-system.md) | ✅ | @layr/backend |
-| [performance-and-caching.md](performance-and-caching.md) | 📝 | @layr/backend |
-| [build-and-deployment.md](build-and-deployment.md) | 📝 | @layr/backend |
-| [image-cdn-management.md](image-cdn-management.md) | 📝 | @layr/backend |
-| [dynamic-asset-generation.md](dynamic-asset-generation.md) | 📝 | @layr/backend |
 | [cookie-management.md](cookie-management.md) | 📝 | @layr/backend |
 
 ### SSR (2 specs)
@@ -73,9 +75,6 @@ This directory contains technical specifications for the Layr visual development
 |------|--------|---------|
 | [ssr-pipeline.md](ssr-pipeline.md) | ✅ | @layr/ssr |
 | [html-document-head-generation.md](html-document-head-generation.md) | ⚠️ | @layr/ssr |
-| [security-and-sanitization.md](security-and-sanitization.md) | 📝 | @layr/ssr |
-| [seo-web-standards.md](seo-web-standards.md) | 📝 | @layr/ssr |
-| [font-system.md](font-system.md) | 📝 | @layr/ssr |
 
 ### Runtime (5 specs)
 | Spec | Status | Package |
@@ -83,11 +82,7 @@ This directory contains technical specifications for the Layr visual development
 | [rendering-engine.md](rendering-engine.md) | ✅ | @layr/runtime |
 | [slot-system.md](slot-system.md) | ✅ | @layr/runtime |
 | [event-system.md](event-system.md) | ⚠️ | @layr/runtime |
-| [navigation-system.md](navigation-system.md) | 📝 | @layr/runtime |
-| [page-lifecycle.md](page-lifecycle.md) | 📝 | @layr/runtime |
 | [custom-code-system.md](custom-code-system.md) | 📝 | @layr/runtime |
-| [runtime-entry-points.md](runtime-entry-points.md) | 📝 | @layr/runtime |
-| [responsive-styling-system.md](responsive-styling-system.md) | 📝 | @layr/runtime |
 | [styling-and-theming.md](styling-and-theming.md) | ✅ | @layr/runtime |
 
 ### Editor (2 specs)
@@ -98,18 +93,29 @@ This directory contains technical specifications for the Layr visual development
 | [editor-preview-system.md](editor-preview-system.md) | 📝 | @layr/editor |
 | [drag-drop-system.md](drag-drop-system.md) | 📝 | @layr/editor |
 
+### Search & Linting (2 specs)
+| Spec | Status | Package |
+|------|--------|---------|
+| [search-and-linting.md](search-and-linting.md) | 📝 | @layr/search |
+| [search-and-linting-engine.md](search-and-linting-engine.md) | 📝 | @layr/search |
+
 ---
 
 ## Parked Specifications
 
-12 specs in `parked/` directory — lower priority:
+1 spec in `parked/` directory — lower priority:
 
-- **API**: request construction, service management
-- **Editor**: integration
-- **Advanced**: plugins, custom elements, workflows, search
-- **Infrastructure**: error handling, package management
+- **Custom Elements**: Web components export
 
 See [parked/README.md](parked/README.md) for details.
+
+---
+
+## Work Items
+
+See [thoughts/work-items/](../thoughts/work-items/) for pending implementation tasks:
+
+- **[v1-legacy-code-removal.md](../thoughts/work-items/v1-legacy-code-removal.md)** - Remove all v1/legacy code (V2 is baseline)
 
 ---
 

@@ -140,17 +140,14 @@ Formula =
 ### Function Invocation
 
 1. Determine `packageName` from `formula.package ?? ctx.package`
-2. Try V2 lookup: `ctx.toddle.getCustomFormula(name, packageName)`
+2. Look up: `ctx.toddle.getCustomFormula(name, packageName)`
 3. If found:
    - Build named arguments object `Record<string, unknown>`
    - For `isFunction: true` args: Create closure `(Args) => applyFormula(formula, { data: { ...data, Args } })`
    - For regular args: Evaluate immediately
    - If `ToddleFormula`: Evaluate its formula definition with `Args` in data
    - If `CodeFormula`: Call `handler(args, { root, env })`
-4. If not found, try legacy lookup: `ctx.toddle.getFormula(name)`
-   - Build positional arguments array
-   - Call `handler(args, ctx)`
-5. If still not found: Log error, return `null`
+4. If not found: Log error, return `null`
 
 ### Apply Invocation (Component Formulas)
 
@@ -185,8 +182,7 @@ The context object passed through all formula evaluations:
 | `formulaCache` | `Record<string, { get, set }>?` | Memoization cache |
 | `root` | `Document \| ShadowRoot?` | DOM root |
 | `package` | `string?` | Current package namespace |
-| `toddle.getFormula` | `(name) => handler?` | Legacy formula lookup |
-| `toddle.getCustomFormula` | `(name, pkg?) => PluginFormula?` | V2 formula lookup |
+| `toddle.getCustomFormula` | `(name, pkg?) => PluginFormula?` | Formula lookup |
 | `toddle.errors` | `Error[]` | Error collection |
 | `env` | `ToddleEnv?` | Environment context |
 
@@ -240,9 +236,7 @@ Defined as a nested formula tree. Serializable, portable, and evaluatable on bot
 
 Defined as a JavaScript handler function. Not serializable; compiled into package bundles.
 
-**V2 handler signature:** `(args: Record<string, unknown>, ctx: { root, env }) => R | null`
-
-**Legacy handler signature:** `(args: unknown[], ctx: { component, data, root, env }) => T | null`
+**Handler signature:** `(args: Record<string, unknown>, ctx: { root, env }) => R | null`
 
 ### Comparison
 
@@ -252,7 +246,6 @@ Defined as a JavaScript handler function. Not serializable; compiled into packag
 | Serializable | Yes | No (compiled) |
 | Evaluation | Recursive interpretation | Direct invocation |
 | Namespace | Project or package | Package only |
-| Version | N/A | Legacy (array args) or V2 (named args) |
 
 ---
 
@@ -381,8 +374,7 @@ getCustomFormula() → looks up project/package formulas
 **Client (CSR):**
 ```
 window.toddle.registerFormula('@toddle/' + name, handler, getArgumentInputData?)
-window.toddle.getFormula(name) → legacy lookup
-window.toddle.getCustomFormula(name, packageName) → V2 lookup
+window.toddle.getCustomFormula(name, packageName) → lookup
 ```
 
 ---

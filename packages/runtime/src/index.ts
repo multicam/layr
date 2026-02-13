@@ -77,7 +77,6 @@ export type {
 export {
   isToddleFormula,
   isCodeFormula,
-  isLegacyPluginAction,
   isPluginActionV2,
   createCustomCodeRegistry,
   registerFormula,
@@ -98,7 +97,6 @@ export type {
   PluginFormula,
   FormulaHandler,
   PluginActionV2,
-  LegacyPluginAction,
   PluginAction,
   ActionHandlerV2,
   FormulaContext,

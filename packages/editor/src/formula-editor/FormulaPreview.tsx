@@ -19,7 +19,6 @@ export function FormulaPreview({ formula, data }: FormulaPreviewProps) {
     const ctx = {
       data: data || { Variables: {}, Attributes: {}, Apis: {} },
       toddle: {
-        getFormula: () => undefined,
         getCustomFormula: () => undefined,
         errors: [],
       },

@@ -2,7 +2,6 @@ import { describe, test, expect } from 'bun:test';
 import {
   isToddleFormula,
   isCodeFormula,
-  isLegacyPluginAction,
   isPluginActionV2,
   createCustomCodeRegistry,
   registerFormula,
@@ -16,7 +15,7 @@ import {
   generateFormulaCode,
   generateActionCode,
 } from './index';
-import type { ToddleFormula, CodeFormula, PluginActionV2, LegacyPluginAction } from './index';
+import type { ToddleFormula, CodeFormula, PluginActionV2 } from './index';
 
 describe('Custom Code System', () => {
   describe('isToddleFormula', () => {
@@ -55,25 +54,6 @@ describe('Custom Code System', () => {
     });
   });
 
-  describe('isLegacyPluginAction', () => {
-    test('returns true for legacy action', () => {
-      const action: LegacyPluginAction = {
-        name: 'test',
-        handler: 'console.log("test")',
-      };
-      expect(isLegacyPluginAction(action)).toBe(true);
-    });
-
-    test('returns false for V2 action', () => {
-      const action: PluginActionV2 = {
-        name: 'test',
-        version: 2,
-        handler: () => {},
-      };
-      expect(isLegacyPluginAction(action as any)).toBe(false);
-    });
-  });
-
   describe('isPluginActionV2', () => {
     test('returns true for V2 action', () => {
       const action: PluginActionV2 = {
@@ -84,11 +64,8 @@ describe('Custom Code System', () => {
       expect(isPluginActionV2(action)).toBe(true);
     });
 
-    test('returns false for legacy action', () => {
-      const action: LegacyPluginAction = {
-        name: 'test',
-        handler: 'console.log("test")',
-      };
+    test('returns false for non-V2 action', () => {
+      const action = { name: 'test', handler: 'console.log("test")' };
       expect(isPluginActionV2(action as any)).toBe(false);
     });
   });

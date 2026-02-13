@@ -49,16 +49,7 @@ export interface PluginActionV2 {
   handler: ActionHandlerV2;
 }
 
-export interface LegacyPluginAction {
-  name: string;
-  description?: string;
-  arguments?: Array<{ name: string; formula?: Formula }>;
-  events?: Record<string, { dummyEvent?: unknown }>;
-  variableArguments?: boolean;
-  handler: string;
-}
-
-export type PluginAction = PluginActionV2 | LegacyPluginAction;
+export type PluginAction = PluginActionV2;
 
 export type ActionHandlerV2 = (
   args: Record<string, unknown>,
@@ -90,10 +81,6 @@ export function isToddleFormula(formula: PluginFormula): formula is ToddleFormul
 
 export function isCodeFormula(formula: PluginFormula): formula is CodeFormula {
   return 'handler' in formula;
-}
-
-export function isLegacyPluginAction(action: PluginAction): action is LegacyPluginAction {
-  return !('version' in action);
 }
 
 export function isPluginActionV2(action: PluginAction): action is PluginActionV2 {

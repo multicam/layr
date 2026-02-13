@@ -9,7 +9,7 @@ let document: Document;
 function createMockContext(): FormulaContext {
   return {
     data: { Attributes: {}, Variables: {}, Apis: {} },
-    toddle: { getFormula: () => undefined, getCustomFormula: () => undefined, errors: [] },
+    toddle: { getCustomFormula: () => undefined, errors: [] },
   };
 }
 

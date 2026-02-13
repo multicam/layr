@@ -122,19 +122,14 @@ Batch-updates multiple URL parameters atomically in a single location signal upd
 
 ### Fetch
 
-Triggers an API request, supporting both legacy (v1) and modern (v2) API interfaces.
+Triggers an API request.
 
-**v2 API flow:**
+**API flow:**
 1. Look up API by name in `ctx.apis`
 2. Evaluate `action.inputs` formulas to compute input values
 3. Build `actionModels` with callback action arrays from `onSuccess`, `onError`, `onMessage`
 4. Call `api.fetch()` with inputs, models, component data, and workflow callback
-5. The v2 API system handles callback execution internally
-
-**Legacy (v1) API flow:**
-1. Call `api.fetch()` (no arguments)
-2. On promise resolution → execute `onSuccess.actions` via recursive `handleAction()`
-3. On promise rejection → execute `onError.actions` via recursive `handleAction()`
+5. The API system handles callback execution internally
 
 **Error handling:** Missing API logs `console.error` and returns without throwing.
 
@@ -144,8 +139,7 @@ Cancels all in-flight requests for a named API.
 
 **Flow:**
 1. Look up API by name in `ctx.apis`
-2. If v2 API → call `api.cancel()` which aborts all tracked controllers
-3. If legacy API → log warning (not supported)
+2. Call `api.cancel()` which aborts all tracked controllers
 
 ### TriggerWorkflow
 
@@ -174,7 +168,7 @@ Invokes a named workflow, either on the current component or on a context provid
 
 Handles all action types not matched by built-in types, including `type: 'Custom'`, `type: undefined`, and `type: null`.
 
-**v2 custom action flow:**
+**Custom action flow:**
 1. Look up via `ctx.toddle.getCustomAction(action.name, action.package ?? ctx.package)`
 2. Evaluate `action.arguments` as named key-value pairs
 3. Call `newAction.handler(args, { root, triggerActionEvent }, event)`
@@ -183,11 +177,6 @@ Handles all action types not matched by built-in types, including `type: 'Custom
    - On signal destroy (component unmount), call the cleanup function
    - If Promise, await resolution then call cleanup
    - Enables patterns like `addEventListener` → return `removeEventListener`
-
-**Legacy custom action flow:**
-1. Look up via `ctx.toddle.getAction(action.name)`
-2. Evaluate arguments as positional array (or fall back to `action.data` for oldest format)
-3. Call handler with `(args, { ...ctx, triggerActionEvent }, event)`
 
 **Sub-event handler:** Custom actions can trigger named sub-events via `triggerActionEvent(trigger, eventData)`. This looks up `action.events[trigger]` and executes its actions with `Event` set to the event data.
 
@@ -286,7 +275,6 @@ ActionModel =
 - **SetURLParameter path vs query ambiguity:** Legacy behavior matches by `name` only (not `type === 'param'`), kept for backwards compatibility. SetURLParameters uses stricter `type === 'param'` check
 - **Query parameter removal:** Setting `undefined` value removes the parameter from the URL
 - **URL unchanged after parameter update:** `history.pushState/replaceState` is skipped when URLs are equal, preventing empty history entries
-- **AbortFetch on legacy API:** Logs warning instead of throwing — v1 APIs don't support cancellation
 - **Custom action cleanup with Promise:** Awaits Promise resolution before calling cleanup, with error catching
 - **Workflow callback without caller context:** `workflowCallback?.()` uses optional chaining — safe when action isn't invoked from a workflow
 - **Provider resolution fallback:** Tries `[package/contextProvider]` key first, falls back to bare `contextProvider` name

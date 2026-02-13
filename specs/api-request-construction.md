@@ -286,18 +286,18 @@ Sorts API definitions so that dependencies are initialized before their dependen
 
 ### Algorithm
 
-1. Wrap each `ComponentAPI` in a `ToddleApiV2` or `LegacyToddleApi` wrapper class
+1. Wrap each `ComponentAPI` in a `ToddleApiV2` wrapper class
 2. Each wrapper exposes `apiReferences` — a `Set<string>` of other API names referenced in the API's formulas (via `Apis.*` path analysis)
 3. Compare pairs: if API A references API B, A sorts after B (B evaluates first)
 4. Mutual references (circular) result in stable ordering (comparison returns 0)
 
 ### Dependency Detection
 
-The wrapper classes scan formula trees for `Path` operations starting with `Apis` to extract cross-API references. For example, if API `getUser` has a formula referencing `Apis.getToken.data`, then `getUser` depends on `getToken`.
+The wrapper class scans formula trees for `Path` operations starting with `Apis` to extract cross-API references. For example, if API `getUser` has a formula referencing `Apis.getToken.data`, then `getUser` depends on `getToken`.
 
 ### `sortApiEntries(apis)`
 
-Same algorithm but accepts pre-wrapped `[name, ToddleApiV2 | LegacyToddleApi]` tuples.
+Same algorithm but accepts pre-wrapped `[name, ToddleApiV2]` tuples.
 
 ---
 
@@ -363,23 +363,6 @@ When an `isError` formula is provided, it receives an **isolated context**:
 ### `mapHeadersToObject(headers)`
 
 Converts a `Headers` object to a plain `Record<string, string>`. Duplicate header values (e.g., `Set-Cookie`) are concatenated with `, ` separator.
-
----
-
-## Legacy vs Modern API Detection
-
-### `isLegacyApi(api)`
-
-Discriminates between v1 legacy APIs and v2 modern APIs.
-
-**Source:** `packages/core/src/api/api.ts:22-25`
-
-**Detection logic:**
-- If the API is an instance of `LegacyToddleApi` wrapper class → legacy
-- If the API object has no `version` field → legacy
-- If `version === 2` → modern (v2)
-
-This check is used throughout the system to dispatch to the correct processing path (v1 uses different URL construction, header format, and response handling).
 
 ---
 

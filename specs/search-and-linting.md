@@ -154,16 +154,14 @@ Runs `fixProblems()` repeatedly for a given rule until no more issues found (han
 
 ## Rule Categories (15)
 
-### 1. Action Rules (4 rules)
+### 1. Action Rules (3 rules)
 
-- `legacyActionRule` — Deprecated action patterns
 - `unknownActionRule` — References to non-existent actions
 - `unknownTriggerEventRule` — Unknown event triggers
 - `noReferenceComponentWorkflowRule` — Unused workflows
 
-### 2. API Rules (4 rules)
+### 2. API Rules (3 rules)
 
-- `legacyApiRule` — v1 API format (deprecated)
 - `noReferenceApiRule` — Unused APIs
 - `unknownApiRule` — References to non-existent APIs
 - `unknownApiInputRule` — Unknown API input references
@@ -204,9 +202,8 @@ Runs `fixProblems()` repeatedly for a given rule until no more issues found (han
 - `unknownEventRule` — References to non-existent events
 - `unknownTriggerEventRule` — Unknown event trigger references
 
-### 8. Formula Rules (4 rules)
+### 8. Formula Rules (3 rules)
 
-- `legacyFormulaRule` — Uppercase formula names (deprecated), with auto-fix
 - `duplicateFormulaArgumentNameRule` — Duplicate argument names
 - `noReferenceComponentFormulaRule` — Unused component formulas
 - `noReferenceProjectFormulaRule` — Unused project formulas
@@ -238,11 +235,9 @@ Runs `fixProblems()` repeatedly for a given rule until no more issues found (han
 
 - `unknownComponentSlotRule` — References to non-existent slots
 
-### 13. Style Rules (6 rules)
+### 13. Style Rules (4 rules)
 
 - `invalidStyleSyntaxRule` — CSS that fails PostCSS parsing (with auto-fix)
-- `legacyStyleVariableRule` — Deprecated style variable syntax
-- `legacyThemeRule` — Old theme format
 - `unknownClassnameRule` — References to non-existent class names
 - `unknownCSSVariableRule` — CSS `var()` referencing undefined variables
 - `noReferenceGlobalCSSVariableRule` — Unused global CSS variables
@@ -269,7 +264,7 @@ Runs `fixProblems()` repeatedly for a given rule until no more issues found (han
 | Level | Meaning | Examples |
 |-------|---------|---------|
 | `error` | Must fix — broken references | Unknown component, variable, formula; invalid CSS syntax |
-| `warning` | Should fix — quality/deprecation | Legacy patterns, unused items, performance issues |
+| `warning` | Should fix — quality issues | Unused items, performance issues |
 | `info` | Informational | (Reserved, not currently used) |
 
 ---

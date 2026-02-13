@@ -300,10 +300,6 @@ export interface ToddleGlobal {
   formulas: Record<string, Record<string, unknown>>;
   actions: Record<string, Record<string, unknown>>;
   isEqual: (a: unknown, b: unknown) => boolean;
-  registerFormula: (name: string, handler: unknown) => void;
-  registerAction: (name: string, handler: unknown) => void;
-  getFormula: (name: string) => unknown;
-  getAction: (name: string) => unknown;
   getCustomFormula: (name: string, packageName?: string) => unknown;
   getCustomAction: (name: string, packageName?: string) => unknown;
   getArgumentInputData: (
@@ -358,10 +354,6 @@ export function initToddleGlobal(options: {
     formulas: {},
     actions: {},
     isEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b),
-    registerFormula: () => {},
-    registerAction: () => {},
-    getFormula: () => undefined,
-    getAction: () => undefined,
     getCustomFormula: () => undefined,
     getCustomAction: () => undefined,
     getArgumentInputData: () => undefined,

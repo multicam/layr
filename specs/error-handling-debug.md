@@ -310,7 +310,7 @@ This prevents any single action failure from crashing the action pipeline.
 | Action Type | Error Condition | Behavior |
 |-------------|----------------|----------|
 | **Fetch / FetchV2** | API reference not found | `console.error('The api [name] does not exist')`, early return |
-| **AbortFetch** | Legacy (non-v2) API | `console.warn('AbortFetch action is not supported for API "[name]" as it is not a v2 API.')` |
+| **AbortFetch** | Non-v2 API | `console.warn('AbortFetch action is not supported for API "[name]" as it is not a v2 API.')` |
 | **TriggerWorkflow** | Workflow not found | `console.warn('Workflow [name] does not exist on component [componentName]')`, early return |
 | **TriggerComponentEvent** | Context workflow not found | `console.warn('Cannot find workflow "[name]" on component "[name]". It has likely been removed or modified.')` |
 | **Custom action (default)** | Action handler not found | `console.error('Missing custom action', actionName)`, early return |

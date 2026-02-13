@@ -184,9 +184,8 @@ getCustomFormula: (name, packageName) => {
 
 Formula resolution uses the `toddle.getCustomFormula` function, which checks:
 
-1. `toddle.formulas[packageName][name]` — package-scoped V2 formulas
-2. `toddle.formulas[projectId][name]` — project-scoped V2 formulas (fallback)
-3. Legacy `getFormula(name)` — flat namespace legacy formulas
+1. `toddle.formulas[packageName][name]` — package-scoped formulas
+2. `toddle.formulas[projectId][name]` — project-scoped formulas (fallback)
 
 See [Plugin System](./plugin-system.md) for full dispatch logic.
 
@@ -251,10 +250,6 @@ The `generateCustomCodeFile` function (`packages/ssr/src/custom-code/codeRefs.ts
 ```javascript
 export const project = "project_short_id";
 
-export const loadCustomCode = () => {
-  // Legacy v1 actions and formulas (inline handlers)
-};
-
 export const actions = {
   "packageName": {
     "actionName": { arguments: [...], handler: (args, ctx) => { ... } }
@@ -276,8 +271,7 @@ export const formulas = {
 **Package scoping rules:**
 - The `__PROJECT__` key is replaced with the actual `projectId` (the project's `short_id`)
 - Each package gets its own key in the `actions` and `formulas` exports
-- Legacy code (v1) is assumed to only exist at the project level — packages are assumed to not have legacy actions/formulas
-- V2 actions/formulas are grouped by package for proper namespace scoping
+- Actions/formulas are grouped by package for proper namespace scoping
 
 ### Build-Time Package Filtering
 

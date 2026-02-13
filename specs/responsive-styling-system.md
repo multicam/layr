@@ -144,16 +144,7 @@ Theme = {
   defaultLight?: string         // Auto-applied via prefers-color-scheme: light
   propertyDefinitions?: Record<CustomPropertyName, CustomPropertyDefinition>
   themes?: Record<string, { order?: number }>
-
-  // Legacy token system (v1)
-  scheme?: 'dark' | 'light'
-  color?: StyleTokenGroup[]
   fonts: FontFamily[]
-  'font-size'?: StyleTokenGroup[]
-  spacing?: StyleTokenGroup[]
-  'border-radius'?: StyleTokenGroup[]
-  shadow?: StyleTokenGroup[]
-  // ...
 }
 ```
 
@@ -263,16 +254,14 @@ Generated as `@media (min-width: {value}px) { ... }`. Maintained for backwards c
 
 ### Theme CSS Generation: `getThemeCss()`
 
-1. **Split themes** by version: legacy (has `breakpoints` field) vs. modern
-2. **Property definitions:** Render `@property` declarations for all definitions
-3. **Default theme:** `:host, :root { --var: value; }`
-4. **Dark mode auto:** `@media (prefers-color-scheme: dark) { :host, :root { --var: darkValue; } }`
-5. **Light mode auto:** `@media (prefers-color-scheme: light) { ... }`
-6. **Named themes:** `[data-nc-theme~="themeName"] { --var: value; }`
-7. **Reset styles:** Optional global resets (flexbox defaults, typography normalization)
-8. **Font faces:** `@font-face` declarations for uploaded/Google fonts
-9. **Token variables:** Legacy token variables in `body, :host`
-10. **Keyframe animations:** Built-in `animation-spin`, `animation-fade-in`, `animation-fade-out`
+1. **Property definitions:** Render `@property` declarations for all definitions
+2. **Default theme:** `:host, :root { --var: value; }`
+3. **Dark mode auto:** `@media (prefers-color-scheme: dark) { :host, :root { --var: darkValue; } }`
+4. **Light mode auto:** `@media (prefers-color-scheme: light) { ... }`
+5. **Named themes:** `[data-nc-theme~="themeName"] { --var: value; }`
+6. **Reset styles:** Optional global resets (flexbox defaults, typography normalization)
+7. **Font faces:** `@font-face` declarations for uploaded/Google fonts
+8. **Keyframe animations:** Built-in `animation-spin`, `animation-fade-in`, `animation-fade-out`
 
 ### Recursive Var Resolution
 
@@ -370,7 +359,6 @@ Connects reactive signal to CSS property:
 - **Shadow DOM isolation:** Each `CustomPropertyStyleSheet` instance is scoped to its root (Document or ShadowRoot); components using Shadow DOM receive their own instance
 - **Variant selector ordering:** `variantSelector()` orders fragments as class → pseudo-classes → pseudo-elements to ensure valid CSS
 - **Media query specificity conflicts:** Multiple variants with different media queries on the same property resolve via CSS cascade order (last defined wins)
-- **Legacy style-variables:** Old `node['style-variables']` array format is not processed by SSR; only `node.customProperties` object format is supported
 - **Missing @property definition:** Custom properties without theme definitions work as generic CSS variables but lose animation interpolation support
 
 ---

@@ -78,11 +78,11 @@ Constructs the initial data context for server-side formula evaluation.
 
 ### `evaluateComponentApis()`
 
-Evaluates all v2 APIs for a component during SSR.
+Evaluates all APIs for a component during SSR.
 
 **Process:**
 
-1. Filter to v2 APIs only, sort by dependency order
+1. Sort APIs by dependency order
 2. **Independent APIs** (no cross-API references): Fetch in parallel with `Promise.all()`
 3. **Dependent APIs**: Fetch sequentially, updating `formulaContext.data.Apis` after each
 4. Return combined results
@@ -317,8 +317,7 @@ Only includes formulas and actions actually referenced by the component tree:
 
 Generates JavaScript module for runtime:
 
-- Legacy actions/formulas: Executed immediately in `loadCustomCode()`
-- V2 actions/formulas: Wrapped in closures
+- Actions/formulas: Wrapped in closures
 - `ToddleFormula` definitions: Stored as JSON (evaluated by runtime)
 - Package names mapped: `__PROJECT__` → `projectId`
 

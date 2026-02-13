@@ -206,21 +206,15 @@ Only one case executes per Switch action.
 
 #### Fetch
 
-Triggers an API fetch. Supports both v2 and legacy APIs.
+Triggers an API fetch.
 
-**V2 API:**
 - Evaluates input formulas to override API defaults
 - Passes `onCompleted`, `onFailed`, `onMessage` action lists as callbacks
 - Calls `api.fetch({ actionInputs, actionModels, componentData, workflowCallback })`
 
-**Legacy API:**
-- Calls `api.fetch()` returning a Promise
-- `.then()` triggers `onSuccess` actions
-- `.catch()` triggers `onError` actions
-
 #### AbortFetch
 
-Cancels an in-flight v2 API request. Logs a warning for legacy APIs (not supported).
+Cancels an in-flight API request.
 
 #### SetURLParameter (deprecated)
 
@@ -264,20 +258,15 @@ workflow.actions.forEach(action =>
 
 Calls the `workflowCallback` function passed from the parent workflow trigger. Only meaningful inside a workflow execution context.
 
-#### Custom Action (v2)
+#### Custom Action
 
 1. Evaluates all named arguments from formulas
 2. Calls `action.handler(args, { root, triggerActionEvent }, event)`
 3. If the handler returns a function (or Promise of a function), registers it as a cleanup callback on the data signal's destroy hook
 
-#### Custom Action (legacy)
-
-1. Evaluates arguments (named array for v2-style, or legacy `action.data` fallback)
-2. Calls `legacyHandler(args, { ...ctx, triggerActionEvent }, event)`
-
 #### Built-in Action
 
-Same dispatch path as Custom Action — looked up from `ctx.toddle.getCustomAction` with the `@toddle/` prefix.
+Looked up from `ctx.toddle.getCustomAction` with the `@toddle/` prefix.
 
 ---
 

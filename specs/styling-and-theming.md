@@ -18,7 +18,7 @@ The Styling & Theming system manages all visual presentation in Layr: theme defi
 
 ## Data Models
 
-### Theme (Modern — v2)
+### Theme
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -29,20 +29,6 @@ The Styling & Theming system manages all visual presentation in Layr: theme defi
 | `themes` | `Record<string, { order?: number }>` | Named theme variants with optional ordering |
 
 **Token Categories:** `color`, `fonts`, `font-size`, `font-weight`, `spacing`, `border-radius`, `shadow`, `z-index`
-
-### OldTheme (Legacy — v1)
-
-Flat structure with ordered token maps:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `spacing` | `number` | Base spacing unit |
-| `colors` | `Record<string, Record<string, string>>` | `color → variant → value` |
-| `fontFamily` | `Record<string, string>` | Font family definitions |
-| `fontWeight` | `Record<string, number>` | Font weight definitions |
-| `fontSize` | `Record<string, string>` | Font size definitions |
-| `shadow` | `Record<string, string>` | Shadow definitions |
-| `breakpoints` | `{ small, medium, large }` | Breakpoint pixel values |
 
 ### StyleVariant
 
@@ -256,18 +242,10 @@ Manages CSS custom properties at runtime with efficient updates.
 
 ## Theme CSS Generation
 
-### Modern Theme (v2)
-
 1. Register `@property` definitions with syntax, inheritance, initial values
 2. Generate `:root` block with default theme values
 3. Generate `[data-nc-theme="name"]` blocks for each theme variant
 4. Support `@media (prefers-color-scheme: dark)` for automatic dark mode
-
-### Legacy Theme (v1)
-
-1. Generate CSS custom properties in `:root`
-2. Variable naming: `--font-${name}`, `--font-size-${name}`, `--${color}-${variant}`, `--shadow-${name}`, `--spacing`
-3. Ordered rendering for deterministic output
 
 ### CSS Custom Property Syntax Types
 
@@ -281,14 +259,14 @@ Nested `var(--name)` references resolved recursively (up to 256 levels). Returns
 
 ## CSS Variable Naming Conventions
 
-| Token Type | v1 Pattern | v2 Pattern |
-|-----------|------------|------------|
-| Fonts | `--font-${name}` | `--${name}` |
-| Font sizes | `--font-size-${name}` | `--${name}` |
-| Font weights | `--font-weight-${name}` | `--${name}` |
-| Colors | `--${color}-${variant}` | `--${name}` |
-| Shadows | `--shadow-${name}` | `--${name}` |
-| Spacing | `--spacing` | `--${name}` |
+| Token Type | Pattern |
+|-----------|------------|
+| Fonts | `--${name}` |
+| Font sizes | `--${name}` |
+| Font weights | `--${name}` |
+| Colors | `--${name}` |
+| Shadows | `--${name}` |
+| Spacing | `--${name}` |
 
 ---
 
@@ -370,7 +348,6 @@ Extracts all `fontFamily` / `font-family` references from all component nodes (b
 - **Dependency-first rendering:** Child component styles rendered before parent for correct CSS cascade
 - **Visited components tracking:** Prevents duplicate style injection
 - **Size property auto-conversion:** Only applies to numeric values in `SIZE_PROPERTIES`
-- **Legacy variant support:** Variants stored in `node.style.variants` (deprecated path) still supported
 - **Deep clean mode:** `unregisterProperty` with `deepClean` removes entire empty CSS rules (editor preview only)
 
 ---

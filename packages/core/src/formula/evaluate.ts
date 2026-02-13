@@ -177,15 +177,6 @@ function evaluateFunction(
     return null;
   }
   
-  // Try legacy lookup
-  const legacyHandler = ctx.toddle.getFormula(formula.name);
-  if (legacyHandler) {
-    const args = (formula.arguments ?? []).map((arg) =>
-      applyFormula(arg.formula, ctx, depth + 1)
-    );
-    return legacyHandler(args, ctx);
-  }
-  
   // Not found
   console.warn(`Formula not found: ${formula.name}`);
   return null;

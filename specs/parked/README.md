@@ -2,29 +2,23 @@
 
 Specs deferred for future development — lower priority features.
 
-## By Category (12 specs remaining)
+## By Category (3 specs remaining)
 
-### API & Services (2 specs)
-- api-request-construction.md - Request building utilities
-- api-service-management.md - API lifecycle management
-
-### Editor (1 spec)
-- editor-integration.md - Editor-component integration
-
-### Advanced (6 specs)
-- plugin-system.md - Extension points
-- custom-elements.md - Web components support
-- workflow-system.md - Reusable workflows
-- search-and-linting.md - Search functionality
-- search-and-linting-engine.md - Search implementation
-- legacy-compatibility-and-migration.md - Toddle compatibility
+### API & Services (1 spec)
+- api-request-construction.md - **PROMOTED 2026-02-14**
+- api-service-management.md - **PROMOTED 2026-02-14**
+- custom-elements.md - Web components export
 
 ### Infrastructure (2 specs)
-- error-handling-debug.md - Error handling and debugging
-- package-management.md - Package versioning/dependencies
+- error-handling-debug.md - **PROMOTED 2026-02-14**
+- package-management.md - **PROMOTED 2026-02-14**
 
-### Future Consideration (1 spec)
-- workflow-system.md - Complex workflow orchestration
+### Removed (V2 Baseline)
+- ~~legacy-compatibility-and-migration.md~~ - **DELETED 2026-02-14** (V2 is baseline, no v1 support)
+- ~~plugin-system.md~~ - **PROMOTED 2026-02-14**
+- ~~search-and-linting.md~~ - **PROMOTED 2026-02-14**
+- ~~search-and-linting-engine.md~~ - **PROMOTED 2026-02-14**
+- ~~workflow-system.md~~ - **PROMOTED 2026-02-14**
 
 ---
 
@@ -32,6 +26,15 @@ Specs deferred for future development — lower priority features.
 
 | Spec | Package | Description |
 |------|---------|-------------|
+| editor-integration | @layr/editor | **Consolidated into editor-preview-system.md (2026-02-14)** |
+| api-request-construction | @layr/core | **Promoted (2026-02-14)** |
+| api-service-management | @layr/core | **Promoted (2026-02-14)** |
+| error-handling-debug | @layr/runtime | **Promoted (2026-02-14)** |
+| package-management | @layr/ssr | **Promoted (2026-02-14)** |
+| plugin-system | @layr/core | **Promoted (2026-02-14)** |
+| search-and-linting | @layr/search | **Promoted (2026-02-14)** |
+| search-and-linting-engine | @layr/search | **Promoted (2026-02-14)** |
+| workflow-system | @layr/core | **Promoted (2026-02-14)** |
 | backend-middleware-system | @layr/backend | Middleware compose, cors, logger, errorHandler |
 | api-proxy-system | @layr/backend | Proxy with cookie templates |
 | hydration-system | @layr/runtime, @layr/ssr | SSR→CSR data transfer |

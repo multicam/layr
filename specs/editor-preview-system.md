@@ -4,16 +4,21 @@
 
 The Editor Preview System provides a live, interactive preview of Layr components within the visual editor. It runs inside an iframe and communicates bidirectionally with the parent editor via PostMessage. The system handles component rendering with live updates, selection/highlight tracking, style previews, animation timeline scrubbing, drag-and-drop reordering, and GraphQL API introspection.
 
+> **Consolidated from:** `parked/editor-integration.md` (2026-02-14)
+> The parked spec was merged as it contained comprehensive PostMessage protocol details and additional edge case handling.
+
 ### Jobs to Be Done
 
 - Render components in a sandboxed iframe with real-time updates as the user edits
 - Track selected and highlighted nodes with frame-perfect overlay synchronization
 - Provide live style previews without committing changes to component state
-- Support drag-and-drop node reordering and cross-container insertion
+- Support drag-and-drop node reordering and cross-container insertion with View Transitions API
 - Enable GraphQL schema discovery for API configuration in the editor
 - Forward keyboard events and user interactions to the parent editor
 - Scrub animation timelines for keyframe editing
 - Force-display conditionally hidden elements when selected in design mode
+- Report keyboard, mouse, and component events back to the editor
+- Support design mode (conditional overrides) and test mode (normal rendering)
 
 ---
 
@@ -215,23 +220,134 @@ Reads `window.getComputedStyle()` for requested properties and sends result back
 
 ---
 
+## Drag-and-Drop System
+
+The drag system has two modes with smooth transitions via the View Transitions API.
+
+### Drag Modes
+
+| Mode | Trigger | Behavior |
+|------|---------|----------|
+| **Reorder** | Drag within initial container | Overlap-based permutation selection |
+| **Insert** | Drag outside initial container | Cross-container insertion via drop lines |
+
+### DragState
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `mode` | `'reorder' \| 'insert'` | Current drag mode |
+| `elementType` | `'element' \| 'component' \| 'text'` | Type of dragged item |
+| `copy` | `HTMLElement?` | Clone when Alt-dragging (copy mode) |
+| `element` | `HTMLElement` | The dragged element |
+| `repeatedNodes` | `HTMLElement[]` | Repeated items (from list rendering) |
+| `offset` | `Point` | Cursor offset from element origin |
+| `lastCursorPosition` | `Point` | Current cursor position |
+| `initialContainer` | `HTMLElement` | Original parent element |
+| `initialNextSibling` | `Element?` | Original position marker |
+| `initialRect` | `DOMRect` | Original bounding box |
+| `reorderPermutations` | `Array<{ nextSibling, rect }>` | All valid positions in container |
+| `isTransitioning` | `boolean` | View transition in progress |
+| `selectedInsertAreaIndex` | `number?` | Active insert line index |
+| `insertAreas` | `Array<InsertArea>?` | Valid drop locations outside container |
+| `destroying` | `boolean` | Cleanup in progress |
+
+### Drag Lifecycle
+
+**1. Drag Started** (`drag-started` message)
+- Creates DragState with `mode = 'reorder'`
+- If Alt key pressed: clones element (copy mode)
+- Styles repeated nodes as stacked cards with random rotation
+- Calculates all `reorderPermutations` by testing every sibling position
+- Starts animation loop for repeated nodes following the dragged element
+- Highlights container and adds `__drag-mode--reorder` class
+
+**2. Reorder Mode (Inside Initial Container)**
+- Finds best permutation using overlap detection (element center ± 100px)
+- Uses Euclidean distance to select closest overlapping position
+- Triggers View Transition to smoothly animate sibling reordering
+- Updates drop highlight to show insertion point
+
+**3. Insert Mode (Outside Initial Container)**
+- Switches from reorder to insert on first call
+- Moves element to `document.body` with `__drag-mode--move` class
+- Calculates insert areas (lines between elements)
+- Reduces repeated node opacity to 0.2
+- Converts areas to lines (horizontal for block layout, vertical for inline)
+- Uses `findNearestLine()` for perpendicular distance calculation
+- Shows radial gradient at projection point for visual feedback
+
+**4. Drag Ended** (`drag-ended` message)
+- Sets `view-transition-name` on dragged element and visible siblings
+- Wraps DOM update in View Transition:
+  - **Canceled:** restores element to initial position
+  - **Reorder mode:** element already in position, cleanup only
+  - **Insert mode:** moves element to selected insert area
+- Cleans up classes, styles, repeated nodes
+- Posts `nodeMoved` message to editor with parent and index
+
+### Insert Area Calculation
+
+Valid drop locations are calculated as lines between elements:
+
+1. Query all `[data-id]` elements (excluding components and repeated items)
+2. Determine layout direction (block vs inline) by checking if siblings stack vertically
+3. **Block layout:** horizontal lines before/after elements
+4. **Inline layout:** vertical lines before/after elements
+5. Handle wrapped elements with lines at wrap boundaries
+6. Offset overlapping lines by 1px per nesting level for disambiguation
+
+### Copy vs Move
+
+- Alt key during drag creates a clone
+- Switching Alt state mid-drag restarts the drag operation with/without copy
+- Copy mode: original stays in place, clone follows cursor
+
+### Visual Indicators
+
+- **Container highlight:** colored border around current container
+  - Blue (`#2563EB`) for elements
+  - Purple (`#D946EF`) for components
+- **Drop line:** shows insertion point within container
+- **External drop highlight:** radial gradient at nearest valid drop location
+
+---
+
 ## Overlay Synchronization
 
-Selection and highlight overlays are synchronized every animation frame to track animated elements:
+Selection and highlight overlays are synchronized every animation frame to track animated elements. For each selected/highlighted node, computes:
+- Bounding rect (`left, right, top, bottom, width, height, x, y`)
+- `borderRadius` (split into individual corners)
+- `rotate` transform value
+
+### Real-Time Synchronization
 
 ```
 function syncOverlayRects() {
   1. Get rect data for selected node
-  2. If changed from previous → send selectionRect
+  2. If changed from previous (fastDeepEqual) → send selectionRect
   3. Get rect data for highlighted node
   4. If changed from previous → send highlightRect
   5. requestAnimationFrame(syncOverlayRects)
 }
 ```
 
-Rect data includes: `left`, `right`, `top`, `bottom`, `width`, `height`, `borderRadius` (array), `rotate` (CSS transform).
+This ensures overlays track animated, transitioning, or resizing elements frame-by-frame. Changes are detected via `fastDeepEqual` comparison to minimize PostMessage traffic.
 
-Changes are detected via `fastDeepEqual` comparison to minimize PostMessage traffic.
+### Click-to-Select Behavior
+
+- Uses `document.elementsFromPoint(x, y)` to find elements at cursor
+- Filters for elements with `data-id` (excludes `data-component` wrappers)
+- **Meta+click:** selects text nodes or navigates to first text child
+- **Double-click:** navigates to component or selects text node
+- **Regular click:** selects nearest element node
+
+### Text Node Selection
+
+When a text node is selected, preview posts `textComputedStyle` with 78 CSS properties needed for accurate text rendering overlay:
+- Font: `font-family`, `font-size`, `font-weight`, `font-style`, `line-height`, `letter-spacing`, etc.
+- Text: `text-align`, `text-decoration`, `text-transform`, `white-space`, `word-spacing`, etc.
+- Layout: `display`, `vertical-align`, `padding-*`, `border-*-width`, etc.
+- Special: `caret-color`, `cursor`, `user-select`, etc.
 
 ---
 
@@ -325,6 +441,137 @@ The `update()` function is the core render loop:
 
 ---
 
+## Design Mode vs Test Mode
+
+### Design Mode
+- Conditionally hidden nodes are forced to show when selected
+- Implementation: clones component, removes `condition` from selected node and all ancestors
+- Enables visual editing of nodes that would otherwise be invisible
+- `data-mode="design"` set on body
+
+### Test Mode
+- Normal rendering — conditions evaluated truthfully
+- All conditional overrides reverted
+- Click events are ignored; component behaves like production
+- `data-mode="test"` set on body
+
+---
+
+## Timeline Animation Control
+
+### Keyframe Injection
+
+Editor sends `@keyframes preview_timeline` with all keyframe positions, values, and easing functions. Injected as a `<style data-timeline-keyframes>` tag.
+
+### Time Scrubbing
+
+Uses CSS animation properties to display a specific animation frame:
+
+1. Set CSS custom properties on body:
+   - `--editor-timeline-position: {time}s`
+   - `--editor-timeline-timing-function: {function}`
+   - `--editor-timeline-fill-mode: {mode}`
+
+2. Inject global style:
+   - Pause ALL animations: `[data-id] { animation-play-state: paused !important }`
+   - Apply timeline to selected element: `animation: preview_timeline 1s paused normal !important`
+   - Use negative `animation-delay: calc(0s - var(--editor-timeline-position))` to scrub
+
+The negative delay technique shows the animation at the exact specified time without playing it.
+
+---
+
+## Live Style Preview
+
+### Regular Style Preview
+
+Editor sends CSS property/value pairs for the selected node. Preview injects a `<style>` tag with:
+- Selector: `[data-id="${selectedNodeId}"]${pseudoElement}`
+- All properties set with `!important`
+- `transition: none !important` to prevent animation during editing
+
+### Style Variant Preview
+
+When editor switches variant (e.g., hover, focus, responsive breakpoint):
+1. Retrieves variant definition from component node
+2. Evaluates custom property formulas with context
+3. Injects `<style>` targeting `body[data-mode="design"] [data-id="${nodeId}"]` with variant styles
+4. Combines base styles + variant styles + evaluated custom properties
+
+### Theme Preview
+
+Applies theme to document body for global CSS variable scoping. Supports default, defaultDark, defaultLight, and named theme variants.
+
+### Resource Preview
+
+Temporarily injects external resources (fonts, stylesheets) into the document head for live preview of new resource additions.
+
+---
+
+## Debug Tools
+
+### Panic Screen
+
+Shown for unrecoverable errors:
+- **RangeError** (infinite loop / stack overflow)
+- **TypeError** (null access, read-only property violations)
+
+Renders a blue screen with white monospace text showing error name, message, and recovery suggestions. Includes a scanline overlay for retro aesthetic.
+
+### Editor Toast
+
+Non-panic errors sent as toast notifications to the editor via PostMessage:
+- Type: `neutral`, `warning`, or `critical`
+- Contains title and message
+
+### Log State
+
+`window.logState()` global function for console debugging (production runtime only, not preview). Outputs component data signals as a table.
+
+---
+
+## Injected Style Tags
+
+| Selector/ID | Purpose |
+|-------------|---------|
+| `[data-timeline-keyframes]` | Animation keyframes for timeline |
+| `[data-id="preview-animation-styles"]` | Paused animation styles for scrubbing |
+| `[data-id="selected-node-styles"]` | Live style preview overrides |
+| `[data-hash="${nodeId}"]` | Style variant overrides |
+| `[data-meta-id]` | Page head tags (meta, title, etc.) |
+| `#theme-style` | Theme CSS |
+
+---
+
+## Preview Runtime Initialization
+
+### Differences from Production
+
+| Aspect | Production (`page`) | Preview |
+|--------|---------------------|---------|
+| `env.runtime` | `'page'` | `'preview'` |
+| Conditional override | None | Selected hidden nodes forced visible |
+| Link behavior | Normal navigation | All `<a>` tags get `target="_blank"` |
+| Event handling | Normal | Forwarded to editor via PostMessage |
+| Style injection | None | Live style/variant/theme preview |
+| Signal cleanup | On unmount | On component update (re-render) |
+
+### Preview-Specific State
+
+| Signal/Variable | Purpose |
+|-----------------|---------|
+| `showSignal` | Tracks conditionally overridden nodes for design mode |
+| `mode` | `'design'` or `'test'` toggle |
+| `styleVariantSelection` | Active variant for style injection |
+| `animationState` | Timeline scrubbing state |
+| `dragState` | Active drag operation |
+
+### Link Modification
+
+All `<a>` tags in the component have `target="_blank"` added to prevent navigation within the preview iframe.
+
+---
+
 ## Edge Cases
 
 - **Untrusted messages:** Logged as error but not rejected (allows debugging)
@@ -333,6 +580,9 @@ The `update()` function is the core render loop:
 - **Missing component on switch:** Previous component cleaned up regardless; new component renders as empty
 - **Preview in test mode:** Click events are ignored; component behaves like production
 - **Theme preview with dark mode:** Generates scoped `@media (prefers-color-scheme: dark)` overrides
+- **Input focus detection:** Keyboard events NOT forwarded when focus is in `<input>`, `<textarea>`, `<select>`, `<style-editor>`, or any `contentEditable` element
+- **Repeated nodes in drag:** List-rendered items (identified by `data-id` starting with `selectedNodeId + '('`) are collected and styled as stacked cards
+- **View Transition fallback:** If View Transitions API not supported, DOM mutations happen immediately via `tryStartViewTransition()`
 
 ---
 

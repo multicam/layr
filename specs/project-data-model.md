@@ -216,7 +216,6 @@ Global runtime configuration for the project.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `runtimeVersion` | `string?` | No | Pinned Layr runtime version (semver). Corresponds to GitHub release tags |
-| `theme` | `OldTheme` | Yes (in V1) | Legacy V1 theme definition. Present only on older projects |
 | `meta` | `ProjectMeta?` | No | Overrides for meta-endpoint generation |
 
 **Source:** `packages/ssr/src/ssr.types.ts:39-50`
@@ -493,8 +492,6 @@ The original theme format, identified by the presence of a `breakpoints` field.
 | `shadow` | `Record<string, { value: string, order }>` | Box shadow presets |
 | `breakpoints` | `Record<string, { value: number, order }>` | Responsive breakpoints (presence distinguishes V1 from V2) |
 
-**Source:** `packages/core/src/styling/theme.ts:55-75`
-
 ---
 
 ## File Loading and Resolution
@@ -622,8 +619,7 @@ Components are resolved through a namespace hierarchy:
 1. V2 theme `propertyDefinitions[prop].values[themeName]`
 2. V2 theme `propertyDefinitions[prop].initialValue`
 3. Base CSS layer token values (color, font-size, etc.)
-4. If no V2 theme exists, fall back to `config.theme` (V1 `OldTheme`)
-5. If no theme at all, use `theme.const.ts` default theme
+4. If no theme at all, use `theme.const.ts` default theme
 
 ### Empty/Minimal Projects
 - A valid project requires at minimum: `id`, `project`, `commit`, and `files.components` (can be empty `{}`)
