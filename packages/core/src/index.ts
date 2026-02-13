@@ -1,13 +1,24 @@
-// Signal System
+// Signal
 export { Signal, createSignal } from './signal/signal';
 
-// Formula System
-export { applyFormula } from './formula/evaluate';
-export type { FormulaContext } from './formula/context';
+// Formula
+export { applyFormula, toBoolean } from './formula/evaluate';
 export * from './formula/operations';
+export type { FormulaContext } from './formula/context';
 
-// Action System  
+// Actions
 export { handleAction } from './action/handle';
 
-// Types
-export type * from '@layr/types';
+// Context
+export { 
+  provide, 
+  consume, 
+  consumeSignal,
+  hasContext, 
+  unprovide, 
+  clearProviders,
+  createContext,
+  ContextScope,
+  ContextKeys,
+} from './context/index';
+export type { ContextProvider, ContextKey } from './context/index';
