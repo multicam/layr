@@ -2,9 +2,6 @@ import type { NodeModel, Component, Formula } from '@layr/types';
 import type { RenderContext } from './component';
 import { shouldRender, createRepeatedNodes } from './condition';
 
-// Get document from global scope
-const doc = typeof document !== 'undefined' ? document : null;
-
 /**
  * Create DOM elements from a node
  */
@@ -14,6 +11,8 @@ export function createNode(
   ctx: RenderContext,
   listItem: any = null
 ): Element[] {
+  // Get document at call time, not module load time
+  const doc = typeof document !== 'undefined' ? document : null;
   if (!doc) {
     return [];
   }
@@ -27,16 +26,14 @@ export function createNode(
   const repeatedItems = createRepeatedNodes(node, allNodes, ctx);
   
   if (repeatedItems.length > 1 || repeatedItems[0]?.listItem !== null) {
-    // Multiple items - render each with its own context
     const elements: Element[] = [];
     
     for (const { listItem: itemContext } of repeatedItems) {
       const childCtx: RenderContext = {
         ...ctx,
-        dataSignal: ctx.dataSignal, // Will be updated with ListItem
+        dataSignal: ctx.dataSignal,
       };
       
-      // Update context with ListItem
       if (itemContext) {
         const currentData = ctx.dataSignal.get();
         childCtx.dataSignal = ctx.dataSignal.map(() => ({
@@ -114,7 +111,7 @@ function createElementNode(
       if (key === 'class' || key === 'className') {
         element.setAttribute('class', String(attrValue || ''));
       } else if (key.startsWith('on')) {
-        // Event handler - will be set up by event system
+        // Event handler
       } else {
         element.setAttribute(key, String(attrValue ?? ''));
       }
@@ -144,8 +141,6 @@ function createComponentNode(node: any, ctx: RenderContext, doc: Document): Elem
   const element = doc.createElement('div');
   element.setAttribute('data-component', name);
   element.setAttribute('data-node-id', node.id || '');
-  
-  // TODO: Look up and render actual component
   
   return element;
 }
