@@ -1,249 +1,143 @@
 # Development State
 
-## Status: 2026-02-13
+## Status: 2026-02-13 (Updated)
 
 ### Summary
 
-- **305 tests passing**
-- **93.5% code coverage**
-- **24 specs active** (implemented or in-progress)
-- **36 specs parked** (future work)
+- **441 tests passing**
+- **0 failing**
+- **~87% overall coverage**
+- **7 packages implemented**
 
 ---
 
-## Completed Implementation
+## Package Status
 
 ### @layr/types (100% complete)
-**Specs:** project-data-model, component-system, formula-system, action-system
+| Metric | Value |
+|--------|-------|
+| Tests | 24 |
+| Functions | 100% |
+| Lines | 100% |
 
-| File | Purpose | Coverage |
-|------|---------|----------|
-| `component.ts` | Component, NodeModel types | 100% |
-| `node.ts` | Element, Text, Component, Slot nodes | 100% |
-| `formula.ts` | 10 operation types + guards | 100% |
-| `action.ts` | 10 action types + guards | 100% |
-| `api.ts` | ApiStatus, ApiRequest | - |
-| `theme.ts` | Theme definitions | - |
-| `route.ts` | Route types | - |
-| `signal.ts` | Signal interface | - |
-| `utils.ts` | Utility types | 100% |
+### @layr/core (97% complete)
+| Metric | Value |
+|--------|-------|
+| Tests | 128 |
+| Functions | 98% |
+| Lines | 97% |
 
-### @layr/core (95% complete)
-**Specs:** reactive-signal-system, formula-evaluation-engine, action-execution-engine, context-providers
+Features: Signal, Formula, Action, Context
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Signal<T> | ✅ Complete | get/set/update/subscribe/destroy/map |
-| Formula evaluation | ✅ Complete | 10 operations, depth limit, caching |
-| Action handling | ✅ Complete | 10 action types |
-| Context providers | ⚠️ Partial | Basic context in FormulaContext |
+### @layr/lib (98% complete)
+| Metric | Value |
+|--------|-------|
+| Tests | 84 |
+| Functions | 100% |
+| Lines | 98% |
 
-### @layr/lib (100% complete)
-**Specs:** standard-library, standard-library-architecture
+Features: 78 formulas across 7 categories
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| Array | 16 | map, filter, reduce, find |
-| String | 16 | concatenate, split, uppercase |
-| Number | 15 | add, multiply, round, random |
-| Object | 9 | keys, values, merge |
-| Logic | 8 | equals, if, switch |
-| Comparison | 5 | greaterThan, between |
-| Utility | 9 | toString, default, first |
+### @layr/backend (60% complete)
+| Metric | Value |
+|--------|-------|
+| Tests | 29 |
+| Functions | 78% |
+| Lines | 60% |
 
-### @layr/backend (70% complete)
-**Specs:** backend-server, routing, route-matching-system
+Features: Server, Routes, Loader
+Missing: Middleware, API proxy, Static assets
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Hono server | ✅ Complete | CORS, health check |
-| Project loader | ✅ Complete | Load from /projects/{id} |
-| Route matching | ✅ Complete | Static + parameterized paths |
-| API proxy | ❌ Not started | See parked spec |
-| Middleware | ❌ Not started | See parked spec |
-| Static assets | ⚠️ Stub | Returns 501 |
+### @layr/ssr (98% complete)
+| Metric | Value |
+|--------|-------|
+| Tests | 52 |
+| Functions | 100% |
+| Lines | 98% |
 
-### @layr/ssr (80% complete)
-**Specs:** ssr-pipeline, html-document-head-generation
+Features: renderPageBody, splitRoutes, template
+Missing: Head generation (stub only)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| renderPageBody | ✅ Complete | HTML string generation |
-| escapeHtml | ✅ Complete | XSS prevention |
-| splitRoutes | ✅ Complete | Per-page bundles |
-| takeIncluded | ✅ Complete | Transitive dependencies |
-| Head generation | ⚠️ Stub | Placeholder only |
-| API pre-fetch | ❌ Not started | |
+### @layr/runtime (69% complete)
+| Metric | Value |
+|--------|-------|
+| Tests | 87 |
+| Functions | 63% |
+| Lines | 69% |
 
-### @layr/runtime (70% complete)
-**Specs:** rendering-engine, slot-system, event-system
+Features: createNode, condition/repeat, events, hydration, API client
+Missing: More condition tests, event binding tests
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| createNode | ✅ Complete | All 4 node types |
-| DOM attributes | ✅ Complete | setAttribute, setClass, setStyles |
-| Condition/repeat | ❌ Not started | Formula evaluation needed |
-| Event handlers | ❌ Not started | |
-| API client | ❌ Not started | |
+### @layr/editor (70% complete) - NEW
+| Metric | Value |
+|--------|-------|
+| Tests | 37 |
+| Functions | 62% |
+| Lines | 70% |
 
-### Infrastructure (100% complete)
-**Specs:** monorepo-structure, development-workflow, test-harness, package-architecture
+Features: 50+ React components
+- Layout (3-panel)
+- Canvas (zoom/pan, selection)
+- Component tree (drag-drop)
+- Inspector (5 tabs)
+- Formula editor (Monaco)
+- Preview (PostMessage)
+- Timeline/Animation
 
-| Item | Status |
-|------|--------|
-| Bun workspaces | ✅ |
-| TypeScript config | ✅ |
-| Test framework | ✅ (bun:test) |
-| Coverage reporting | ✅ |
-| Demo project | ✅ |
+UI components not unit tested (would need E2E)
 
 ---
 
-## Active Specs (Not Yet Implemented)
+## Remaining Work
 
-| Spec | Package | Priority | Notes |
-|------|---------|----------|-------|
-| editor-architecture.md | @layr/editor | High | React editor structure defined |
-| element-definitions.md | @layr/types | Medium | Element metadata types |
-| list-rendering-system.md | @layr/runtime | High | Repeat directive |
-| context-providers.md | @layr/core | Medium | Context lookup system |
-| event-system.md | @layr/runtime | High | Event delegation |
-| template-substitution.md | @layr/ssr | Medium | String interpolation |
-| runtime-entry-points.md | @layr/runtime | High | Page/custom-element entry |
-| hydration-system.md | @layr/runtime | High | SSR → CSR handoff |
-| client-api-system.md | @layr/runtime | High | API client |
-| workflow-system.md | @layr/core | Medium | Reusable action sequences |
-
----
-
-## Parked Specs (Future Work)
-
-Located in `specs/parked/`:
-
-### API & Services
-- api-integration.md
-- api-proxy-system.md
-- api-request-construction.md
-- api-service-management.md
-- client-api-system.md
-
-### Editor
-- editor-integration.md
-- editor-preview-system.md
-- drag-drop-system.md
-
-### Styling
-- styling-and-theming.md
-- responsive-styling-system.md
-- font-system.md
-
-### Performance
-- performance-and-caching.md
-- build-and-deployment.md
-- image-cdn-management.md
-- dynamic-asset-generation.md
-
-### Security & SEO
-- security-and-sanitization.md
-- seo-web-standards.md
-- cookie-management.md
-
-### Advanced
-- plugin-system.md
-- custom-code-system.md
-- custom-elements.md
-- workflow-system.md
-- navigation-system.md
-- page-lifecycle.md
-- legacy-compatibility-and-migration.md
-
----
-
-## Open Questions (Resolved)
-
-| Question | Resolution |
-|----------|------------|
-| API boundaries | ✅ Use `packages/types` for shared types |
-| Type sharing | ✅ Separate `@layr/types` package |
-| React components | ✅ Zustand + Monaco (from Figma patterns) |
-| Package entry points | ✅ `src/index.ts` exports |
-
----
-
-## Next Steps
-
-### High Priority (Required for MVP)
-1. **Condition/Repeat in runtime** - Essential for dynamic content
-2. **Event system** - User interaction
-3. **Hydration** - SSR → CSR transition
-4. **API client in runtime** - Data fetching
+### High Priority (for >80% coverage)
+| Package | Gap | Action |
+|---------|-----|--------|
+| @layr/backend | 60% | Add middleware, proxy tests |
+| @layr/runtime | 69% | Add more condition/repeat tests |
+| @layr/editor | 70% | E2E tests (Playwright) |
 
 ### Medium Priority
-1. Editor implementation
-2. Head generation
-3. Template substitution
-4. Context providers
+| Feature | Spec | Status |
+|---------|------|--------|
+| Head generation | html-document-head-generation.md | Stub only |
+| API proxy | parked/api-proxy-system.md | Not started |
+| Middleware | backend-server.md | Not started |
 
 ### Low Priority
-1. Parked specs
-2. Performance optimization
-3. Plugin system
+- 36 parked specs
+- E2E testing infrastructure
+- Performance optimization
 
 ---
 
 ## Test Summary
 
 ```
-305 tests passing
-0 failing
-93.56% line coverage
-96.97% function coverage
+Package         Tests  Func%  Line%
+@layr/types       24   100%   100%
+@layr/core       128    98%    97%
+@layr/lib         84   100%    98%
+@layr/backend     29    78%    60%
+@layr/ssr         52   100%    98%
+@layr/runtime     87    63%    69%
+@layr/editor      37    62%    70%
 
-By package:
-  @layr/types:     24 tests, 100%
-  @layr/core:     108 tests, 95%
-  @layr/lib:       84 tests, 98%
-  @layr/backend:   19 tests, 65%
-  @layr/ssr:       23 tests, 95%
-  @layr/runtime:   24 tests, 99%
+TOTAL: 441 tests
 ```
 
 ---
 
-## File Structure
+## Recent Commits
 
-```
-specs/
-├── README.md                    # Navigation
-├── development-state.md         # This file
-├── development-workflow.md      # Dev commands
-├── monorepo-structure.md        # Workspace layout
-├── package-architecture.md      # Package internals
-├── test-harness.md              # Testing utilities
-│
-├── project-data-model.md        # ✅ Implemented
-├── component-system.md          # ✅ Implemented
-├── formula-system.md            # ✅ Implemented
-├── action-system.md             # ✅ Implemented
-├── reactive-signal-system.md    # ✅ Implemented
-├── formula-evaluation-engine.md # ✅ Implemented
-├── action-execution-engine.md   # ✅ Implemented
-├── standard-library.md          # ✅ Implemented
-├── standard-library-architecture.md # ✅ Implemented
-├── backend-server.md            # ✅ Implemented
-├── routing.md                   # ✅ Implemented
-├── route-matching-system.md     # ✅ Implemented
-├── ssr-pipeline.md              # ✅ Implemented
-├── rendering-engine.md          # ✅ Implemented
-├── slot-system.md               # ✅ Implemented
-├── event-system.md              # ⚠️ Partial
-├── context-providers.md         # ⚠️ Partial
-├── html-document-head-generation.md # ⚠️ Stub
-├── editor-architecture.md       # 📝 Defined, not built
-│
-└── parked/                      # 36 future specs
-    ├── api-*.md
-    ├── editor-*.md
-    ├── *-system.md
-    └── ...
-```
+| Commit | Description |
+|--------|-------------|
+| bc8d668 | Fix document scope + component tests |
+| 9a48251 | Fix tokenizer @toddle/ infinite loop |
+| 778cee2 | Add timeline files |
+| 4460aba | Timeline & animation (Phase 9) |
+| b6f3b06 | Element definitions (Phase 8) |
+| 3f7abbb | Formula autocomplete (Phase 7) |
+| 8596066 | Drag & drop system (Phase 6) |
+| 7b8cb1f | Preview communication (Phase 5) |
+| b2de923 | Monaco formula editor (Phase 4) |
