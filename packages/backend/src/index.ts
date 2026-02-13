@@ -23,7 +23,22 @@ export {
   THEME_COOKIE_NAME,
   SESSION_COOKIE_NAME,
 } from './cookies';
+export {
+  isCloudflareImagePath,
+  generateIconUrls,
+  generateFaviconTags,
+  generateThumbnailUrl,
+  transformRelativePaths,
+  getCloudflareRobotsRules,
+  buildCloudflareImageUrl,
+  parseCloudflareImageUrl,
+  isCloudflareImageUrl,
+  getImageVariant,
+  setImageVariant,
+  IMAGE_VARIANTS,
+} from './image';
 export type { Middleware } from './middleware';
 export type { ProxyConfig } from './proxy';
 export type { CacheOptions, FormulaCache, FormulaCacheEntry } from './cache';
 export type { CookieOptions, CookieConfig, CookieHandlerOptions } from './cookies';
+export type { ImageVariant } from './image';
