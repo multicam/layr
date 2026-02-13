@@ -28,4 +28,19 @@ export {
   REDIRECT_NAME_HEADER,
 } from './security';
 
+// SEO & Web Standards
+export {
+  generateSitemap,
+  filterStaticRoutes,
+  generateRobotsTxt,
+  generateSpeculationRules,
+  renderSpeculationRules,
+  generateManifest,
+  renderMetaTag,
+  generateOpenGraphTags,
+  generateTwitterCardTags,
+  generateFaviconLinks,
+} from './seo';
+
 export type { HeadItem } from './render/head';
+export type { SitemapUrl, SitemapOptions, RobotsTxtOptions, ManifestOptions, MetaTag } from './seo';
