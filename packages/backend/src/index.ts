@@ -11,6 +11,19 @@ export {
   getCacheControlHeader,
   CachePresets,
 } from './cache';
+export {
+  parseCookies,
+  getRequestCookies,
+  decodeToken,
+  buildSetCookieHeader,
+  validateCookieOptions,
+  setHttpOnlyCookie,
+  deleteCookie,
+  createCookieHandler,
+  THEME_COOKIE_NAME,
+  SESSION_COOKIE_NAME,
+} from './cookies';
 export type { Middleware } from './middleware';
 export type { ProxyConfig } from './proxy';
 export type { CacheOptions, FormulaCache, FormulaCacheEntry } from './cache';
+export type { CookieOptions, CookieConfig, CookieHandlerOptions } from './cookies';
