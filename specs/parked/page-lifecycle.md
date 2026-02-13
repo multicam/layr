@@ -20,7 +20,7 @@ The Page Lifecycle manages the end-to-end journey of a Layr page from SSR-render
 
 ### ToddleInternals
 
-The server renders HTML with a `<script type="application/json" id="nordcraft-data">` tag containing serialized state:
+The server renders HTML with a `<script type="application/json" id="layr-data">` tag containing serialized state:
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -36,12 +36,12 @@ The server renders HTML with a `<script type="application/json" id="nordcraft-da
 ### HTML Embedding
 
 ```html
-<script type="application/json" id="nordcraft-data">
+<script type="application/json" id="layr-data">
   { /* ToddleInternals JSON */ }
 </script>
 <script type="module">
   import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
-  window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
+  window.__toddle = JSON.parse(document.getElementById('layr-data').textContent);
   window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
   initGlobalObject({ formulas: {}, actions: {} });
   createRoot(document.getElementById("App"));

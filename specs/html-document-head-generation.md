@@ -220,7 +220,7 @@ Determines the active theme for the page.
 
 ## Document Assembly
 
-### nordcraftPage() (backend/src/routes/nordcraftPage.ts:38-240)
+### layrPage() (backend/src/routes/layrPage.ts:38-240)
 
 The top-level orchestrator that assembles a complete HTML response from component data.
 
@@ -248,13 +248,13 @@ The top-level orchestrator that assembles a complete HTML response from componen
   </head>
   <body>
     <div id="App">{renderedBody}</div>
-    <script type="application/json" id="nordcraft-data">
+    <script type="application/json" id="layr-data">
       {toddleInternals JSON}
     </script>
     <script type="module">
       import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
       import { loadCustomCode, formulas, actions } from '{customCodeUrl}'
-      window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
+      window.__toddle = JSON.parse(document.getElementById('layr-data').textContent);
       window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
       initGlobalObject({formulas, actions});
       loadCustomCode();
@@ -281,7 +281,7 @@ The top-level orchestrator that assembles a complete HTML response from componen
 - `</script>` in JSON is escaped to `<\/script>` to prevent premature tag closure
 - Components without custom code still import `page.main.esm.js` but pass empty `formulas: {}` and `actions: {}`
 - The `data-nc-theme` attribute is only added when a theme is resolved (non-falsy)
-- API redirect errors during body rendering return HTTP redirects with diagnostic headers (`x-nordcraft-redirect-api-name`, `x-nordcraft-redirect-component-name`)
+- API redirect errors during body rendering return HTTP redirects with diagnostic headers (`x-layr-redirect-api-name`, `x-layr-redirect-component-name`)
 - Other rendering errors return `500 Internal server error`
 
 ---
@@ -482,7 +482,7 @@ The hydration JSON data is placed in a `<script type="application/json">` tag (n
 
 | System | Relationship |
 |--------|-------------|
-| [SSR Pipeline](./ssr-pipeline.md) | `nordcraftPage()` is called by the page handler after body rendering |
+| [SSR Pipeline](./ssr-pipeline.md) | `layrPage()` is called by the page handler after body rendering |
 | [Formula System](./formula-system.md) | Route info formulas evaluated for title, description, language, charset, theme |
 | [Styling and Theming](./styling-and-theming.md) | Theme data drives font preloading and custom property injection |
 | [SEO & Web Standards](./seo-web-standards.md) | Speculation rules injected; icon/manifest integration |

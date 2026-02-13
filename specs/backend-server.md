@@ -49,7 +49,7 @@ Hono — lightweight web framework with middleware support.
 | GET/ALL | `/.toddle/fonts/stylesheet/:stylesheet{.*}` | Font Router | Proxy Google Fonts stylesheets |
 | GET | `/.toddle/fonts/font/:font{.*}` | Font Router | Proxy Google Font files |
 | ALL | `/.toddle/omvej/components/:componentName/apis/:apiName` | API Proxy | Proxy API requests with cookie injection |
-| GET | `/.nordcraft/cookies/set-cookie` | Cookie Handler | Set HttpOnly cookies |
+| GET | `/.layr/cookies/set-cookie` | Cookie Handler | Set HttpOnly cookies |
 | GET | `/.toddle/custom-element/:filename{.+.js}` | Custom Element | Export Web Component module |
 | GET | `/.toddle/stylesheet/:pageName{.+.css}` | Stylesheet (preview) | Component stylesheet |
 | GET | `/.toddle/custom-code/:pageName{.+.js}` | Custom Code (preview) | Component custom code |
@@ -97,12 +97,12 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 
 ### Flow
 
-1. Extract destination URL from `x-nordcraft-url` header
+1. Extract destination URL from `x-layr-url` header
 2. Apply cookie templates (`{{ cookies.<name> }}`) to URL
 3. Validate URL — return 400 if invalid
 4. Sanitize headers: Remove cookie, hop-by-hop, Layr-specific headers
 5. Set `accept-encoding: gzip, deflate`
-6. If `x-nordcraft-templates-in-body` header set:
+6. If `x-layr-templates-in-body` header set:
    - Apply cookie templates to request body
    - Special handling for `application/x-www-form-urlencoded` (template each value)
 7. Execute fetch with 5-second timeout
@@ -124,7 +124,7 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 
 ### Route
 
-`GET /.nordcraft/cookies/set-cookie`
+`GET /.layr/cookies/set-cookie`
 
 ### Parameters (Query)
 
@@ -187,9 +187,9 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 2. Evaluate destination URL formula
 3. **Redirect:** Return HTTP redirect with configured status code (405 for non-GET)
 4. **Rewrite:**
-   - Check for recursive rewrite (`x-nordcraft-rewrite` header)
+   - Check for recursive rewrite (`x-layr-rewrite` header)
    - Sanitize headers, set `Accept: */*` and `Accept-Encoding: gzip, deflate`
-   - Mark request with `x-nordcraft-rewrite` header
+   - Mark request with `x-layr-rewrite` header
    - Fetch destination URL
    - Stream response body, copy headers (excluding hop-by-hop and content-encoding)
 
@@ -198,7 +198,7 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 | Scenario | Prevention |
 |----------|------------|
 | Non-GET redirect | Return 405 Method Not Allowed |
-| Recursive rewrite | Check `x-nordcraft-rewrite` header, return 500 |
+| Recursive rewrite | Check `x-layr-rewrite` header, return 500 |
 | Localhost request | Remove `cf-connecting-ip` and `host` headers |
 | Non-body status codes | Skip body for 101, 204, 205, 304 |
 
@@ -367,12 +367,12 @@ Forward only safe headers: Accept, Accept-Encoding, Accept-Language, Referer, Us
 
 | Header | Purpose |
 |--------|---------|
-| `x-nordcraft-url` | Proxy: destination URL |
-| `x-nordcraft-templates-in-body` | Proxy: enable body template injection |
-| `x-nordcraft-rewrite` | Rewrite: prevent recursive rewrites |
-| `x-nordcraft-redirect-name` | Redirect: route name tracking |
-| `x-nordcraft-redirect-api-name` | Redirect: API name tracking |
-| `x-nordcraft-redirect-component-name` | Redirect: component name tracking |
+| `x-layr-url` | Proxy: destination URL |
+| `x-layr-templates-in-body` | Proxy: enable body template injection |
+| `x-layr-rewrite` | Rewrite: prevent recursive rewrites |
+| `x-layr-redirect-name` | Redirect: route name tracking |
+| `x-layr-redirect-api-name` | Redirect: API name tracking |
+| `x-layr-redirect-component-name` | Redirect: component name tracking |
 
 ---
 

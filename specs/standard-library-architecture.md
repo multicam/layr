@@ -216,7 +216,7 @@ const handler: ActionHandler = ([delay], ctx) => {
 
 ```typescript
 const handler: ActionHandler = async ([name, value], ctx) => {
-  const res = await fetch(`/.nordcraft/cookies/set-cookie?${params}`)
+  const res = await fetch(`/.layr/cookies/set-cookie?${params}`)
   if (res.ok) {
     ctx.triggerActionEvent('Success', undefined)
   } else {

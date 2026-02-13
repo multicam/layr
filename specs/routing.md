@@ -183,7 +183,7 @@ Custom routes construct destination URLs using the `ApiBase` structure:
 |----------|------------|
 | Redirect to same URL | Skip if origin + pathname match (prevents redirect loop) |
 | Rewrite from same origin | Skip if request origin matches destination (prevents recursive fetch) |
-| Recursive rewrite | Check `x-nordcraft-rewrite` header; reject if present |
+| Recursive rewrite | Check `x-layr-rewrite` header; reject if present |
 
 ---
 
@@ -197,7 +197,7 @@ Custom routes construct destination URLs using the `ApiBase` structure:
 4. **Rewrite:**
    - Sanitize headers (remove hop-by-hop, cookie, Layr-specific headers)
    - Set `Accept: */*` and `Accept-Encoding: gzip, deflate`
-   - Mark request with `x-nordcraft-rewrite` header
+   - Mark request with `x-layr-rewrite` header
    - Fetch destination URL
    - Stream response body back to client
    - Copy response headers (excluding hop-by-hop and content-encoding)
@@ -232,12 +232,12 @@ interface Routes {
 
 | Header | Purpose |
 |--------|---------|
-| `x-nordcraft-url` | Proxy: original destination URL |
-| `x-nordcraft-templates-in-body` | Proxy: enable cookie template injection in body |
-| `x-nordcraft-rewrite` | Rewrite: prevents recursive rewrites |
-| `x-nordcraft-redirect-name` | Redirect: route name tracking |
-| `x-nordcraft-redirect-api-name` | Redirect: API name tracking |
-| `x-nordcraft-redirect-component-name` | Redirect: component name tracking |
+| `x-layr-url` | Proxy: original destination URL |
+| `x-layr-templates-in-body` | Proxy: enable cookie template injection in body |
+| `x-layr-rewrite` | Rewrite: prevents recursive rewrites |
+| `x-layr-redirect-name` | Redirect: route name tracking |
+| `x-layr-redirect-api-name` | Redirect: API name tracking |
+| `x-layr-redirect-component-name` | Redirect: component name tracking |
 
 ---
 

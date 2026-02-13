@@ -68,7 +68,7 @@ describe('Hydration System', () => {
   describe('readSSRData', () => {
     test('reads data from script tag', () => {
       const script = document.createElement('script');
-      script.setAttribute('id', 'nordcraft-data');
+      script.setAttribute('id', 'layr-data');
       script.textContent = JSON.stringify({
         Attributes: {},
         Variables: { x: 42 },
@@ -76,7 +76,7 @@ describe('Hydration System', () => {
       });
       document.body.appendChild(script);
       
-      const data = readSSRData(document, 'nordcraft-data');
+      const data = readSSRData(document, 'layr-data');
       
       expect(data).toBeDefined();
       expect(data?.Variables.x).toBe(42);
@@ -120,7 +120,7 @@ describe('Hydration System', () => {
       document.body.appendChild(root);
       
       const script = document.createElement('script');
-      script.setAttribute('id', 'nordcraft-data');
+      script.setAttribute('id', 'layr-data');
       script.textContent = JSON.stringify({
         Attributes: {},
         Variables: { hydrated: true },

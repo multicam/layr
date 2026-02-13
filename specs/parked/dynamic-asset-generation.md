@@ -143,8 +143,8 @@ Generates JavaScript containing custom formulas and actions referenced by a comp
    Disallow: /_toddle/
    Disallow: /.toddle
    Disallow: /.toddle/
-   Disallow: /.nordcraft
-   Disallow: /.nordcraft/
+   Disallow: /.layr
+   Disallow: /.layr/
    Disallow: /_api
    Disallow: /_api/
    Allow: /cdn-cgi/imagedelivery/*

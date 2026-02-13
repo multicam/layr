@@ -115,17 +115,17 @@ Yields formulas from route destination configuration:
 
 1. Evaluate `api.server.proxy.enabled.formula`
 2. If truthy, construct proxy URL: `/.toddle/omvej/components/{componentName}/apis/{apiName}`
-3. Set `x-nordcraft-url` header with the actual target URL
-4. If `useTemplatesInBody` formula is truthy, set `x-nordcraft-templates-in-body` header
+3. Set `x-layr-url` header with the actual target URL
+4. If `useTemplatesInBody` formula is truthy, set `x-layr-templates-in-body` header
 5. POST to proxy URL instead of target
 
 ### Server-Side Flow
 
 1. Extract cookies from request
-2. Read target URL from `x-nordcraft-url` header
+2. Read target URL from `x-layr-url` header
 3. Apply template replacement: `{{ cookies.name }}` → actual cookie value
 4. Sanitize headers (strip hop-by-hop, Layr-specific, and cookie headers)
-5. If `x-nordcraft-templates-in-body` set, replace templates in request body
+5. If `x-layr-templates-in-body` set, replace templates in request body
 6. Forward request to resolved URL
 7. Stream response back to client
 

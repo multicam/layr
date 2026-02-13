@@ -101,7 +101,7 @@ function renderPage(project: Project, pageName: string, params: Record<string, s
     <p>Params: ${JSON.stringify(params)}</p>
     <p>SSR rendering not yet implemented</p>
   </div>
-  <script type="application/json" id="nordcraft-data">
+  <script type="application/json" id="layr-data">
     {"project":"${project.project?.short_id || 'unknown'}","page":"${pageName}"}
   </script>
 </body>

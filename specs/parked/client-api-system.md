@@ -161,8 +161,8 @@ Cache is only used during initial hydration. Once `isPageLoaded` becomes `true`,
 When `server.proxy.enabled` formula evaluates to truthy:
 
 1. Construct proxy URL: `/.toddle/omvej/components/{componentName}/apis/{componentName}:{apiName}`
-2. Set `x-nordcraft-url` header with the actual target URL
-3. If `useTemplatesInBody` formula is truthy, set `x-nordcraft-templates-in-body` header
+2. Set `x-layr-url` header with the actual target URL
+3. If `useTemplatesInBody` formula is truthy, set `x-layr-templates-in-body` header
 4. Execute fetch against proxy URL instead of target
 
 When proxy is disabled: fetch directly against the target URL.

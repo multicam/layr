@@ -129,7 +129,7 @@ Registered as Hono's `notFound` handler (final fallback).
 1. Call `pageLoader({ name: '404' })` to load the 404 component
 2. Extract the `'404'` component from loaded files
 3. Validate with `isPageComponent()` check
-4. If valid → render full SSR page with status 404 via `nordcraftPage()`
+4. If valid → render full SSR page with status 404 via `layrPage()`
 5. If invalid or missing → return plain text `"Not Found"` with status 404
 
 #### Context Variables Consumed
@@ -266,12 +266,12 @@ Preview mode adds two dynamic handlers:
 | Handler | `routes` | `project` | `config` | `files` |
 |---------|----------|-----------|----------|---------|
 | routeHandler | `routes.routes` for matching | — | — | — |
-| pageHandler | `routes.pages` for matching | Passed to `nordcraftPage()` | — | — |
+| pageHandler | `routes.pages` for matching | Passed to `layrPage()` | — | — |
 | sitemap | `routes.pages` for enumeration | — | `config` for sitemap formula | — |
 | robots | — | — | `config.meta.robots` | — |
 | manifest | — | — | `config.meta.manifest` | — |
 | favicon | — | — | `config.meta.icon` | — |
-| notFoundLoader | (via pageLoader) | Passed to `nordcraftPage()` | — | — |
+| notFoundLoader | (via pageLoader) | Passed to `layrPage()` | — | — |
 | preview.stylesheet | — | — | — | `files` for CSS generation |
 | preview.customCode | — | `project` for filtering | — | `files` for JS generation |
 

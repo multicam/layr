@@ -270,7 +270,7 @@ Standard GraphQL introspection query (97 lines) with:
 3. Constructs request using existing API's method, URL, and headers
 4. Overrides body with introspection query (switches to POST if method doesn't support body)
 5. Routes through API proxy: `/.toddle/omvej/components/{componentName}/apis/{componentName}:{apiName}`
-6. Proxy URL set in `x-nordcraft-url` header (decoded, `+` replaced with spaces)
+6. Proxy URL set in `x-layr-url` header (decoded, `+` replaced with spaces)
 7. Respects API's `credentials` setting for cookie forwarding
 8. Parses JSON response
 9. Sends `introspectionResult` message back to editor

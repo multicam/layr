@@ -136,16 +136,16 @@ Constructs the destination URL for a matched custom route:
 When a custom route with `type: 'redirect'` matches:
 
 1. **Method check:** Only `GET` requests can be redirected; other methods return `405 Method Not Allowed`
-2. **Set header:** `x-nordcraft-redirect-name` with route name
+2. **Set header:** `x-layr-redirect-name` with route name
 3. **Return redirect:** HTTP redirect with route's status code (default: `302`)
 
 ### Rewrite Handling
 
 When a custom route with `type: 'rewrite'` matches:
 
-1. **Recursion check:** If `x-nordcraft-rewrite` header is present, return `500` error
+1. **Recursion check:** If `x-layr-rewrite` header is present, return `500` error
 2. **Sanitize headers:** Strip cookies and hop-by-hop headers from forwarded request
-3. **Mark as rewrite:** Set `x-nordcraft-rewrite: true` header on outgoing request
+3. **Mark as rewrite:** Set `x-layr-rewrite: true` header on outgoing request
 4. **Clean up headers:** Remove Cloudflare-specific headers for localhost, force compatible encoding
 5. **Fetch destination:** Forward request method and body to destination URL
 6. **Stream response:** Copy response headers (excluding hop-by-hop and content-encoding), stream body back
@@ -169,7 +169,7 @@ When a custom route with `type: 'rewrite'` matches:
 2. If match → load page content via platform-specific `pageLoader`
 3. Validate component exists and has `route` property (`isPageComponent()` check)
 4. If invalid → fall through to next handler
-5. Render page via `nordcraftPage()` with appropriate status code
+5. Render page via `layrPage()` with appropriate status code
 
 ### Status Codes
 
@@ -178,7 +178,7 @@ When a custom route with `type: 'rewrite'` matches:
 
 ### SSR Page Rendering
 
-The `nordcraftPage()` function orchestrates full SSR:
+The `layrPage()` function orchestrates full SSR:
 
 1. **Setup:** Build formula context, detect language, resolve themes, collect included components
 2. **Component wrapping:** Create `ToddleComponent` with resolution logic for nested components and global formulas
@@ -190,7 +190,7 @@ The `nordcraftPage()` function orchestrates full SSR:
 
 ### Hydration Data Structure
 
-Serialized into `<script type="application/json" id="nordcraft-data">`:
+Serialized into `<script type="application/json" id="layr-data">`:
 
 ```
 {
@@ -227,8 +227,8 @@ During page body rendering, any API can throw a `RedirectError` which short-circ
 2. If a rule formula returns a valid URL string → throws `RedirectError`
 3. Page handler catches the error
 4. Sets diagnostic headers:
-   - `x-nordcraft-redirect-api-name`: The API that triggered the redirect
-   - `x-nordcraft-redirect-component-name`: The component containing the API
+   - `x-layr-redirect-api-name`: The API that triggered the redirect
+   - `x-layr-redirect-component-name`: The component containing the API
 5. Returns HTTP redirect with the specified status code (default: `302`)
 
 This enables patterns like: fetch user session API → if unauthorized → redirect to login page.
@@ -269,7 +269,7 @@ Query parameter defaults come from the route's `query` definitions, providing fa
 - **Redirect to same URL:** Blocked — destination must differ from source
 - **Rewrite to same origin:** Blocked — destination must be external
 - **Non-GET redirect:** Returns 405 (only GET requests can be redirected)
-- **Nested rewrites:** Blocked by `x-nordcraft-rewrite` header check
+- **Nested rewrites:** Blocked by `x-layr-rewrite` header check
 - **Missing page component:** `pageLoader` returns undefined → falls through to 404
 - **Component without route property:** Fails `isPageComponent()` check → falls through to 404
 

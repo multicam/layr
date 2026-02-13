@@ -122,7 +122,7 @@ function attachNodeEvent(
 /**
  * Read SSR data from script tag
  */
-export function readSSRData(document: Document, id: string = 'nordcraft-data'): ComponentData | null {
+export function readSSRData(document: Document, id: string = 'layr-data'): ComponentData | null {
   const script = document.getElementById(id);
   if (!script) return null;
   

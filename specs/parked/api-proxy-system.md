@@ -45,11 +45,11 @@ Both pathways use the same:
 
 1. **Extract cookies** from incoming request
 2. **Build outgoing URL:**
-   - Read URL from `x-nordcraft-url` request header
+   - Read URL from `x-layr-url` request header
    - Apply cookie template substitution
    - Validate and normalize URL
 3. **Sanitize headers** through the three-layer pipeline
-4. **Process body templates** (if `x-nordcraft-templates-in-body` header is present and method allows body)
+4. **Process body templates** (if `x-layr-templates-in-body` header is present and method allows body)
 5. **Execute request** with 5-second timeout
 6. **Filter response headers** and stream response back
 
@@ -57,13 +57,13 @@ Both pathways use the same:
 
 #### URL Construction
 
-The proxy reads the target URL from the `x-nordcraft-url` request header (not from the URL path). Template values in the URL are replaced with cookie values before validation.
+The proxy reads the target URL from the `x-layr-url` request header (not from the URL path). Template values in the URL are replaced with cookie values before validation.
 
 #### Header Handling
 
 **Request headers — removed:**
 - Hop-by-hop headers (connection, keep-alive, proxy-authenticate, proxy-authorization, te, trailer, transfer-encoding, upgrade)
-- Layr internal headers (`x-nordcraft-url`, `x-nordcraft-templates-in-body`)
+- Layr internal headers (`x-layr-url`, `x-layr-templates-in-body`)
 - `cookie` header (cookies injected explicitly via templates)
 
 **Request headers — added/modified:**
@@ -76,11 +76,11 @@ The proxy reads the target URL from the `x-nordcraft-url` request header (not fr
 - `content-encoding` (proxy handles decompression)
 
 **Response headers — added:**
-- `Vary: x-nordcraft-url` (for cache correctness)
+- `Vary: x-layr-url` (for cache correctness)
 
 #### Body Template Processing
 
-When the request header `x-nordcraft-templates-in-body` is present and the HTTP method allows a body (`POST`, `DELETE`, `PUT`, `PATCH`, `OPTIONS`):
+When the request header `x-layr-templates-in-body` is present and the HTTP method allows a body (`POST`, `DELETE`, `PUT`, `PATCH`, `OPTIONS`):
 
 - **`application/x-www-form-urlencoded`:** Parse form parameters, apply templates to each value, re-encode
 - **All other content types:** Apply templates directly to the raw body text
@@ -220,9 +220,9 @@ Example: `https://api.example.com/users?token={{ cookies.sessionId }}`
 
 | Location | Direct Proxy | SSR Evaluator |
 |----------|-------------|---------------|
-| URL | Yes (from `x-nordcraft-url` header) | Yes (URL search params only) |
+| URL | Yes (from `x-layr-url` header) | Yes (URL search params only) |
 | Headers | Yes (via `mapTemplateHeaders`) | Yes (via `sanitizeProxyHeaders`) |
-| Body | Yes (when `x-nordcraft-templates-in-body` set) | No |
+| Body | Yes (when `x-layr-templates-in-body` set) | No |
 
 ---
 
@@ -240,8 +240,8 @@ Removes HTTP/1.1 connection-specific headers per RFC 2616 §13.5.1:
 
 Removes internal routing headers not relevant to target services:
 
-- `x-nordcraft-url` — proxy target URL
-- `x-nordcraft-templates-in-body` — template processing flag
+- `x-layr-url` — proxy target URL
+- `x-layr-templates-in-body` — template processing flag
 
 ### Layer 3: Skip Cookie Header
 
@@ -409,9 +409,9 @@ Default (when `statusCode` is not specified): handled by the caller.
 ### Redirect Headers
 
 When a redirect occurs, the following headers are set on the response:
-- `x-nordcraft-redirect-api-name`
-- `x-nordcraft-redirect-component-name`
-- `x-nordcraft-redirect-name`
+- `x-layr-redirect-api-name`
+- `x-layr-redirect-component-name`
+- `x-layr-redirect-name`
 
 ---
 

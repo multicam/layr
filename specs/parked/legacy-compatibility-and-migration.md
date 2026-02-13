@@ -86,7 +86,7 @@ The v1 API system (`createLegacyAPI()`) provides a simpler API client than v2, w
 | Aspect | v1 Legacy | v2 Modern |
 |--------|-----------|-----------|
 | **Proxy URL** | `/_query/{ComponentName}.{QueryName}` | `/.toddle/omvej/components/{name}/apis/{name}:{api}` |
-| **Proxy payload** | Full `ApiRequest` as POST JSON body | Original request with `x-nordcraft-url` header |
+| **Proxy payload** | Full `ApiRequest` as POST JSON body | Original request with `x-layr-url` header |
 | **Direct mode** | `api.proxy === false` → direct fetch | `server.proxy.enabled` formula evaluates to falsy |
 | **URL construction** | Manual string concatenation: `baseUrl + urlPath + queryString` | `createApiRequest()` with URL object manipulation |
 | **Path segments** | Array of `{ formula }` joined with `/` | Record with `{ formula, index }` sorted by index |

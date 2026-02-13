@@ -20,7 +20,7 @@ The SSR (Server-Side Rendering) Pipeline generates complete HTML documents from 
 
 ### Request → HTML Flow
 
-1. **Request arrives** → `nordcraftPage()` route handler
+1. **Request arrives** → `layrPage()` route handler
 2. **Build formula context** → `getPageFormulaContext()` extracts URL params, cookies, initializes data
 3. **Get included components** → `takeIncludedComponents()` finds all dependencies
 4. **Render page body** → `renderPageBody()`:
@@ -111,7 +111,7 @@ Evaluates all v2 APIs for a component during SSR.
 ### Redirect Handling
 
 If an API throws `RedirectError` during SSR:
-- Set `x-nordcraft-redirect-api-name` and `x-nordcraft-redirect-component-name` headers
+- Set `x-layr-redirect-api-name` and `x-layr-redirect-component-name` headers
 - Return HTTP redirect response with configured status code (default: 302)
 
 ---
@@ -218,7 +218,7 @@ Enables browser prerendering of links with `data-prerender` attribute.
   <head>{renderedHeadItems}</head>
   <body>
     <div id="App">{renderedBody}</div>
-    <script type="application/json" id="nordcraft-data">
+    <script type="application/json" id="layr-data">
       {toddleInternals JSON}
     </script>
     <script type="module">{hydrationScript}</script>
@@ -253,7 +253,7 @@ JSON content replaces `</script>` with `<\/script>` to prevent premature tag clo
 import { initGlobalObject, createRoot } from '/_static/page.main.esm.js';
 import { loadCustomCode, formulas, actions } from '{customCodeUrl}'
 
-window.__toddle = JSON.parse(document.getElementById('nordcraft-data').textContent);
+window.__toddle = JSON.parse(document.getElementById('layr-data').textContent);
 window.__toddle.components = [window.__toddle.component, ...window.__toddle.components];
 initGlobalObject({formulas, actions});
 loadCustomCode();

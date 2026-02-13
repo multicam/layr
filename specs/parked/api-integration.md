@@ -289,10 +289,10 @@ Proxy API requests through the Layr backend to:
 
 ### Proxy Flow
 
-1. Extract destination URL from `x-nordcraft-url` header
+1. Extract destination URL from `x-layr-url` header
 2. Apply cookie template values to URL: `{{ cookies.name }}` → cookie value
 3. Sanitize headers (remove hop-by-hop, cookie, Layr-specific headers)
-4. If `x-nordcraft-templates-in-body` is set:
+4. If `x-layr-templates-in-body` is set:
    - Apply cookie templates to request body
    - Handle URL-encoded bodies specially (template each value)
 5. Fetch destination with 5-second timeout
@@ -308,7 +308,7 @@ Proxy API requests through the Layr backend to:
 Removed headers:
 - Hop-by-hop: `connection`, `keep-alive`, `proxy-authenticate`, etc.
 - Cookie: `cookie` header
-- Layr: `x-nordcraft-url`, `x-nordcraft-templates-in-body`
+- Layr: `x-layr-url`, `x-layr-templates-in-body`
 
 ### Error Responses
 

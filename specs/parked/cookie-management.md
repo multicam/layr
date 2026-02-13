@@ -83,18 +83,18 @@ Reads a cookie by name.
 
 ### `setHttpOnlyCookie` Action
 
-Sets an HttpOnly cookie by calling the server endpoint `/.nordcraft/cookies/set-cookie`.
+Sets an HttpOnly cookie by calling the server endpoint `/.layr/cookies/set-cookie`.
 
 **Arguments:** Same as `setCookie` (Name, Value, TTL, SameSite, Path, Include Subdomains) with the same defaults and validation.
 
 **Flow:**
 1. Validate all arguments client-side
 2. Construct query string with all parameters
-3. `fetch("/.nordcraft/cookies/set-cookie?name=...&value=...&...")`
+3. `fetch("/.layr/cookies/set-cookie?name=...&value=...&...")`
 4. Server responds with `Set-Cookie` header containing HttpOnly flag
 5. Emit `Success` or `Error` event
 
-### Server Endpoint: `/.nordcraft/cookies/set-cookie` (or `/.toddle/cookies/set-cookie`)
+### Server Endpoint: `/.layr/cookies/set-cookie` (or `/.toddle/cookies/set-cookie`)
 
 **Method:** GET
 

@@ -109,7 +109,7 @@ case 'script': return ''
 
 Server-rendered data injected into the page for client hydration uses `<script type="application/json">` (non-executable) with explicit `</script>` escaping:
 
-**Location:** `packages/backend/src/routes/nordcraftPage.ts:178-183`
+**Location:** `packages/backend/src/routes/layrPage.ts:178-183`
 
 ```
 JSON.stringify(data).replaceAll('</script>', '<\\/script>')
@@ -145,7 +145,7 @@ When proxying API requests, headers pass through a multi-stage filter before bei
 | Stage | Function | File | Headers Removed |
 |-------|----------|------|-----------------|
 | 1 | `skipHopByHopHeaders()` | `ssr/src/utils/headers.ts:46-52` | `connection`, `keep-alive`, `proxy-authenticate`, `proxy-authorization`, `te`, `trailer`, `transfer-encoding`, `upgrade` |
-| 2 | `skipLayrHeaders()` | `ssr/src/utils/headers.ts:27-32` | `x-nordcraft-url`, `x-nordcraft-templates-in-body` |
+| 2 | `skipLayrHeaders()` | `ssr/src/utils/headers.ts:27-32` | `x-layr-url`, `x-layr-templates-in-body` |
 | 3 | `skipCookieHeader()` | `ssr/src/utils/headers.ts:11-15` | `cookie` |
 | 4 | `mapTemplateHeaders()` | `ssr/src/rendering/template.ts` | (applies cookie template substitution to remaining header values) |
 
@@ -154,19 +154,19 @@ When proxying API requests, headers pass through a multi-stage filter before bei
 
 **Business Rules:**
 - The `cookie` header is ALWAYS stripped — cookies are never forwarded to external APIs
-- Internal `x-nordcraft-*` headers are ALWAYS stripped — they must not leak to upstream servers
+- Internal `x-layr-*` headers are ALWAYS stripped — they must not leak to upstream servers
 - Hop-by-hop headers are removed per RFC 2616 Section 13.5.1
 
 ### Internal Header Constants
 
 | Header | Constant | Purpose |
 |--------|----------|---------|
-| `x-nordcraft-url` | `PROXY_URL_HEADER` | Carries the target URL for proxied API requests |
-| `x-nordcraft-templates-in-body` | `PROXY_TEMPLATES_IN_BODY` | Signals that the request body contains `{{ cookies.* }}` templates |
-| `x-nordcraft-rewrite` | `REWRITE_HEADER` | Signals that the request is a rewrite (not a redirect) |
-| `x-nordcraft-redirect-api-name` | `REDIRECT_API_NAME_HEADER` | Tracks which API triggered a redirect |
-| `x-nordcraft-redirect-component-name` | `REDIRECT_COMPONENT_NAME_HEADER` | Tracks which component triggered a redirect |
-| `x-nordcraft-redirect-name` | `REDIRECT_NAME_HEADER` | Tracks the redirect rule name |
+| `x-layr-url` | `PROXY_URL_HEADER` | Carries the target URL for proxied API requests |
+| `x-layr-templates-in-body` | `PROXY_TEMPLATES_IN_BODY` | Signals that the request body contains `{{ cookies.* }}` templates |
+| `x-layr-rewrite` | `REWRITE_HEADER` | Signals that the request is a rewrite (not a redirect) |
+| `x-layr-redirect-api-name` | `REDIRECT_API_NAME_HEADER` | Tracks which API triggered a redirect |
+| `x-layr-redirect-component-name` | `REDIRECT_COMPONENT_NAME_HEADER` | Tracks which component triggered a redirect |
+| `x-layr-redirect-name` | `REDIRECT_NAME_HEADER` | Tracks the redirect rule name |
 
 **Source:** `core/src/utils/url.ts`, `ssr/src/utils/headers.ts`
 
@@ -176,7 +176,7 @@ When proxying API requests, headers pass through a multi-stage filter before bei
 
 ### Cookie Setting Endpoint
 
-**Endpoint:** `GET /.nordcraft/cookies/set-cookie`
+**Endpoint:** `GET /.layr/cookies/set-cookie`
 **Handler:** `packages/backend/src/routes/cookies.ts`
 
 #### Input Validation
@@ -285,9 +285,9 @@ Provides controlled substitution of cookie values in strings using `{{ cookies.c
 - Zero-width match protection prevents infinite loops
 
 **Applied to:**
-- Proxy request URLs (from `x-nordcraft-url` header)
+- Proxy request URLs (from `x-layr-url` header)
 - Proxy request headers (via `mapTemplateHeaders`)
-- Proxy request bodies (when `x-nordcraft-templates-in-body` header is present)
+- Proxy request bodies (when `x-layr-templates-in-body` header is present)
   - `application/x-www-form-urlencoded`: only values are substituted, keys preserved
   - Other content types: full body string substitution
 
@@ -308,11 +308,11 @@ Provides controlled substitution of cookie values in strings using `{{ cookies.c
 **Security steps in order:**
 
 1. **Parse request cookies** via `getRequestCookies()`
-2. **Extract and validate target URL** from `x-nordcraft-url` header, applying cookie templates
+2. **Extract and validate target URL** from `x-layr-url` header, applying cookie templates
 3. **Reject invalid URLs** with 400 error
 4. **Sanitize request headers** via `sanitizeProxyHeaders()` (multi-stage filter chain)
 5. **Override Accept-Encoding** to `gzip, deflate` (prevents unsupported encodings)
-6. **Apply body templates** (if `x-nordcraft-templates-in-body` header present)
+6. **Apply body templates** (if `x-layr-templates-in-body` header present)
 7. **Forward request** to upstream server
 8. **Strip Content-Encoding** from response headers
 9. **Return response** to client
@@ -320,7 +320,7 @@ Provides controlled substitution of cookie values in strings using `{{ cookies.c
 ### SSRF Mitigation
 
 - Target URL must pass `validateUrl()` — rejects malformed URLs
-- The URL comes from the `x-nordcraft-url` header, which is set by the client-side runtime (not directly from user input)
+- The URL comes from the `x-layr-url` header, which is set by the client-side runtime (not directly from user input)
 - Proxy path includes component and API name parameters, providing audit tracing
 
 ### Accept-Encoding Override
@@ -361,7 +361,7 @@ The `<title>` content is not HTML-escaped. A title containing `</title><script>.
 
 Layr does not implement CSRF tokens. Protection relies on:
 - `SameSite=Lax` cookies (default)
-- The API proxy requiring specific `x-nordcraft-*` headers that browsers won't add to cross-origin requests
+- The API proxy requiring specific `x-layr-*` headers that browsers won't add to cross-origin requests
 
 ### No Content Security Policy
 

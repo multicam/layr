@@ -42,7 +42,7 @@ linker = "isolated"
   │   └── @layr/runtime (depends on core, std-lib)
   └── @layr/editor (depends on core)
 
-nordcraft-backend (depends on core, ssr — not published to npm)
+layr-backend (depends on core, ssr — not published to npm)
 ```
 
 Packages reference each other via `"workspace:*"` protocol in their `package.json` dependencies.
@@ -238,12 +238,12 @@ getApp<T>({
 **Build stage:**
 1. Copy `package.json` files and install production dependencies
 2. Copy source code
-3. `bun build --compile --minify --sourcemap` → standalone `nordcraft-backend` executable
+3. `bun build --compile --minify --sourcemap` → standalone `layr-backend` executable
 
 **Run stage:**
 1. Copy compiled executable and `dist/` assets
 2. Expose `APP_PORT` (default: 3000)
-3. `ENTRYPOINT ["./nordcraft-backend"]`
+3. `ENTRYPOINT ["./layr-backend"]`
 
 **Key properties:**
 - Standalone executable includes Bun runtime — no runtime installation needed
@@ -355,7 +355,7 @@ dist/
 | search | `@layr/search` |
 | runtime | `@layr/runtime` |
 
-**Not published:** `nordcraft-backend` (deployed directly), `@layr/editor` (consumed internally).
+**Not published:** `layr-backend` (deployed directly), `@layr/editor` (consumed internally).
 
 ### Release Announcement
 

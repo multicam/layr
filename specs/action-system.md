@@ -257,7 +257,7 @@ When `contextProvider` is specified:
 | Action | Arguments | Events | Behavior |
 |--------|-----------|--------|----------|
 | Set cookie | `Name`, `Value`, `Expires in` (seconds), `SameSite`, `Path`, `Include Subdomains` | Success, Error | Sets `document.cookie` |
-| Set HttpOnly cookie | Same as above | Success, Error | POST to `/.nordcraft/cookies/set-cookie` |
+| Set HttpOnly cookie | Same as above | Success, Error | POST to `/.layr/cookies/set-cookie` |
 | Set session cookies | `Access token`, `Expires in` | — | **Deprecated.** Superseded by Set HttpOnly cookie |
 
 ### Navigation (1)

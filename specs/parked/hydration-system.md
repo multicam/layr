@@ -143,14 +143,14 @@ Values stay server-side. Template-based cookie substitution (`{{cookieName}}`) i
 ### Serialization Format
 
 ```html
-<script type="application/json" id="nordcraft-data">
+<script type="application/json" id="layr-data">
   {JSON stringified ToddleInternals with script tag escaping}
 </script>
 ```
 
 **Key properties:**
 - `type="application/json"` prevents browser from executing the content as JavaScript
-- `id="nordcraft-data"` enables client-side lookup via `getElementById`
+- `id="layr-data"` enables client-side lookup via `getElementById`
 - Content is `JSON.stringify()` output with `</script>` escaped to `<\/script>`
 
 ### XSS Protection
@@ -182,7 +182,7 @@ This prevents injection of `</script>` within JSON string values from breaking t
 
 ```typescript
 window.__toddle = JSON.parse(
-  document.getElementById('nordcraft-data').textContent
+  document.getElementById('layr-data').textContent
 )
 ```
 
@@ -280,7 +280,7 @@ This flag prevents subsequent API initializations (e.g., from lazy-loaded compon
 ```
 SSR Pipeline:
 ┌─────────────────────────────────────────────────┐
-│ 1. nordcraftPage() receives HTTP Request         │
+│ 1. layrPage() receives HTTP Request         │
 │ 2. Evaluate component APIs → apiCache            │
 │ 3. Render page body → HTML + apiCache            │
 │ 4. Construct ToddleInternals:                    │
@@ -291,7 +291,7 @@ SSR Pipeline:
                   ↓ (HTML response)
 ┌─────────────────────────────────────────────────┐
 │ Client Hydration:                                │
-│ 1. Parse JSON from #nordcraft-data               │
+│ 1. Parse JSON from #layr-data               │
 │ 2. initGlobalObject() → window.toddle            │
 │ 3. Re-initialize variables (browser APIs)        │
 │ 4. createRoot() → initialize signals, APIs       │

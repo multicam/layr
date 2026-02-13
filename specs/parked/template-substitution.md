@@ -116,10 +116,10 @@ This prevents internal template syntax from leaking to external APIs.
 
 ### 4.1 API Proxy — URL
 
-The target URL (from `x-nordcraft-url` header) is substituted before URL validation:
+The target URL (from `x-layr-url` header) is substituted before URL validation:
 
 ```
-1. Read x-nordcraft-url header
+1. Read x-layr-url header
 2. Parse request cookies from Cookie header
 3. applyTemplateValues(headerValue, cookies)
 4. validateUrl({ path: result, origin: requestUrl.origin })
@@ -144,7 +144,7 @@ Each header value has `applyTemplateValues()` called on it. Header names are not
 | Category | Headers |
 |----------|---------|
 | Hop-by-hop (RFC 2616) | `connection`, `keep-alive`, `proxy-authenticate`, `proxy-authorization`, `te`, `trailer`, `transfer-encoding`, `upgrade` |
-| Layr internal | `x-nordcraft-url`, `x-nordcraft-templates-in-body` |
+| Layr internal | `x-layr-url`, `x-layr-templates-in-body` |
 | Cookie | `cookie` (prevents forwarding all cookies; only templated values are injected) |
 
 ### 4.3 API Proxy — Body
@@ -152,7 +152,7 @@ Each header value has `applyTemplateValues()` called on it. Header names are not
 Body substitution requires two conditions:
 
 1. **Method allows body** — POST, DELETE, PUT, PATCH, OPTIONS
-2. **Opt-in header present** — `x-nordcraft-templates-in-body` header has any non-null value
+2. **Opt-in header present** — `x-layr-templates-in-body` header has any non-null value
 
 **Form-urlencoded bodies (`application/x-www-form-urlencoded`):**
 1. Parse body as `URLSearchParams`
@@ -202,7 +202,7 @@ When proxying:
 
 2. **Set routing header:**
    ```
-   x-nordcraft-url: {decoded target URL}
+   x-layr-url: {decoded target URL}
    ```
 
 3. **Set body template flag (if enabled):**
@@ -211,7 +211,7 @@ When proxying:
      applyFormula(api.server.proxy.useTemplatesInBody.formula, context)
    )
    if (allowBodyTemplateValues) {
-     headers.set('x-nordcraft-templates-in-body', 'true')
+     headers.set('x-layr-templates-in-body', 'true')
    }
    ```
 
@@ -241,11 +241,11 @@ Both settings support dynamic formulas, allowing conditional proxy behavior base
 2. API request builder includes template in URL/header/body
 
 3. Runtime evaluates api.server.proxy.enabled
-   → true: route to /.toddle/omvej/ with x-nordcraft-url header
+   → true: route to /.toddle/omvej/ with x-layr-url header
    → false: direct fetch (templates not substituted)
 
 4. If useTemplatesInBody enabled:
-   → Set x-nordcraft-templates-in-body header
+   → Set x-layr-templates-in-body header
 ```
 
 ### Server-Side Proxy Flow
@@ -253,11 +253,11 @@ Both settings support dynamic formulas, allowing conditional proxy behavior base
 ```
 5. Proxy receives request at /.toddle/omvej/...
 6. Parse Cookie header → { access_token: "abc123" }
-7. Substitute x-nordcraft-url: "...{{ cookies.access_token }}..." → "...abc123..."
+7. Substitute x-layr-url: "...{{ cookies.access_token }}..." → "...abc123..."
 8. Validate URL → continue or 400
 9. Sanitize headers → remove internal + hop-by-hop + cookie
 10. Substitute header values → replace templates
-11. If x-nordcraft-templates-in-body present:
+11. If x-layr-templates-in-body present:
     → Read body text
     → Substitute based on content-type
 12. Forward request to external API
@@ -291,8 +291,8 @@ The entire template system exists to enable HttpOnly cookies in API requests wit
 ### Header Sanitization
 
 Internal headers are removed to prevent information leakage:
-- `x-nordcraft-url` — exposes internal routing
-- `x-nordcraft-templates-in-body` — exposes implementation detail
+- `x-layr-url` — exposes internal routing
+- `x-layr-templates-in-body` — exposes implementation detail
 - `cookie` — prevents mass cookie forwarding
 
 ### Missing Cookie Fallback
@@ -322,12 +322,12 @@ All proxied requests have a 5-second timeout via `AbortSignal.timeout(5000)`. Te
 ## 9. Business Rules
 
 1. **Only `cookies` template type supported** — the `templateTypes` map has a single entry; no other template types exist
-2. **Body substitution is opt-in** — requires both the `useTemplatesInBody` formula to evaluate truthy AND the `x-nordcraft-templates-in-body` header to be set
+2. **Body substitution is opt-in** — requires both the `useTemplatesInBody` formula to evaluate truthy AND the `x-layr-templates-in-body` header to be set
 3. **Form-urlencoded receives special treatment** — values are individually parsed and substituted; other formats use string replacement
 4. **Template syntax never reaches external APIs** — missing cookies become empty strings
 5. **Cookie header always stripped** — prevents accidental cookie forwarding
 6. **Static formulas for proxy config** — most proxy settings use value formulas but dynamic formulas are supported
-7. **Proxy URL uses decoded form** — `decodeURIComponent(url.href.replace(/\+/g, ' '))` applied before setting `x-nordcraft-url`
+7. **Proxy URL uses decoded form** — `decodeURIComponent(url.href.replace(/\+/g, ' '))` applied before setting `x-layr-url`
 
 ---
 
@@ -343,7 +343,7 @@ The `Set<string>` deduplication ensures each unique cookie name is processed onc
 If a cookie value itself contains `{{ cookies.something }}`, it will not be recursively substituted. The substitution is a single-pass operation using `replaceAll()` on the original template strings.
 
 ### Non-Text Body with Templates Enabled
-If `x-nordcraft-templates-in-body` is set but the request body is binary (not text), the body read will throw. This is caught and returns a 400 error with a descriptive message.
+If `x-layr-templates-in-body` is set but the request body is binary (not text), the body read will throw. This is caught and returns a 400 error with a descriptive message.
 
 ### Direct Fetch (No Proxy)
 When `api.server.proxy.enabled` evaluates to `false`, the request is sent directly from the browser. Template strings like `{{ cookies.access_token }}` are sent as-is since no server-side substitution occurs. This is expected — APIs that need cookie injection must use the proxy.

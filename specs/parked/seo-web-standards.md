@@ -159,8 +159,8 @@ Disallow: /_toddle
 Disallow: /_toddle/
 Disallow: /.toddle
 Disallow: /.toddle/
-Disallow: /.nordcraft
-Disallow: /.nordcraft/
+Disallow: /.layr
+Disallow: /.layr/
 Disallow: /_api
 Disallow: /_api/
 Allow: /cdn-cgi/imagedelivery/*
@@ -173,7 +173,7 @@ Disallow: /cdn-cgi/
 |------|--------|
 | `/_toddle`, `/_toddle/` | Legacy Layr internal paths |
 | `/.toddle`, `/.toddle/` | Layr configuration and font paths |
-| `/.nordcraft`, `/.nordcraft/` | Layr runtime and asset paths |
+| `/.layr`, `/.layr/` | Layr runtime and asset paths |
 | `/_api`, `/_api/` | API proxy endpoints |
 | `/cdn-cgi/` | Cloudflare CDN internal paths |
 
@@ -474,7 +474,7 @@ Errors can occur at:
 1. **Sitemap limits to 1000 pages** — prevents oversized sitemaps for large projects
 2. **Sitemap excludes dynamic routes** — only fully static paths are included (no `:param` segments)
 3. **Robots.txt always references /sitemap.xml** — regardless of whether a custom sitemap is configured
-4. **Internal paths are always blocked** — `/_toddle`, `/.toddle`, `/.nordcraft`, `/_api` blocked in default robots.txt
+4. **Internal paths are always blocked** — `/_toddle`, `/.toddle`, `/.layr`, `/_api` blocked in default robots.txt
 5. **Cloudflare image delivery is allowed** — exception to the `/cdn-cgi/` block
 6. **Service workers have no cache** — intentional for SW update lifecycle compliance
 7. **Manifest and service worker require explicit configuration** — no sensible defaults can be generated
