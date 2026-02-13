@@ -22,3 +22,23 @@ export {
   ContextKeys,
 } from './context/index';
 export type { ContextProvider, ContextKey } from './context/index';
+
+// Traversal & Introspection
+export {
+  getFormulasInFormula,
+  getFormulasInAction,
+  getActionsInAction,
+  getFormulasInNode,
+  getActionsInNode,
+  getFormulasInComponent,
+  getActionsInComponent,
+  getFormulasInApi,
+  collectFormulaReferences,
+  collectActionReferences,
+  collectSubComponentNames,
+} from './traversal/index';
+export type {
+  FormulaVisit,
+  ActionVisit,
+  GlobalFormulas,
+} from './traversal/index';
