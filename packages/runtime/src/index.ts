@@ -32,3 +32,20 @@ export type { HydrationResult, HydrationContext } from './hydration/index';
 // API Client
 export { createApiClient, createApiSignal } from './api/client';
 export type { ApiClient, ApiClientConfig, ApiRequestConfig } from './api/client';
+
+// Navigation
+export {
+  parseQuery,
+  parseUrl,
+  getLocationUrl,
+  navigate,
+  setUrlParameter,
+  setUrlParameters,
+  storeScrollState,
+  restoreScrollState,
+  tryStartViewTransition,
+  validateUrl,
+  isLocalhostUrl,
+  isLocalhostHostname,
+} from './navigation/index';
+export type { Location, LocationSignal } from './navigation/index';
