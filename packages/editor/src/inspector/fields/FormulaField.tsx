@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { Formula } from '@layr/types';
+import { FormulaEditor } from '../../formula-editor';
+import { FormulaPreview } from '../../formula-editor';
 
 interface FormulaFieldProps {
   label: string;
@@ -8,46 +10,35 @@ interface FormulaFieldProps {
 }
 
 export function FormulaField({ label, value, onChange }: FormulaFieldProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   
-  const displayValue = value?.type === 'value' 
-    ? String(value.value ?? '')
-    : value?.type === 'path'
-    ? value.path.join('.')
-    : value?.type === 'function'
-    ? `${value.name}()`
-    : '';
+  const isComplex = value?.type !== 'value';
   
   return (
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">{label}</label>
-      <div className="relative">
-        <input
-          type="text"
-          value={displayValue}
-          onFocus={() => setIsEditing(true)}
-          onBlur={() => setIsEditing(false)}
-          onChange={(e) => {
-            // For now, create a value formula
-            onChange?.({ type: 'value', value: e.target.value });
-          }}
-          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-mono"
-        />
-        
-        {/* Formula indicator */}
-        {value?.type !== 'value' && value?.type !== undefined && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-blue-600">
-            f
-          </div>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <label className="block text-xs text-gray-500">{label}</label>
+        {isComplex && (
+          <span className="text-xs text-blue-600 font-medium">f</span>
         )}
       </div>
       
-      {/* Preview */}
-      {isEditing && (
-        <div className="mt-1 p-2 bg-gray-50 rounded text-xs">
-          <div className="text-gray-500 mb-1">Preview:</div>
-          <div className="font-mono">{displayValue}</div>
-        </div>
+      <FormulaEditor
+        value={value}
+        onChange={onChange}
+        minHeight={40}
+      />
+      
+      {/* Preview toggle */}
+      <button
+        onClick={() => setShowPreview(!showPreview)}
+        className="text-xs text-gray-400 hover:text-gray-600"
+      >
+        {showPreview ? 'Hide preview' : 'Show preview'}
+      </button>
+      
+      {showPreview && (
+        <FormulaPreview formula={value} />
       )}
     </div>
   );
