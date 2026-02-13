@@ -42,3 +42,24 @@ export type {
   ActionVisit,
   GlobalFormulas,
 } from './traversal/index';
+
+// Validation Schemas
+export {
+  SCHEMA_DESCRIPTIONS,
+  MetadataSchema,
+  FormulaSchema,
+  ActionModelSchema,
+  EventModelSchema,
+  StyleVariantSchema,
+  NodeModelSchema,
+  ComponentSchema,
+  PageSchema,
+  ShallowComponentSchema,
+  ShallowPageSchema,
+  validateComponent,
+  validatePage,
+  validateFormula,
+  validateAction,
+  validateNode,
+} from './schemas/index';
+export type { ValidationResult } from './schemas/index';
