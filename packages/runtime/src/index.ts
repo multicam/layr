@@ -49,3 +49,26 @@ export {
   isLocalhostHostname,
 } from './navigation/index';
 export type { Location, LocationSignal } from './navigation/index';
+
+// Responsive Styling
+export {
+  BREAKPOINTS,
+  renderMediaQuery,
+  renderBreakpointQuery,
+  variantSelector,
+  CustomPropertyStyleSheet,
+  SYNTAX_FALLBACKS,
+  renderPropertyDefinition,
+  styleToCss,
+  prefersReducedMotion,
+  getCurrentBreakpoint,
+} from './styles/index';
+export type { 
+  MediaQuery, 
+  BreakpointName, 
+  StyleVariant, 
+  CustomProperty,
+  CssSyntaxNode,
+  CssSyntax,
+  CssCustomSyntax,
+} from './styles/index';
