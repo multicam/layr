@@ -2,8 +2,9 @@ import { useUIStore, useSelectionStore, useProjectStore } from '../stores';
 import { PropertiesTab } from './tabs/PropertiesTab';
 import { StylesTab } from './tabs/StylesTab';
 import { EventsTab } from './tabs/EventsTab';
+import { AnimationTab } from './tabs/AnimationTab';
 
-type Tab = 'properties' | 'styles' | 'events' | 'advanced';
+type Tab = 'properties' | 'styles' | 'events' | 'animation' | 'advanced';
 
 export function Inspector() {
   const activeTab = useUIStore(s => s.activeTab);
@@ -13,21 +14,22 @@ export function Inspector() {
   const project = useProjectStore(s => s.project);
   const activeComponent = useProjectStore(s => s.activeComponent);
   
-  // Get selected node
   const selectedId = selectedIds[0];
   const component = activeComponent && project?.files?.components?.[activeComponent];
   const selectedNode = selectedId && component?.nodes[selectedId];
   
+  const tabs: Tab[] = ['properties', 'styles', 'events', 'animation', 'advanced'];
+  
   return (
     <div className="h-full flex flex-col">
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
-        {(['properties', 'styles', 'events', 'advanced'] as Tab[]).map(tab => (
+      <div className="flex border-b border-gray-200 overflow-x-auto">
+        {tabs.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`
-              flex-1 px-3 py-2 text-sm font-medium capitalize
+              flex-shrink-0 px-3 py-2 text-sm font-medium capitalize
               ${activeTab === tab 
                 ? 'text-blue-600 border-b-2 border-blue-600' 
                 : 'text-gray-500 hover:text-gray-700'}
@@ -45,6 +47,7 @@ export function Inspector() {
             {activeTab === 'properties' && <PropertiesTab node={selectedNode} />}
             {activeTab === 'styles' && <StylesTab node={selectedNode} />}
             {activeTab === 'events' && <EventsTab node={selectedNode} />}
+            {activeTab === 'animation' && <AnimationTab node={selectedNode} />}
             {activeTab === 'advanced' && <div>Advanced settings</div>}
           </>
         ) : (
