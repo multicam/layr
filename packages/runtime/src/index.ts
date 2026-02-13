@@ -105,3 +105,26 @@ export type {
   ActionContext,
   CustomCodeRegistry,
 } from './custom-code/index';
+
+// Lifecycle
+export {
+  onMount,
+  onUnmount,
+  onAttributesChange,
+  triggerMount,
+  triggerUnmount,
+  triggerAttributeChange,
+  createComponentLifecycle,
+  hasToddleGlobal,
+  getToddleGlobal,
+  initToddleGlobal,
+  logState,
+} from './lifecycle/index';
+export type {
+  LifecycleEvent,
+  LifecycleContext,
+  LifecycleHandler,
+  ComponentLifecycleOptions,
+  ToddleEnv,
+  ToddleGlobal,
+} from './lifecycle/index';
