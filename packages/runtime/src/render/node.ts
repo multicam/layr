@@ -1,5 +1,6 @@
 import type { NodeModel, Component, Formula } from '@layr/types';
 import type { RenderContext } from './component';
+import { shouldRender, createRepeatedNodes } from './condition';
 
 // Get document from global scope
 const doc = typeof document !== 'undefined' ? document : null;
@@ -10,18 +11,60 @@ const doc = typeof document !== 'undefined' ? document : null;
 export function createNode(
   node: NodeModel,
   allNodes: Record<string, NodeModel>,
-  ctx: RenderContext
+  ctx: RenderContext,
+  listItem: any = null
 ): Element[] {
   if (!doc) {
     return [];
   }
   
   // Check condition
-  // TODO: Evaluate condition formula
+  if (!shouldRender(node, ctx)) {
+    return [];
+  }
   
   // Handle repeat
-  // TODO: Evaluate repeat formula
+  const repeatedItems = createRepeatedNodes(node, allNodes, ctx);
   
+  if (repeatedItems.length > 1 || repeatedItems[0]?.listItem !== null) {
+    // Multiple items - render each with its own context
+    const elements: Element[] = [];
+    
+    for (const { listItem: itemContext } of repeatedItems) {
+      const childCtx: RenderContext = {
+        ...ctx,
+        dataSignal: ctx.dataSignal, // Will be updated with ListItem
+      };
+      
+      // Update context with ListItem
+      if (itemContext) {
+        const currentData = ctx.dataSignal.get();
+        childCtx.dataSignal = ctx.dataSignal.map(() => ({
+          ...currentData,
+          ListItem: itemContext,
+        }));
+      }
+      
+      const childElements = createSingle(node, allNodes, childCtx, doc);
+      elements.push(...childElements);
+    }
+    
+    return elements;
+  }
+  
+  // Single render (no repeat)
+  return createSingle(node, allNodes, ctx, doc);
+}
+
+/**
+ * Create a single node (internal)
+ */
+function createSingle(
+  node: NodeModel,
+  allNodes: Record<string, NodeModel>,
+  ctx: RenderContext,
+  doc: Document
+): Element[] {
   switch (node.type) {
     case 'text':
       return [createTextNode(node, doc)];
@@ -67,14 +110,11 @@ function createElementNode(
   // Set attributes
   if (node.attrs) {
     for (const [key, value] of Object.entries(node.attrs)) {
-      // TODO: Evaluate formula
       const attrValue = (value as any)?.type === 'value' ? (value as any).value : '';
       if (key === 'class' || key === 'className') {
         element.setAttribute('class', String(attrValue || ''));
       } else if (key.startsWith('on')) {
-        // Event handler
-        const eventName = key.slice(2).toLowerCase();
-        // TODO: Set up event handler
+        // Event handler - will be set up by event system
       } else {
         element.setAttribute(key, String(attrValue ?? ''));
       }

@@ -1,3 +1,34 @@
+// Core rendering
 export { renderComponent } from './render/component';
 export { createNode } from './render/node';
-export { setAttribute, setClass } from './dom/attributes';
+export { 
+  evaluateCondition, 
+  evaluateRepeat, 
+  shouldRender, 
+  createRepeatedNodes 
+} from './render/condition';
+
+// DOM utilities
+export { setAttribute, setClass, setClasses, setCustomProperty, setStyles } from './dom/attributes';
+
+// Events
+export { 
+  attachEvent, 
+  handleEvent, 
+  extractEventData, 
+  EventConfigs,
+  delegateEvent,
+} from './events/index';
+export type { EventHandler, EventContext } from './events/index';
+
+// Hydration
+export { 
+  hydratePage, 
+  readSSRData, 
+  autoHydrate,
+} from './hydration/index';
+export type { HydrationResult, HydrationContext } from './hydration/index';
+
+// API Client
+export { createApiClient, createApiSignal } from './api/client';
+export type { ApiClient, ApiClientConfig, ApiRequestConfig } from './api/client';
