@@ -147,3 +147,60 @@ describe('Hydration System', () => {
     });
   });
 });
+
+describe('hydration with event handlers', () => {
+  beforeAll(() => {
+    window = new Window();
+    document = window.document;
+    (globalThis as any).HTMLElement = window.HTMLElement;
+    (globalThis as any).document = document;
+  });
+
+  test('hydrates nodes with event handlers', () => {
+    const component: Component = {
+      name: 'Button',
+      nodes: {
+        root: { 
+          id: 'btn',
+          type: 'element', 
+          tag: 'button',
+          children: [],
+          events: {
+            click: {
+              actions: [{ type: 'SetVariable', variable: 'clicked', value: { type: 'value', value: true } }],
+            },
+          },
+        },
+      },
+    };
+    
+    const root = document.createElement('button');
+    root.setAttribute('data-node-id', 'btn');
+    
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    
+    // Handler should be attached
+    expect(result.dataSignal).toBeDefined();
+    
+    result.cleanup();
+  });
+
+  test('hydrates nested children', () => {
+    const component: Component = {
+      name: 'Nested',
+      nodes: {
+        root: { id: 'root', type: 'element', tag: 'div', children: ['child'] },
+        child: { id: 'child', type: 'element', tag: 'span', children: [] },
+      },
+    };
+    
+    const root = document.createElement('div');
+    root.setAttribute('data-node-id', 'root');
+    const child = document.createElement('span');
+    child.setAttribute('data-node-id', 'child');
+    root.appendChild(child);
+    
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    result.cleanup();
+  });
+});

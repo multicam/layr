@@ -340,3 +340,75 @@ describe('createNode', () => {
     });
   });
 });
+
+describe('createNode with condition', () => {
+  beforeAll(async () => {
+    window = new Window();
+    mockDoc = window.document;
+    (globalThis as any).document = mockDoc;
+    await import('./node');
+  });
+
+  test('returns empty array when condition is false', async () => {
+    const { createNode } = await import('./node');
+    const nodes: Record<string, NodeModel> = {
+      root: { 
+        type: 'text', 
+        value: { type: 'value', value: 'Hidden' },
+        condition: { type: 'value', value: false },
+      },
+    };
+    const ctx = createMockContext({ name: 'Test', nodes });
+    const elements = createNode(nodes.root, nodes, ctx);
+    expect(elements).toHaveLength(0);
+  });
+
+  test('renders when condition is true', async () => {
+    const { createNode } = await import('./node');
+    const nodes: Record<string, NodeModel> = {
+      root: { 
+        type: 'text', 
+        value: { type: 'value', value: 'Visible' },
+        condition: { type: 'value', value: true },
+      },
+    };
+    const ctx = createMockContext({ name: 'Test', nodes });
+    const elements = createNode(nodes.root, nodes, ctx);
+    expect(elements).toHaveLength(1);
+    expect(elements[0].textContent).toBe('Visible');
+  });
+});
+
+describe('createNode with repeat', () => {
+  beforeAll(async () => {
+    window = new Window();
+    mockDoc = window.document;
+    (globalThis as any).document = mockDoc;
+    await import('./node');
+  });
+
+  test('renders multiple items from repeat', async () => {
+    const { createNode } = await import('./node');
+    const nodes: Record<string, NodeModel> = {
+      root: { 
+        type: 'element',
+        tag: 'li',
+        children: [],
+        repeat: { type: 'value', value: [1, 2, 3] },
+      },
+    };
+    const ctx = createMockContext({ name: 'Test', nodes });
+    const elements = createNode(nodes.root, nodes, ctx);
+    expect(elements).toHaveLength(3);
+  });
+
+  test('renders single item without repeat', async () => {
+    const { createNode } = await import('./node');
+    const nodes: Record<string, NodeModel> = {
+      root: { type: 'element', tag: 'div', children: [] },
+    };
+    const ctx = createMockContext({ name: 'Test', nodes });
+    const elements = createNode(nodes.root, nodes, ctx);
+    expect(elements).toHaveLength(1);
+  });
+});

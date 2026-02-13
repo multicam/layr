@@ -145,3 +145,48 @@ describe('Event System', () => {
     });
   });
 });
+
+describe('extractEventData with targets', () => {
+  test('extracts data when target is HTMLElement', () => {
+    const button = document.createElement('button');
+    button.id = 'test-btn';
+    button.className = 'btn primary';
+    button.dataset.testId = '123';
+    
+    const event = new window.MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: button, enumerable: true });
+    
+    const data = extractEventData(event);
+    
+    expect(data.target).toBeDefined();
+    expect((data.target as any).id).toBe('test-btn');
+    expect((data.target as any).className).toBe('btn primary');
+    expect((data.target as any).dataset.testId).toBe('123');
+  });
+
+  test('extracts input value', () => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = 'test input';
+    
+    const event = new window.InputEvent('input');
+    Object.defineProperty(event, 'target', { value: input, enumerable: true });
+    
+    const data = extractEventData(event);
+    
+    expect(data.value).toBe('test input');
+  });
+
+  test('extracts checkbox checked', () => {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = true;
+    
+    const event = new window.MouseEvent('click');
+    Object.defineProperty(event, 'target', { value: checkbox, enumerable: true });
+    
+    const data = extractEventData(event);
+    
+    expect((data.target as any).checked).toBe(true);
+  });
+});

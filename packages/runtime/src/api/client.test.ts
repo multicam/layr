@@ -135,3 +135,65 @@ describe('API Client', () => {
     });
   });
 });
+
+describe('API Client streaming', () => {
+  test('handles streaming response', async () => {
+    const signal = createTestSignal();
+    const messages: unknown[] = [];
+    
+    const client = createApiClient(signal, { baseUrl: 'https://httpbin.org' });
+    
+    const result = await client.fetch('stream', {
+      method: 'GET',
+      url: '/stream/3',
+      parserMode: 'stream',
+      onMessage: (data) => messages.push(data),
+    });
+    
+    // Streaming mode returns null data
+    expect(result.data).toBeNull();
+  });
+
+  test('handles blob response', async () => {
+    const signal = createTestSignal();
+    const client = createApiClient(signal, { baseUrl: 'https://httpbin.org' });
+    
+    const result = await client.fetch('blob', {
+      method: 'GET',
+      url: '/image/png',
+      parserMode: 'blob',
+    });
+    
+    expect(result.data).toBeInstanceOf(Blob);
+  });
+
+  test('handles text response', async () => {
+    const signal = createTestSignal();
+    const client = createApiClient(signal, { baseUrl: 'https://httpbin.org' });
+    
+    const result = await client.fetch('text', {
+      method: 'GET',
+      url: '/robots.txt',
+      parserMode: 'text',
+    });
+    
+    expect(typeof result.data).toBe('string');
+  });
+});
+
+describe('API Client credentials', () => {
+  test('sends credentials', async () => {
+    const signal = createTestSignal();
+    const client = createApiClient(signal, {
+      baseUrl: 'https://httpbin.org',
+      credentials: 'include',
+    });
+    
+    const result = await client.fetch('creds', {
+      method: 'GET',
+      url: '/cookies',
+    });
+    
+    expect(result.error).toBeNull();
+  });
+});
