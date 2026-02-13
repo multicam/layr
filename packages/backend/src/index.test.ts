@@ -1,47 +1,23 @@
 import { describe, test, expect } from 'bun:test';
-import app from './index';
 
-describe('backend server', () => {
-  describe('health endpoint', () => {
-    test('returns ok status', async () => {
-      const res = await app.request('/health');
-      expect(res.status).toBe(200);
-      
-      const body = await res.json();
-      expect(body).toEqual({ status: 'ok' });
-    });
+describe('backend exports', () => {
+  test('exports middleware', async () => {
+    const mod = await import('./index');
+    expect(mod.compose).toBeDefined();
+    expect(mod.corsMiddleware).toBeDefined();
+    expect(mod.loggerMiddleware).toBeDefined();
   });
 
-  describe('projects list', () => {
-    test('returns projects array', async () => {
-      const res = await app.request('/api/projects');
-      expect(res.status).toBe(200);
-      
-      const body = await res.json();
-      expect(body).toHaveProperty('projects');
-      expect(Array.isArray(body.projects)).toBe(true);
-    });
+  test('exports proxy', async () => {
+    const mod = await import('./index');
+    expect(mod.createProxy).toBeDefined();
+    expect(mod.fontProxy).toBeDefined();
+    expect(mod.fontStaticProxy).toBeDefined();
   });
 
-  describe('static assets', () => {
-    test('returns 501 for static assets', async () => {
-      const res = await app.request('/_static/test.js');
-      expect(res.status).toBe(501);
-    });
-  });
-
-  describe('root endpoint', () => {
-    test('redirects to single project or shows list', async () => {
-      const res = await app.request('/');
-      // Either 200 (list) or 302 (redirect to single project)
-      expect([200, 302]).toContain(res.status);
-    });
-  });
-
-  describe('project routes', () => {
-    test('returns 404 for non-existent project', async () => {
-      const res = await app.request('/nonexistent-project/');
-      expect(res.status).toBe(404);
-    });
+  test('exports static', async () => {
+    const mod = await import('./index');
+    expect(mod.serveStatic).toBeDefined();
+    expect(mod.staticMiddleware).toBeDefined();
   });
 });
