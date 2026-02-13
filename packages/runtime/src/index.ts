@@ -72,3 +72,36 @@ export type {
   CssSyntax,
   CssCustomSyntax,
 } from './styles/index';
+
+// Custom Code
+export {
+  isToddleFormula,
+  isCodeFormula,
+  isLegacyPluginAction,
+  isPluginActionV2,
+  createCustomCodeRegistry,
+  registerFormula,
+  registerAction,
+  getFormula,
+  getAction,
+  safeFunctionName,
+  generateFormulaCode,
+  generateActionCode,
+  collectFormulaRefs,
+  collectActionRefs,
+  loadCustomCode,
+  hasCustomCode,
+} from './custom-code/index';
+export type {
+  ToddleFormula,
+  CodeFormula,
+  PluginFormula,
+  FormulaHandler,
+  PluginActionV2,
+  LegacyPluginAction,
+  PluginAction,
+  ActionHandlerV2,
+  FormulaContext,
+  ActionContext,
+  CustomCodeRegistry,
+} from './custom-code/index';
