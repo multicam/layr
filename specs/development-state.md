@@ -1,6 +1,6 @@
 # Development State
 
-## Status: 2026-02-13 (Final)
+## Status: 2026-02-14 (Next Sprint Ready)
 
 ### Summary
 
@@ -8,6 +8,7 @@
 - **0 failing**
 - **~85% overall coverage**
 - **7 packages implemented**
+- **17 specs ready for implementation**
 
 ---
 
@@ -58,6 +59,37 @@
 
 ---
 
+## Next Sprint Priorities
+
+### High Priority (Core Functionality)
+
+| Spec | Package | Description | Effort |
+|------|---------|-------------|--------|
+| editor-preview-system | @layr/editor | Live preview iframe, PostMessage | Large |
+| navigation-system | @layr/runtime | Client-side routing, history | Medium |
+| page-lifecycle | @layr/runtime | onLoad, onUnmount events | Small |
+| drag-drop-system | @layr/editor | Visual editor reordering | Medium |
+| custom-code-system | @layr/runtime | User-defined formulas/actions | Medium |
+| element-definitions | @layr/types | Element metadata schemas | Small |
+| introspection-and-traversal | @layr/core | Component tree traversal | Medium |
+| runtime-entry-points | @layr/runtime | Prod/preview/dev entries | Small |
+
+### Medium Priority (Performance & Security)
+
+| Spec | Package | Description | Effort |
+|------|---------|-------------|--------|
+| performance-and-caching | @layr/backend | Caching strategies | Medium |
+| build-and-deployment | @layr/backend | Build pipeline | Large |
+| image-cdn-management | @layr/backend | Image optimization | Medium |
+| dynamic-asset-generation | @layr/backend | Asset bundling | Medium |
+| security-and-sanitization | @layr/ssr | XSS prevention | Medium |
+| cookie-management | @layr/backend | Cookie handling | Small |
+| seo-web-standards | @layr/ssr | SEO meta tags | Small |
+| responsive-styling-system | @layr/runtime | Breakpoints | Medium |
+| font-system | @layr/ssr | Font loading | Small |
+
+---
+
 ## Coverage Gaps
 
 ### @layr/backend (60%)
@@ -77,9 +109,8 @@
 
 | Commit | Description |
 |--------|-------------|
-| 45b0aa9 | Advanced runtime tests |
-| b5c271e | SSR head generation |
-| cf3ae29 | Backend middleware/proxy/static |
-| bc8d668 | Document scope fix + component tests |
-| 9a48251 | Tokenizer @toddle/ fix |
-| 34af5f0 | Development state update |
+| cee0e98 | docs: final development state with 479 tests |
+| 45b0aa9 | test: add advanced runtime tests |
+| b5c271e | feat: add SSR head generation |
+| cf3ae29 | feat: add backend middleware, proxy, and static file serving |
+| 34af0f0 | docs: update development-state with 441 tests |

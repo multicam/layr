@@ -8,21 +8,21 @@ This directory contains technical specifications for the Layr visual development
 
 ## Quick Status
 
-| Category | Implemented | Parked | Total |
-|----------|-------------|--------|-------|
-| Core | 12 | 0 | 12 |
-| Backend | 3 | 5 | 8 |
-| Runtime | 3 | 3 | 6 |
-| Editor | 1 | 2 | 3 |
-| Infrastructure | 4 | 0 | 4 |
-| Advanced | 1 | 26 | 27 |
-| **Total** | **24** | **36** | **60** |
+| Category | Implemented | In Progress | Not Started | Total |
+|----------|-------------|-------------|-------------|-------|
+| Core | 12 | 1 | 2 | 15 |
+| Backend | 5 | 0 | 7 | 12 |
+| SSR | 2 | 1 | 3 | 6 |
+| Runtime | 5 | 1 | 6 | 12 |
+| Editor | 0 | 2 | 4 | 6 |
+| Infrastructure | 5 | 0 | 3 | 8 |
+| **Total** | **29** | **5** | **25** | **59** |
 
 ---
 
 ## Active Specifications
 
-### Infrastructure (4 specs)
+### Infrastructure (5 specs)
 | Spec | Status | Description |
 |------|--------|-------------|
 | [monorepo-structure.md](monorepo-structure.md) | ✅ | Bun workspaces, package layout |
@@ -38,6 +38,7 @@ This directory contains technical specifications for the Layr visual development
 | [component-system.md](component-system.md) | ✅ | @layr/types |
 | [formula-system.md](formula-system.md) | ✅ | @layr/types |
 | [action-system.md](action-system.md) | ✅ | @layr/types |
+| [element-definitions.md](element-definitions.md) | 📝 | @layr/types |
 
 ### Core Logic (4 specs)
 | Spec | Status | Package |
@@ -46,6 +47,8 @@ This directory contains technical specifications for the Layr visual development
 | [formula-evaluation-engine.md](formula-evaluation-engine.md) | ✅ | @layr/core |
 | [action-execution-engine.md](action-execution-engine.md) | ✅ | @layr/core |
 | [context-providers.md](context-providers.md) | ⚠️ | @layr/core |
+| [introspection-and-traversal.md](introspection-and-traversal.md) | 📝 | @layr/core |
+| [data-validation-schemas.md](data-validation-schemas.md) | 📝 | @layr/core |
 
 ### Standard Library (2 specs)
 | Spec | Status | Package |
@@ -53,42 +56,58 @@ This directory contains technical specifications for the Layr visual development
 | [standard-library.md](standard-library.md) | ✅ | @layr/lib |
 | [standard-library-architecture.md](standard-library-architecture.md) | ✅ | @layr/lib |
 
-### Backend (3 specs)
+### Backend (5 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [backend-server.md](backend-server.md) | ✅ | @layr/backend |
 | [routing.md](routing.md) | ✅ | @layr/backend |
 | [route-matching-system.md](route-matching-system.md) | ✅ | @layr/backend |
+| [performance-and-caching.md](performance-and-caching.md) | 📝 | @layr/backend |
+| [build-and-deployment.md](build-and-deployment.md) | 📝 | @layr/backend |
+| [image-cdn-management.md](image-cdn-management.md) | 📝 | @layr/backend |
+| [dynamic-asset-generation.md](dynamic-asset-generation.md) | 📝 | @layr/backend |
+| [cookie-management.md](cookie-management.md) | 📝 | @layr/backend |
 
 ### SSR (2 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [ssr-pipeline.md](ssr-pipeline.md) | ✅ | @layr/ssr |
 | [html-document-head-generation.md](html-document-head-generation.md) | ⚠️ | @layr/ssr |
+| [security-and-sanitization.md](security-and-sanitization.md) | 📝 | @layr/ssr |
+| [seo-web-standards.md](seo-web-standards.md) | 📝 | @layr/ssr |
+| [font-system.md](font-system.md) | 📝 | @layr/ssr |
 
-### Runtime (3 specs)
+### Runtime (5 specs)
 | Spec | Status | Package |
 |------|--------|---------|
 | [rendering-engine.md](rendering-engine.md) | ✅ | @layr/runtime |
 | [slot-system.md](slot-system.md) | ✅ | @layr/runtime |
 | [event-system.md](event-system.md) | ⚠️ | @layr/runtime |
+| [navigation-system.md](navigation-system.md) | 📝 | @layr/runtime |
+| [page-lifecycle.md](page-lifecycle.md) | 📝 | @layr/runtime |
+| [custom-code-system.md](custom-code-system.md) | 📝 | @layr/runtime |
+| [runtime-entry-points.md](runtime-entry-points.md) | 📝 | @layr/runtime |
+| [responsive-styling-system.md](responsive-styling-system.md) | 📝 | @layr/runtime |
+| [styling-and-theming.md](styling-and-theming.md) | ✅ | @layr/runtime |
 
-### Editor (1 spec)
+### Editor (2 specs)
 | Spec | Status | Package |
 |------|--------|---------|
-| [editor-architecture.md](editor-architecture.md) | 📝 | @layr/editor |
+| [editor-architecture.md](editor-architecture.md) | ⚠️ | @layr/editor |
+| [editor-implementation.md](editor-implementation.md) | ⚠️ | @layr/editor |
+| [editor-preview-system.md](editor-preview-system.md) | 📝 | @layr/editor |
+| [drag-drop-system.md](drag-drop-system.md) | 📝 | @layr/editor |
 
 ---
 
 ## Parked Specifications
 
-36 specs in `parked/` directory for future work:
+12 specs in `parked/` directory — lower priority:
 
-- **API**: integration, proxy, request, service
-- **Editor**: integration, preview
-- **Performance**: caching, build, images
-- **Security**: sanitization, cookies
-- **Advanced**: plugins, custom code, workflows
+- **API**: request construction, service management
+- **Editor**: integration
+- **Advanced**: plugins, custom elements, workflows, search
+- **Infrastructure**: error handling, package management
 
 See [parked/README.md](parked/README.md) for details.
 

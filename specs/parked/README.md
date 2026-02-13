@@ -1,49 +1,58 @@
 # Parked Specifications
 
-Specs deferred for future development.
+Specs deferred for future development — lower priority features.
 
-## By Category
+## By Category (12 specs remaining)
 
-### API & Services (5 specs)
-- api-integration.md - API data fetching patterns
-- api-proxy-system.md - Backend API proxying
-- api-request-construction.md - Request building
-- api-service-management.md - API lifecycle
-- client-api-system.md - Client-side API client
+### API & Services (2 specs)
+- api-request-construction.md - Request building utilities
+- api-service-management.md - API lifecycle management
 
-### Editor (2 specs)
+### Editor (1 spec)
 - editor-integration.md - Editor-component integration
-- editor-preview-system.md - Live preview
 
-### Styling (3 specs)
-- styling-and-theming.md - CSS, themes
-- responsive-styling-system.md - Responsive design
-- font-system.md - Font loading
-
-### Performance (4 specs)
-- performance-and-caching.md - Caching strategies
-- build-and-deployment.md - Build pipeline
-- image-cdn-management.md - Image optimization
-- dynamic-asset-generation.md - Asset bundling
-
-### Security (3 specs)
-- security-and-sanitization.md - XSS prevention
-- cookie-management.md - Cookie handling
-- seo-web-standards.md - SEO
-
-### Advanced (15 specs)
+### Advanced (6 specs)
 - plugin-system.md - Extension points
-- custom-code-system.md - User code execution
-- custom-elements.md - Web components
+- custom-elements.md - Web components support
 - workflow-system.md - Reusable workflows
-- page-lifecycle.md - Page events
-- navigation-system.md - Client navigation
-- list-rendering-system.md - Repeat directive
-- template-substitution.md - String interpolation
-- runtime-entry-points.md - Entry points
-- hydration-system.md - SSR→CSR
-- element-definitions.md - Element metadata
 - search-and-linting.md - Search functionality
 - search-and-linting-engine.md - Search implementation
-- introspection-and-traversal.md - Component traversal
-- legacy-compatibility-and-migration.md - Toddle compat
+- legacy-compatibility-and-migration.md - Toddle compatibility
+
+### Infrastructure (2 specs)
+- error-handling-debug.md - Error handling and debugging
+- package-management.md - Package versioning/dependencies
+
+### Future Consideration (1 spec)
+- workflow-system.md - Complex workflow orchestration
+
+---
+
+## Previously Implemented (Removed from Parked)
+
+| Spec | Package | Description |
+|------|---------|-------------|
+| backend-middleware-system | @layr/backend | Middleware compose, cors, logger, errorHandler |
+| api-proxy-system | @layr/backend | Proxy with cookie templates |
+| hydration-system | @layr/runtime, @layr/ssr | SSR→CSR data transfer |
+| list-rendering-system | @layr/runtime | Keyed reconciliation, repeat directive |
+| template-substitution | @layr/ssr | `{{ cookies.name }}` substitution |
+| api-integration | @layr/runtime | V2 APIs with streaming |
+| client-api-system | @layr/runtime | Reactive API clients |
+| editor-preview-system | @layr/editor | Live preview iframe communication |
+| navigation-system | @layr/runtime | Client-side routing |
+| page-lifecycle | @layr/runtime | onLoad, onUnmount events |
+| drag-drop-system | @layr/editor | Visual editor drag-drop |
+| custom-code-system | @layr/runtime | User-defined formula/action execution |
+| element-definitions | @layr/types | Element metadata/property schemas |
+| introspection-and-traversal | @layr/core | Component tree traversal |
+| runtime-entry-points | @layr/runtime | Production/preview/dev entry points |
+| performance-and-caching | @layr/backend | Caching strategies |
+| build-and-deployment | @layr/backend | Build pipeline |
+| image-cdn-management | @layr/backend | Image optimization |
+| dynamic-asset-generation | @layr/backend | Asset bundling |
+| security-and-sanitization | @layr/ssr | XSS prevention |
+| cookie-management | @layr/backend | Cookie handling |
+| seo-web-standards | @layr/ssr | SEO meta tags |
+| responsive-styling-system | @layr/runtime | Responsive breakpoints |
+| font-system | @layr/ssr | Font loading/optimization |
