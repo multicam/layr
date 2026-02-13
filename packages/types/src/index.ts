@@ -9,6 +9,7 @@ export * from './route';
 export * from './signal';
 export * from './utils';
 export * from './project';
+export * from './element';
 
 // Explicitly export type guards and helpers
 export {
@@ -18,3 +19,14 @@ export {
   isSlotNode,
   getNodeChildren,
 } from './node';
+
+export {
+  isVoidElement,
+  isPopularElement,
+  isElementDefinition,
+  VOID_ELEMENTS,
+  POPULAR_ELEMENTS,
+  PERMITTED_CHILDREN,
+  PERMITTED_PARENTS,
+  DEFAULT_ATTRIBUTES,
+} from './element';
