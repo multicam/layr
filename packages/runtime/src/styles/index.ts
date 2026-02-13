@@ -286,7 +286,7 @@ export class CustomPropertyStyleSheet {
 // CSS Custom Property Definition
 // ============================================================================
 
-export interface CssSyntaxNode = 
+export type CssSyntaxNode = 
   | { type: 'primitive'; name: CssSyntax }
   | { type: 'custom'; name: CssCustomSyntax }
   | { type: 'keyword'; keywords: string[] };
