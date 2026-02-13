@@ -1,3 +1,12 @@
 export { Preview } from './Preview';
-export { sendToPreview, listenFromPreview } from './PreviewMessage';
-export type { EditorMessage, PreviewMessage } from './PreviewMessage';
+export {
+  sendToPreview,
+  createPreviewListener,
+  PreviewBridge,
+} from './PreviewMessage';
+export type {
+  EditorMessage,
+  PreviewMessage,
+  EditorMessageType,
+  PreviewMessageType,
+} from './PreviewMessage';
