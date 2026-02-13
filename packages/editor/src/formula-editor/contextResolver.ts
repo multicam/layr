@@ -1,5 +1,4 @@
 import type { Component } from '@layr/types';
-import { getFormula } from '@layr/lib';
 
 export interface AutocompleteContext {
   variables: string[];
@@ -27,7 +26,6 @@ export function resolveAutocompleteContext(
   if (!component) return context;
   
   // Get component variables and attributes
-  // These would come from component definition
   context.variables = ['name', 'count', 'items']; // Placeholder
   context.attributes = ['class', 'id', 'style'];
   
@@ -77,7 +75,7 @@ export function getSuggestions(
         label: `@toddle/${f}`,
         kind: 'formula' as const,
         insertText: `@toddle/${f}($0)`,
-        documentation: getFormulaDocumentation(f),
+        documentation: `Formula: ${f}`,
       }));
   }
   
@@ -102,7 +100,7 @@ export function getSuggestions(
           label: `@toddle/${f}`,
           kind: 'formula',
           insertText: `@toddle/${f}($0)`,
-          documentation: getFormulaDocumentation(f),
+          documentation: `Formula: ${f}`,
         });
       }
     }
@@ -128,11 +126,6 @@ function getPathSuggestions(
     }));
 }
 
-function getFormulaDocumentation(name: string): string {
-  // Could look up from formula metadata
-  return `Formula: ${name}`;
-}
-
 export interface AutocompleteSuggestion {
   label: string;
   kind: 'formula' | 'variable' | 'property' | 'path' | 'keyword';
@@ -140,31 +133,19 @@ export interface AutocompleteSuggestion {
   documentation: string;
 }
 
-// Built-in formulas list
+// Built-in formulas list (inline to avoid importing full lib)
 const BUILTIN_FORMULAS = [
-  // Array
   'map', 'filter', 'reduce', 'find', 'findIndex', 'includes',
   'indexOf', 'length', 'slice', 'concat', 'reverse', 'sort',
   'flat', 'every', 'some',
-  
-  // String
   'concatenate', 'split', 'uppercase', 'lowercase', 'trim',
   'substring', 'replace', 'replaceAll', 'startsWith', 'endsWith',
-  'includes', 'string-length', 'pad-start', 'pad-end', 'repeat',
-  'char-at',
-  
-  // Number
+  'string-includes', 'string-length', 'pad-start', 'pad-end', 'repeat',
   'add', 'subtract', 'multiply', 'divide', 'mod', 'power', 'sqrt',
   'abs', 'round', 'floor', 'ceil', 'min', 'max', 'random',
-  
-  // Object
   'keys', 'values', 'entries', 'fromEntries', 'merge',
-  
-  // Logic
   'equals', 'not-equals', 'greaterThan', 'lessThan',
   'greaterThanOrEqual', 'lessThanOrEqual', 'between',
   'if', 'switch', 'and', 'or', 'not',
-  
-  // Utility
   'default', 'toString', 'typeof', 'first', 'last', 'get',
 ];

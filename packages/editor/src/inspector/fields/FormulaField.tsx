@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Formula } from '@layr/types';
-import { FormulaEditor } from '../../formula-editor';
-import { FormulaPreview } from '../../formula-editor';
+import { FormulaEditor } from '../../formula-editor/FormulaEditor';
+import { FormulaPreview } from '../../formula-editor/FormulaPreview';
 
 interface FormulaFieldProps {
   label: string;

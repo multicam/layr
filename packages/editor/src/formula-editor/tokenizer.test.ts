@@ -1,5 +1,7 @@
 import { describe, test, expect } from 'bun:test';
-import { tokenize, TokenType } from './tokenizer';
+// Import directly from the file, not from index which loads Monaco
+import { tokenize } from './tokenizer';
+import { TokenType } from './tokenizer';
 
 describe('tokenizer', () => {
   test('tokenizes simple value', () => {

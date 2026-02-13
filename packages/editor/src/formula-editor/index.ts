@@ -1,6 +1,4 @@
-export { FormulaEditor } from './FormulaEditor';
-export { Autocomplete, type AutocompleteItem } from './Autocomplete';
-export { FormulaPreview } from './FormulaPreview';
+// Lightweight exports (pure logic, no React/Monaco)
 export { tokenize, TokenType, LayrFormulaLanguage } from './tokenizer';
 export type { Token } from './tokenizer';
 export {
@@ -9,4 +7,9 @@ export {
   type AutocompleteContext,
   type AutocompleteSuggestion,
 } from './contextResolver';
-export { createCompletionProvider, registerLayrFormulaLanguage } from './CompletionProvider';
+
+// Heavy exports (React/Monaco) — use direct imports for these
+// to avoid pulling Monaco into tests and server bundles:
+//   import { FormulaEditor } from './formula-editor/FormulaEditor';
+//   import { FormulaPreview } from './formula-editor/FormulaPreview';
+//   import { Autocomplete } from './formula-editor/Autocomplete';

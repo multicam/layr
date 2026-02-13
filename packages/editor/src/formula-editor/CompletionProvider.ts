@@ -1,14 +1,17 @@
-import * as monaco from 'monaco-editor';
+import type * as Monaco from 'monaco-editor';
 import { resolveAutocompleteContext, getSuggestions } from './contextResolver';
 import type { Component } from '@layr/types';
+
+type Monaco = typeof Monaco;
 
 /**
  * Create Monaco completion provider for Layr formulas
  */
 export function createCompletionProvider(
+  monaco: Monaco,
   getComponent: () => Component | null,
   getSelectedNodeId: () => string | null
-): monaco.languages.CompletionItemProvider {
+): Monaco.languages.CompletionItemProvider {
   return {
     triggerCharacters: ['.', '@', ' '],
     
@@ -34,7 +37,7 @@ export function createCompletionProvider(
       return {
         suggestions: suggestions.map(s => ({
           label: s.label,
-          kind: mapKind(s.kind),
+          kind: mapKind(monaco, s.kind),
           insertText: s.insertText,
           insertTextRules: s.insertText.includes('$0') 
             ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet 
@@ -47,7 +50,7 @@ export function createCompletionProvider(
   };
 }
 
-function mapKind(kind: string): monaco.languages.CompletionItemKind {
+function mapKind(monaco: Monaco, kind: string): Monaco.languages.CompletionItemKind {
   switch (kind) {
     case 'formula': return monaco.languages.CompletionItemKind.Function;
     case 'variable': return monaco.languages.CompletionItemKind.Variable;
@@ -61,7 +64,7 @@ function mapKind(kind: string): monaco.languages.CompletionItemKind {
  * Register Layr formula language and completion provider
  */
 export function registerLayrFormulaLanguage(
-  monaco: any,
+  monaco: Monaco,
   getComponent: () => Component | null,
   getSelectedNodeId: () => string | null
 ): void {
@@ -99,6 +102,6 @@ export function registerLayrFormulaLanguage(
   // Register completion provider
   monaco.languages.registerCompletionItemProvider(
     'layr-formula',
-    createCompletionProvider(getComponent, getSelectedNodeId)
+    createCompletionProvider(monaco, getComponent, getSelectedNodeId)
   );
 }

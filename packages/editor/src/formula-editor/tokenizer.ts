@@ -35,43 +35,28 @@ export const LayrFormulaLanguage = {
   
   tokenizer: {
     root: [
-      // Identifiers and keywords
       [/[a-zA-Z_]\w*/, {
         cases: {
           '@keywords': 'keyword',
           '@default': 'identifier',
         },
       }],
-      
-      // Paths (Variables.foo, Attributes.bar)
       [/[A-Z][a-zA-Z_]*\.[a-zA-Z_.]*/, 'type'],
-      
-      // @toddle formulas
       [/@toddle\/[a-zA-Z-]+/, 'function'],
-      
-      // Numbers
       [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
       [/\d+/, 'number'],
-      
-      // Strings
       [/"([^"\\]|\\.)*$/, 'string.invalid'],
       [/'([^'\\]|\\.)*$/, 'string.invalid'],
       [/"/, 'string', '@string_double'],
       [/'/, 'string', '@string_single'],
-      
-      // Operators
       [/@symbols/, {
         cases: {
           '@operators': 'operator',
           '@default': '',
         },
       }],
-      
-      // Punctuation
       [/[{}()\[\]]/, '@brackets'],
       [/[,.]/, 'delimiter'],
-      
-      // Whitespace
       [/\s+/, 'white'],
     ],
     
@@ -89,7 +74,9 @@ export const LayrFormulaLanguage = {
   },
 };
 
-// Simple tokenizer for formula parsing
+/**
+ * Simple tokenizer for formula parsing
+ */
 export function tokenize(input: string): Token[] {
   const tokens: Token[] = [];
   let position = 0;
@@ -117,7 +104,7 @@ export function tokenize(input: string): Token[] {
     if (char === '"' || char === "'") {
       const quote = char;
       let value = '';
-      position++; // Skip opening quote
+      position++;
       
       while (position < input.length && input[position] !== quote) {
         if (input[position] === '\\') {
@@ -125,7 +112,7 @@ export function tokenize(input: string): Token[] {
         }
         value += input[position++];
       }
-      position++; // Skip closing quote
+      position++;
       tokens.push({ type: TokenType.String, value, position: position - value.length - 2 });
       continue;
     }
@@ -134,7 +121,6 @@ export function tokenize(input: string): Token[] {
     if (/[+\-*/%=<>!&|^?]/.test(char)) {
       let value = char;
       position++;
-      // Check for multi-char operators
       while (position < input.length && /[=<>|&]/.test(input[position])) {
         value += input[position++];
       }
@@ -149,11 +135,12 @@ export function tokenize(input: string): Token[] {
       continue;
     }
     
-    // Identifiers and paths
+    // Identifiers and paths (including @toddle/ formulas)
+    // FIX: Added @ and / to the consumption loop to match entry condition
     if (/[a-zA-Z_@]/.test(char)) {
       let value = '';
       const start = position;
-      while (position < input.length && /[a-zA-Z0-9_.\/]/.test(input[position])) {
+      while (position < input.length && /[a-zA-Z0-9_.@\/\-]/.test(input[position])) {
         value += input[position++];
       }
       
