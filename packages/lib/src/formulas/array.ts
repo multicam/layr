@@ -22,7 +22,7 @@ export function registerArrayFormulas(): void {
   registerFormula('@toddle/reduce', (args, ctx) => {
     const items = args.items as any[];
     const initial = args.initial;
-    const reducer = args.reducer as ((acc: any, item: any) => any);
+    const reducer = args.reducer as ((params: { acc: any; item: any; index: number }) => any);
     if (!Array.isArray(items) || typeof reducer !== 'function') return null;
     return items.reduce((acc, item, index) => reducer({ acc, item, index }), initial);
   });

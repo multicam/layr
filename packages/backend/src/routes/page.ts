@@ -11,10 +11,10 @@ interface PageRouteParams {
  */
 function matchRoute(project: Project, pathname: string): { page: string; params: Record<string, string | null> } | null {
   const pages = Object.values(project.files?.components || {})
-    .filter(c => c.route);
+    .filter((c): c is NonNullable<typeof c> & { route: NonNullable<typeof c.route> } => c != null && c.route != null);
   
   for (const page of pages) {
-    const route = page.route!;
+    const route = page.route;
     const result = matchPath(route.path, pathname);
     if (result) {
       return { page: page.name, params: result.params };
