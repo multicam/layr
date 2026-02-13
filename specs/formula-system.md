@@ -653,3 +653,19 @@ Formulas are validated via Zod schemas:
 - Added Cycle Detection section with detection strategy and error format
 - Added Memoization section with cache behavior, key computation, and warnings
 - Added Error Attribution section with error context and recovery patterns
+
+
+## Resolved Questions
+
+| Question | Resolution | Date |
+|----------|------------|------|
+| 10 or 11 operations? | 10 operations (record = object alias) | 2026-02-13 |
+| Depth limit? | 256 levels | 2026-02-13 |
+| Memoization key? | JSON.stringify of data | 2026-02-13 |
+
+## Implementation Notes
+
+Implemented in:
+- `packages/types/src/formula.ts` - Types
+- `packages/core/src/formula/evaluate.ts` - Evaluation
+- 56 tests, 96% coverage

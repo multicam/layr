@@ -687,3 +687,19 @@ return Apis.fetchUsers.data;
 - Added Signal Lifecycle section with destruction order and memory safety
 - Added Lifecycle Timing section with precise onLoad/onAttributeChange timing
 - Enhanced Error Handling with error types, missing resources, and graceful degradation
+
+
+## Resolved Questions
+
+| Question | Resolution | Date |
+|----------|------------|------|
+| Node IDs required? | Yes, for SSR and hydration | 2026-02-13 |
+| Text node wrapper? | `<span data-node-type="text">` | 2026-02-13 |
+| Slot without children? | Returns empty array | 2026-02-13 |
+
+## Implementation Notes
+
+Implemented in:
+- `packages/types/src/component.ts` - Types
+- `packages/types/src/node.ts` - Node types
+- Runtime in `packages/runtime/src/render/node.ts`

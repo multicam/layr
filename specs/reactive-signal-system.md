@@ -335,3 +335,19 @@ In browser environments, the signal factory and equality function are exposed on
 - Added System Limits section with signal and update limits
 - Added Invariants section with 6 state and subscription invariants
 - Added Error Handling section with error types
+
+
+## Resolved Questions
+
+| Question | Resolution | Date |
+|----------|------------|------|
+| How to handle derived signals? | `map()` method with automatic cleanup | 2026-02-13 |
+| Deep equality for change detection? | Use `fast-deep-equal` package | 2026-02-13 |
+| Re-entrancy protection? | Boolean flag `destroying` | 2026-02-13 |
+
+## Implementation Notes
+
+Implemented in `packages/core/src/signal/signal.ts`:
+- 100% test coverage (26 tests)
+- 2,048 max derived signal depth (tested)
+- Automatic cascade destruction
