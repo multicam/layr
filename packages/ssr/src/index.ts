@@ -42,5 +42,20 @@ export {
   generateFaviconLinks,
 } from './seo';
 
+// Font System
+export {
+  getFontCssUrl,
+  generateFontFace,
+  renderFontLink,
+  rewriteFontCss,
+  getGoogleFontsUrl,
+  getGoogleFontsFileUrl,
+  getFontDisplay,
+  isSystemFont,
+  generateThemeFontVars,
+  filterLoadableFonts,
+} from './fonts';
+
 export type { HeadItem } from './render/head';
 export type { SitemapUrl, SitemapOptions, RobotsTxtOptions, ManifestOptions, MetaTag } from './seo';
+export type { FontFamily, FontVariant, FontCssOptions, ThemeFonts, FontDisplay } from './fonts';
