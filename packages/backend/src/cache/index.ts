@@ -161,7 +161,7 @@ function getFormulaCacheConfig(formula: unknown): { canCache: boolean; keys: str
     )
   );
 
-  return { canCache: deduped.length >= 0, keys: deduped };
+  return { canCache: deduped.length > 0, keys: deduped };
 }
 
 /**
@@ -203,7 +203,11 @@ export class BatchQueue {
     if (this.isProcessing) return;
     this.isProcessing = true;
 
-    requestAnimationFrame(() => {
+    const schedule = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : (fn: () => void) => setTimeout(fn, 0);
+
+    schedule(() => {
       // Drain the queue
       while (this.queue.length > 0) {
         const callback = this.queue.shift();

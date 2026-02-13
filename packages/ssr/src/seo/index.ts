@@ -1,9 +1,11 @@
 /**
  * SEO & Web Standards Endpoints
  * Based on specs/seo-web-standards.md
- * 
+ *
  * Provides sitemap generation, robots.txt, speculation rules, and meta tag utilities.
  */
+
+import { escapeAttrValue } from '../security/index';
 
 // ============================================================================
 // Sitemap Generation
@@ -223,11 +225,11 @@ export interface MetaTag {
 export function renderMetaTag(tag: MetaTag): string {
   const attrs: string[] = [];
   
-  if (tag.name) attrs.push(`name="${escapeAttr(tag.name)}"`);
-  if (tag.property) attrs.push(`property="${escapeAttr(tag.property)}"`);
-  if (tag.content) attrs.push(`content="${escapeAttr(tag.content)}"`);
-  if (tag.charset) attrs.push(`charset="${escapeAttr(tag.charset)}"`);
-  if (tag.httpEquiv) attrs.push(`http-equiv="${escapeAttr(tag.httpEquiv)}"`);
+  if (tag.name) attrs.push(`name="${escapeAttrValue(tag.name)}"`);
+  if (tag.property) attrs.push(`property="${escapeAttrValue(tag.property)}"`);
+  if (tag.content) attrs.push(`content="${escapeAttrValue(tag.content)}"`);
+  if (tag.charset) attrs.push(`charset="${escapeAttrValue(tag.charset)}"`);
+  if (tag.httpEquiv) attrs.push(`http-equiv="${escapeAttrValue(tag.httpEquiv)}"`);
   
   return `<meta ${attrs.join(' ')}>`;
 }
@@ -328,15 +330,16 @@ export function generateFaviconLinks(iconPath: string): string {
     const parts = iconPath.split('/');
     parts.pop(); // Remove variant
     const basePath = parts.join('/');
-    
+    const escaped = escapeAttrValue(basePath);
+
     return [
-      `<link rel="icon" sizes="16x16" href="${basePath}/16" />`,
-      `<link rel="icon" sizes="32x32" href="${basePath}/32" />`,
-      `<link rel="shortcut icon" href="${basePath}/48" />`,
+      `<link rel="icon" sizes="16x16" href="${escaped}/16" />`,
+      `<link rel="icon" sizes="32x32" href="${escaped}/32" />`,
+      `<link rel="shortcut icon" href="${escaped}/48" />`,
     ].join('\n');
   }
   
-  return `<link rel="icon" href="${escapeAttr(iconPath)}" />`;
+  return `<link rel="icon" href="${escapeAttrValue(iconPath)}" />`;
 }
 
 // ============================================================================
@@ -353,16 +356,4 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-/**
- * Escape HTML attribute value.
- */
-function escapeAttr(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }

@@ -70,20 +70,14 @@ const FunctionArgumentSchema = z.object({
   isFunction: z.boolean().optional(),
 });
 
-const ProjectFunctionOperationSchema = z.object({
+const FunctionOperationSchema = z.object({
   type: z.literal('function'),
   name: z.string(),
   package: z.string().optional(),
-  arguments: z.array(FunctionArgumentSchema).optional(),
-}).describe('Call to user-defined formula');
-
-const BuiltInFunctionOperationSchema = z.object({
-  type: z.literal('function'),
-  name: z.string(),
   display_name: z.string().optional(),
   variableArguments: z.boolean().optional(),
   arguments: z.array(FunctionArgumentSchema).optional(),
-}).describe('Call to built-in formula');
+}).describe('Function call');
 
 const ApplyOperationSchema = z.object({
   type: z.literal('apply'),
@@ -134,15 +128,14 @@ const SwitchCaseSchema = z.object({
 
 const SwitchOperationSchema = z.object({
   type: z.literal('switch'),
-  cases: z.array(SwitchCaseSchema).length(1),
+  cases: z.array(SwitchCaseSchema).min(1),
   default: z.lazy(() => FormulaSchema),
 }).describe('Branching');
 
 export const FormulaSchema: z.ZodType = z.union([
   ValueOperationSchema,
   PathOperationSchema,
-  ProjectFunctionOperationSchema,
-  BuiltInFunctionOperationSchema,
+  FunctionOperationSchema,
   ApplyOperationSchema,
   ArrayOperationSchema,
   ObjectOperationSchema,
@@ -155,6 +148,7 @@ export const FormulaSchema: z.ZodType = z.union([
 // ============================================================================
 // Action Schema (Recursive)
 // ============================================================================
+// TODO: Schema field names diverge from @layr/types - schemas reflect actual JSON data, types need reconciliation
 
 const ActionModelBase = z.object({
   '@layr/metadata': MetadataSchema,
@@ -281,6 +275,7 @@ export const EventModelSchema = z.object({
 // ============================================================================
 // Style Variant Schema
 // ============================================================================
+// TODO: Schema shape diverges from StyleVariant type in @layr/types - needs reconciliation
 
 const MediaQuerySchema = z.object({
   'min-width': z.string().optional(),

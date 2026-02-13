@@ -13,6 +13,8 @@ import {
   collectFormulaRefs,
   collectActionRefs,
   hasCustomCode,
+  generateFormulaCode,
+  generateActionCode,
 } from './index';
 import type { ToddleFormula, CodeFormula, PluginActionV2, LegacyPluginAction } from './index';
 
@@ -227,8 +229,14 @@ describe('Custom Code System', () => {
       expect(safeFunctionName('my_formula')).toBe('my_formula');
     });
 
-    test('handles empty string', () => {
-      expect(safeFunctionName('')).toBe('');
+    test('handles empty string with fallback', () => {
+      expect(safeFunctionName('')).toBe('_fn');
+    });
+
+    test('handles strings that become empty after sanitization', () => {
+      expect(safeFunctionName('123')).toBe('_fn');
+      expect(safeFunctionName('!!!')).toBe('_fn');
+      expect(safeFunctionName('---')).toBe('_fn');
     });
   });
 
@@ -299,6 +307,68 @@ describe('Custom Code System', () => {
       const registry = createCustomCodeRegistry();
       // Empty registry should return false
       expect(hasCustomCode(registry, 'empty')).toBe(false);
+    });
+  });
+
+  describe('generateFormulaCode', () => {
+    test('escapes special characters in formula name and description', () => {
+      const formula: CodeFormula = {
+        name: 'test"formula',
+        description: 'A formula with "quotes" and\nnewlines',
+        handler: '(args) => args.x',
+      };
+
+      const code = generateFormulaCode('testpkg', formula);
+
+      // Check that strings are JSON.stringified
+      expect(code).toContain('name: "test\\"formula"');
+      expect(code).toContain('description: "A formula with \\"quotes\\" and\\nnewlines"');
+      // Check that newlines in comments are replaced with spaces
+      expect(code).toContain('// A formula with "quotes" and newlines');
+      expect(code).not.toContain('//\n');
+    });
+
+    test('handles formula with no description', () => {
+      const formula: CodeFormula = {
+        name: 'simple',
+        handler: '(args) => args.x',
+      };
+
+      const code = generateFormulaCode('testpkg', formula);
+      expect(code).toContain('name: "simple"');
+      expect(code).not.toContain('description:');
+    });
+  });
+
+  describe('generateActionCode', () => {
+    test('escapes special characters in action name and description', () => {
+      const action: PluginActionV2 = {
+        name: 'test"action',
+        description: 'An action with "quotes" and\nnewlines',
+        version: 2,
+        handler: (args) => {},
+      };
+
+      const code = generateActionCode('testpkg', action);
+
+      // Check that strings are JSON.stringified
+      expect(code).toContain('name: "test\\"action"');
+      expect(code).toContain('description: "An action with \\"quotes\\" and\\nnewlines"');
+      // Check that newlines in comments are replaced with spaces
+      expect(code).toContain('// An action with "quotes" and newlines');
+      expect(code).not.toContain('//\n');
+    });
+
+    test('handles action with no description', () => {
+      const action: PluginActionV2 = {
+        name: 'simple',
+        version: 2,
+        handler: (args) => {},
+      };
+
+      const code = generateActionCode('testpkg', action);
+      expect(code).toContain('name: "simple"');
+      expect(code).not.toContain('description:');
     });
   });
 });

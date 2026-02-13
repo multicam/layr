@@ -110,7 +110,7 @@ export const VOID_ELEMENTS = [
 
 export type VoidElement = typeof VOID_ELEMENTS[number];
 
-export function isVoidElement(tag: string): boolean {
+export function isVoidElement(tag: string): tag is VoidElement {
   return VOID_ELEMENTS.includes(tag as VoidElement);
 }
 
@@ -137,7 +137,7 @@ export const POPULAR_ELEMENTS = [
 
 export type PopularElement = typeof POPULAR_ELEMENTS[number];
 
-export function isPopularElement(tag: string): boolean {
+export function isPopularElement(tag: string): tag is PopularElement {
   return POPULAR_ELEMENTS.includes(tag as PopularElement);
 }
 
@@ -170,6 +170,8 @@ export const PERMITTED_PARENTS: Record<string, string[]> = {
   tbody: ['table'],
   thead: ['table'],
   tfoot: ['table'],
+  tr: ['table', 'thead', 'tbody', 'tfoot'],
+  colgroup: ['table'],
 };
 
 // ============================================================================
@@ -194,11 +196,8 @@ export const DEFAULT_ATTRIBUTES: Record<string, Record<string, string>> = {
 // ============================================================================
 
 export function isElementDefinition(value: unknown): value is ElementDefinition {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'metadata' in value &&
-    'element' in value &&
-    typeof (value as ElementDefinition).metadata.name === 'string'
-  );
+  if (typeof value !== 'object' || value === null) return false;
+  if (!('metadata' in value) || !('element' in value)) return false;
+  const meta = (value as any).metadata;
+  return typeof meta === 'object' && meta !== null && typeof meta.name === 'string';
 }

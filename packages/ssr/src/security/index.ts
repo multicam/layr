@@ -51,8 +51,9 @@ export function escapeAttrValue(value: unknown): string {
   if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
     return '';
   }
-  
+
   return String(value)
+    .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -294,7 +295,7 @@ export function mapTemplateHeaders(
  * Escape script tags in JSON for safe embedding in HTML.
  */
 export function escapeScriptTags(json: string): string {
-  return json.replace(/<\/script>/gi, '<\\/script>');
+  return json.replace(/<\/script\b/gi, '<\\/script');
 }
 
 // ============================================================================

@@ -41,6 +41,15 @@ const unmountCallbacks: LifecycleCallback[] = [];
 const attributeChangeCallbacks: Array<(attrs: Record<string, unknown>) => void> = [];
 
 /**
+ * Reset all lifecycle callbacks. Used for test teardown and page transitions.
+ */
+export function resetLifecycleCallbacks(): void {
+  mountCallbacks.length = 0;
+  unmountCallbacks.length = 0;
+  attributeChangeCallbacks.length = 0;
+}
+
+/**
  * Register a callback for component mount.
  */
 export function onMount(callback: LifecycleCallback): () => void {
@@ -162,13 +171,15 @@ export function createComponentLifecycle(options: ComponentLifecycleOptions): {
   function destroy(): void {
     if (destroyed) return;
     destroyed = true;
-    
+
     // Abort any pending operations
     abortController.abort();
-    
+
     // Run unmount callbacks
+    // TODO: destroy() calls global triggerUnmount() which fires ALL registered callbacks,
+    // not just those for this component instance. Needs scoping per component.
     triggerUnmount();
-    
+
     // Unsubscribe from signals
     for (const unsubscribe of unsubscribers) {
       unsubscribe();

@@ -132,13 +132,9 @@ export function getLocationUrl(location: Location): string {
     path = location.path;
   }
   
-  // Add hash (before query for this implementation)
   let result = path;
-  if (location.hash) {
-    result += '#' + location.hash;
-  }
-  
-  // Add query string
+
+  // Add query string (must come before hash per URL spec)
   const queryEntries = Object.entries(location.query)
     .filter(([, v]) => v != null)
     .map(([k, v]) => {
@@ -146,11 +142,16 @@ export function getLocationUrl(location: Location): string {
       const value = typeof v === 'string' ? encodeURIComponent(v) : '';
       return `${key}=${value}`;
     });
-  
+
   if (queryEntries.length > 0) {
     result += '?' + queryEntries.join('&');
   }
-  
+
+  // Add hash
+  if (location.hash) {
+    result += '#' + location.hash;
+  }
+
   return result;
 }
 

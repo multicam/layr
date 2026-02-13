@@ -126,8 +126,47 @@ describe('Navigation System', () => {
         query: {},
         hash: null,
       };
-      
+
       expect(getLocationUrl(location)).toBe('/custom/path');
+    });
+
+    test('places query string before hash', () => {
+      const location: Location = {
+        route: {
+          path: [{ type: 'static', name: 'page' }],
+        },
+        path: '/page',
+        params: {},
+        query: { foo: 'bar' },
+        hash: 'section',
+      };
+
+      const url = getLocationUrl(location);
+      // Query must come before hash per URL spec
+      expect(url).toBe('/page?foo=bar#section');
+      expect(url.indexOf('?')).toBeLessThan(url.indexOf('#'));
+    });
+
+    test('handles hash without query', () => {
+      const location: Location = {
+        path: '/page',
+        params: {},
+        query: {},
+        hash: 'section',
+      };
+
+      expect(getLocationUrl(location)).toBe('/page#section');
+    });
+
+    test('handles query without hash', () => {
+      const location: Location = {
+        path: '/page',
+        params: {},
+        query: { foo: 'bar' },
+        hash: null,
+      };
+
+      expect(getLocationUrl(location)).toBe('/page?foo=bar');
     });
   });
 

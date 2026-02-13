@@ -199,11 +199,12 @@ export function getAction(
 export function safeFunctionName(name: string): string {
   // Remove non-alphanumeric characters except underscore
   let safe = name.replace(/[^a-zA-Z0-9_]/g, '');
-  
+
   // Remove leading digits
   safe = safe.replace(/^[0-9]+/, '');
-  
-  return safe;
+
+  // Fallback if nothing left
+  return safe || '_fn';
 }
 
 /**
@@ -217,17 +218,17 @@ export function generateFormulaCode(
   const handlerCode = typeof formula.handler === 'string'
     ? formula.handler
     : `(${formula.handler.toString()})`;
-  
+
   return `
 // Formula: ${formula.name}
 // Package: ${packageName}
-${formula.description ? `// ${formula.description}` : ''}
+${formula.description ? `// ${(formula.description || '').replace(/\n/g, ' ')}` : ''}
 
 const ${safeName} = ${handlerCode};
 
 export const formula = {
-  name: "${formula.name}",
-  ${formula.description ? `description: "${formula.description}",` : ''}
+  name: ${JSON.stringify(formula.name)},
+  ${formula.description ? `description: ${JSON.stringify(formula.description)},` : ''}
   ${formula.arguments ? `arguments: ${JSON.stringify(formula.arguments)},` : ''}
   handler: ${safeName}
 };
@@ -243,18 +244,18 @@ export function generateActionCode(
 ): string {
   const safeName = safeFunctionName(action.name);
   const handlerCode = action.handler.toString();
-  
+
   return `
 // Action: ${action.name}
 // Package: ${packageName}
-${action.description ? `// ${action.description}` : ''}
+${action.description ? `// ${(action.description || '').replace(/\n/g, ' ')}` : ''}
 
 const ${safeName} = ${handlerCode};
 
 export const action = {
-  name: "${action.name}",
+  name: ${JSON.stringify(action.name)},
   version: 2,
-  ${action.description ? `description: "${action.description}",` : ''}
+  ${action.description ? `description: ${JSON.stringify(action.description)},` : ''}
   ${action.arguments ? `arguments: ${JSON.stringify(action.arguments)},` : ''}
   ${action.events ? `events: ${JSON.stringify(action.events)},` : ''}
   handler: ${safeName}
@@ -339,8 +340,8 @@ export function hasCustomCode(
 ): boolean {
   const formulas = registry.formulas[packageName];
   const actions = registry.actions[packageName];
-  
-  return (
+
+  return Boolean(
     (formulas && Object.keys(formulas).length > 0) ||
     (actions && Object.keys(actions).length > 0)
   );

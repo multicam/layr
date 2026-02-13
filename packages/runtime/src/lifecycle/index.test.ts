@@ -6,6 +6,7 @@ import {
   triggerMount,
   triggerUnmount,
   triggerAttributeChange,
+  resetLifecycleCallbacks,
   hasToddleGlobal,
   getToddleGlobal,
   initToddleGlobal,
@@ -90,25 +91,57 @@ describe('Lifecycle System', () => {
   describe('onAttributesChange / triggerAttributeChange', () => {
     test('calls attribute change callbacks', () => {
       let received: Record<string, unknown> | undefined;
-      
+
       onAttributesChange((attrs) => {
         received = attrs;
       });
-      
+
       triggerAttributeChange({ foo: 'bar' });
-      
+
       expect(received).toEqual({ foo: 'bar' });
     });
 
     test('supports multiple callbacks', () => {
       const calls: number[] = [];
-      
+
       onAttributesChange(() => { calls.push(1); });
       onAttributesChange(() => { calls.push(2); });
-      
+
       triggerAttributeChange({});
-      
+
       expect(calls).toEqual([1, 2]);
+    });
+  });
+
+  describe('resetLifecycleCallbacks', () => {
+    test('clears all mount callbacks', async () => {
+      let called = false;
+      onMount(() => { called = true; });
+
+      resetLifecycleCallbacks();
+      await triggerMount();
+
+      expect(called).toBe(false);
+    });
+
+    test('clears all unmount callbacks', async () => {
+      let called = false;
+      onUnmount(() => { called = true; });
+
+      resetLifecycleCallbacks();
+      await triggerUnmount();
+
+      expect(called).toBe(false);
+    });
+
+    test('clears all attribute change callbacks', () => {
+      let called = false;
+      onAttributesChange(() => { called = true; });
+
+      resetLifecycleCallbacks();
+      triggerAttributeChange({});
+
+      expect(called).toBe(false);
     });
   });
 

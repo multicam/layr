@@ -44,14 +44,18 @@ export function parseCookies(cookieHeader: string | null): Record<string, string
   for (const pair of pairs) {
     const trimmed = pair.trim();
     const index = trimmed.indexOf('=');
-    
+
     if (index > 0) {
       const name = trimmed.slice(0, index).trim();
       const value = trimmed.slice(index + 1).trim();
-      
+
       // Filter out undefined keys/values
       if (name && value !== undefined) {
-        cookies[name] = value;
+        try {
+          cookies[name] = decodeURIComponent(value);
+        } catch {
+          cookies[name] = value;
+        }
       }
     }
   }
@@ -78,11 +82,13 @@ export function getRequestCookies(request: Request): Record<string, string> {
 export function decodeToken(token: string): { exp?: number } | undefined {
   try {
     // Convert Base64url to Base64
-    const base64 = token
+    let base64 = token
       .split('.')[1]
       .replace(/-/g, '+')
       .replace(/_/g, '/');
-    
+    // Add padding for environments that require it
+    while (base64.length % 4 !== 0) base64 += '=';
+
     // Decode
     const payload = JSON.parse(atob(base64));
     return payload;
@@ -194,14 +200,19 @@ export function validateCookieOptions(options: Partial<CookieOptions>): string |
  */
 export function setHttpOnlyCookie(options: CookieOptions, hostname?: string): string {
   const parts = [buildSetCookieHeader(options)];
-  
-  // Add domain for subdomain support
+
+  // Build domain - skip for localhost and IP addresses
+  let domainAttr = '';
   if (options.includeSubdomains !== false && hostname) {
-    // Find the base domain (remove subdomain)
-    const domain = hostname.split('.').slice(-2).join('.');
-    parts.push(`Domain=${domain}`);
+    if (hostname !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(hostname) && hostname.includes('.')) {
+      const hostnameParts = hostname.split('.');
+      // For multi-part TLDs, take last 2 parts (imperfect but safer)
+      const domain = hostnameParts.slice(-2).join('.');
+      domainAttr = `Domain=${domain}`;
+      parts.push(domainAttr);
+    }
   }
-  
+
   return parts.filter(Boolean).join('; ');
 }
 
@@ -236,6 +247,10 @@ export interface CookieHandlerOptions {
  */
 export function createCookieHandler(options: CookieHandlerOptions = {}) {
   return (request: Request): Response => {
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
+    }
+
     const url = new URL(request.url);
     const params = new URLSearchParams(url.search);
     

@@ -56,6 +56,8 @@ export function* getFormulasInFormula(
   formula: Formula | undefined | null,
   options: {
     path?: (string | number)[];
+    // TODO: Implement cycle detection - currently scaffolding only.
+    // Should .add() formula identifiers and .has() to skip already-visited formulas.
     visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
@@ -149,7 +151,7 @@ export function* getFormulasInFormula(
  * Recursively walks an action tree, yielding all formulas found within it.
  */
 export function* getFormulasInAction(
-  action: ActionModel | undefined | null,
+  action: ActionModel | ActionModel[] | undefined | null,
   options: {
     path?: (string | number)[];
     visitedFormulas?: Set<string>;
@@ -157,6 +159,17 @@ export function* getFormulasInAction(
   } = {}
 ): Generator<FormulaVisit> {
   if (!action) return;
+
+  // Handle array of actions
+  if (Array.isArray(action)) {
+    for (let i = 0; i < action.length; i++) {
+      yield* getFormulasInAction(action[i], {
+        ...options,
+        path: [...(options.path ?? []), i],
+      });
+    }
+    return;
+  }
 
   const { path = [], visitedFormulas = new Set<string>(), packageName } = options;
 

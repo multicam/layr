@@ -1,9 +1,18 @@
 /**
  * Font System
  * Based on specs/font-system.md
- * 
+ *
  * Manages web font loading, proxying, and CSS generation.
  */
+
+// ============================================================================
+// CSS String Escaping
+// ============================================================================
+
+/** Escape a string for use inside CSS single-quoted strings */
+function escapeCssString(str: string): string {
+  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/<\//g, '<\\/');
+}
 
 // ============================================================================
 // Font Types
@@ -118,11 +127,11 @@ export function generateFontFace(font: FontFamily): string {
     const fontWeight = variant.weight;
     
     rules.push(`@font-face {
-  font-family: '${font.family}';
+  font-family: '${escapeCssString(font.family)}';
   font-style: ${fontStyle};
   font-weight: ${fontWeight};
   font-display: swap;
-  src: url('${variant.url}') format('woff2');
+  src: url('${escapeCssString(variant.url)}') format('woff2');
 }`);
   }
   
@@ -228,21 +237,21 @@ export interface ThemeFonts {
  */
 export function generateThemeFontVars(themeFonts: ThemeFonts): string {
   const vars: string[] = [];
-  
+
   if (themeFonts.sans) {
-    vars.push(`--font-sans: '${themeFonts.sans}', sans-serif;`);
+    vars.push(`--font-sans: '${escapeCssString(themeFonts.sans)}', sans-serif;`);
   }
-  
+
   if (themeFonts.serif) {
-    vars.push(`--font-serif: '${themeFonts.serif}', serif;`);
+    vars.push(`--font-serif: '${escapeCssString(themeFonts.serif)}', serif;`);
   }
-  
+
   if (themeFonts.mono) {
-    vars.push(`--font-mono: '${themeFonts.mono}', monospace;`);
+    vars.push(`--font-mono: '${escapeCssString(themeFonts.mono)}', monospace;`);
   }
-  
+
   if (vars.length === 0) return '';
-  
+
   return `:root {
   ${vars.join('\n  ')}
 }`;
