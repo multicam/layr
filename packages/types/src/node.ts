@@ -1,6 +1,8 @@
 /**
  * Node Model Types
  * Based on specs/component-system.md
+ *
+ * Field names match the JSON schema (schemas.ts is the source of truth).
  */
 
 import type { Formula } from './formula';
@@ -30,6 +32,54 @@ export interface NodeBase {
 }
 
 // ============================================================================
+// Style Variant & Custom Properties
+// ============================================================================
+
+export interface MediaQuery {
+  'min-width'?: string;
+  'max-width'?: string;
+  'min-height'?: string;
+  'max-height'?: string;
+  'prefers-reduced-motion'?: 'reduce' | 'no-preference';
+}
+
+export type BreakpointName = 'small' | 'medium' | 'large';
+
+export interface StyleVariant {
+  id?: string;
+  className?: string;
+  hover?: boolean;
+  active?: boolean;
+  focus?: boolean;
+  focusWithin?: boolean;
+  disabled?: boolean;
+  checked?: boolean;
+  empty?: boolean;
+  firstChild?: boolean;
+  lastChild?: boolean;
+  evenChild?: boolean;
+  oddChild?: boolean;
+  autofill?: boolean;
+  startingStyle?: boolean;
+  mediaQuery?: MediaQuery;
+  breakpoint?: BreakpointName;
+  pseudoElement?: string;
+  style?: Record<string, string>;
+  customProperties?: Record<string, CustomProperty>;
+}
+
+export interface AnimationKeyframe {
+  position: number;
+  key: string;
+  value: string;
+}
+
+export interface CustomProperty {
+  formula: Formula;
+  unit?: string;
+}
+
+// ============================================================================
 // Element Node
 // ============================================================================
 
@@ -37,34 +87,13 @@ export interface ElementNodeModel extends NodeBase {
   type: 'element';
   tag: string;
   attrs?: Record<string, Formula>;
-  style?: NodeStyleModel;
+  style?: Record<string, string>;
   variants?: StyleVariant[];
   animations?: Record<string, Record<string, AnimationKeyframe>>;
   children: string[];
   events?: Record<string, EventModel>;
   classes?: Record<string, { formula?: Formula }>;
   customProperties?: Record<string, CustomProperty>;
-}
-
-export interface NodeStyleModel {
-  [property: string]: Formula;
-}
-
-export interface StyleVariant {
-  name: string;
-  mediaQuery?: Formula;
-  style?: NodeStyleModel;
-  customProperties?: Record<string, CustomProperty>;
-}
-
-export interface AnimationKeyframe {
-  offset: number;
-  properties: Record<string, Formula>;
-}
-
-export interface CustomProperty {
-  formula: Formula;
-  unit?: string;
 }
 
 // ============================================================================
@@ -89,7 +118,7 @@ export interface ComponentNodeModel extends NodeBase {
   attrs: Record<string, Formula>;
   children: string[];
   events?: Record<string, EventModel>;
-  style?: NodeStyleModel;
+  style?: Record<string, string>;
   variants?: StyleVariant[];
   customProperties?: Record<string, CustomProperty>;
 }

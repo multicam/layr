@@ -90,6 +90,9 @@
     "packages/types": {
       "name": "@layr/types",
       "version": "0.0.1",
+      "dependencies": {
+        "zod": "3",
+      },
     },
   },
   "packages": {

@@ -1,7 +1,7 @@
 /**
  * Page Lifecycle System
  * Based on specs/page-lifecycle.md
- * 
+ *
  * Manages component lifecycle events (onLoad, onUnmount, onAttributeChange).
  */
 
@@ -31,7 +31,7 @@ export interface LifecycleHandler {
 }
 
 // ============================================================================
-// Lifecycle Hooks
+// Lifecycle Hooks (Global — page-level)
 // ============================================================================
 
 type LifecycleCallback = () => void | Promise<void>;
@@ -122,38 +122,93 @@ export interface ComponentLifecycleOptions {
   handleAction: (action: ActionModel, ctx: Partial<LifecycleContext>) => Promise<void>;
 }
 
+export interface ComponentLifecycleAPI {
+  onMount(cb: LifecycleCallback): () => void;
+  onUnmount(cb: LifecycleCallback): () => void;
+  onAttributesChange(cb: (attrs: Record<string, unknown>) => void): () => void;
+  initialize(): Promise<void>;
+  destroy(): void;
+  handleAttributeChange(newAttrs: Record<string, unknown>): void;
+}
+
 /**
  * Create a lifecycle manager for a component.
+ *
+ * Each instance maintains its own callback arrays so that destroy()
+ * only fires unmount callbacks registered to this specific instance,
+ * not all global callbacks.
  */
-export function createComponentLifecycle(options: ComponentLifecycleOptions): {
-  initialize: () => Promise<void>;
-  destroy: () => void;
-  handleAttributeChange: (newAttrs: Record<string, unknown>) => void;
-} {
+export function createComponentLifecycle(options: ComponentLifecycleOptions): ComponentLifecycleAPI {
   const { component, dataSignal, abortController, handleAction } = options;
-  
+
   let destroyed = false;
   let unsubscribers: Array<() => void> = [];
-  
+
+  // Instance-scoped callback arrays
+  const instanceMountCallbacks: LifecycleCallback[] = [];
+  const instanceUnmountCallbacks: LifecycleCallback[] = [];
+  const instanceAttrChangeCallbacks: Array<(attrs: Record<string, unknown>) => void> = [];
+
+  /**
+   * Register a mount callback scoped to this instance.
+   */
+  function instanceOnMount(cb: LifecycleCallback): () => void {
+    if (destroyed) return () => {};
+    instanceMountCallbacks.push(cb);
+    return () => {
+      const index = instanceMountCallbacks.indexOf(cb);
+      if (index > -1) instanceMountCallbacks.splice(index, 1);
+    };
+  }
+
+  /**
+   * Register an unmount callback scoped to this instance.
+   */
+  function instanceOnUnmount(cb: LifecycleCallback): () => void {
+    if (destroyed) return () => {};
+    instanceUnmountCallbacks.push(cb);
+    return () => {
+      const index = instanceUnmountCallbacks.indexOf(cb);
+      if (index > -1) instanceUnmountCallbacks.splice(index, 1);
+    };
+  }
+
+  /**
+   * Register an attribute change callback scoped to this instance.
+   */
+  function instanceOnAttributesChange(cb: (attrs: Record<string, unknown>) => void): () => void {
+    if (destroyed) return () => {};
+    instanceAttrChangeCallbacks.push(cb);
+    return () => {
+      const index = instanceAttrChangeCallbacks.indexOf(cb);
+      if (index > -1) instanceAttrChangeCallbacks.splice(index, 1);
+    };
+  }
+
   /**
    * Initialize lifecycle events.
    */
   async function initialize(): Promise<void> {
     if (destroyed) return;
-    
+
     // Handle onLoad
     if (component.onLoad?.actions) {
       const ctx: Partial<LifecycleContext> = {
         data: dataSignal.get(),
         abortController,
       };
-      
+
       for (const action of component.onLoad.actions) {
         if (abortController.signal.aborted) break;
         await handleAction(action, ctx);
       }
     }
-    
+
+    // Fire instance mount callbacks
+    for (const cb of instanceMountCallbacks) {
+      await cb();
+    }
+
     // Subscribe to attribute changes
     if (component.onAttributeChange?.actions) {
       // Subscribe to route signal changes
@@ -164,9 +219,9 @@ export function createComponentLifecycle(options: ComponentLifecycleOptions): {
       unsubscribers.push(unsubscribe);
     }
   }
-  
+
   /**
-   * Destroy lifecycle.
+   * Destroy lifecycle — fires only instance-scoped unmount callbacks.
    */
   function destroy(): void {
     if (destroyed) return;
@@ -175,10 +230,15 @@ export function createComponentLifecycle(options: ComponentLifecycleOptions): {
     // Abort any pending operations
     abortController.abort();
 
-    // Run unmount callbacks
-    // TODO: destroy() calls global triggerUnmount() which fires ALL registered callbacks,
-    // not just those for this component instance. Needs scoping per component.
-    triggerUnmount();
+    // Run instance-scoped unmount callbacks only
+    for (const cb of instanceUnmountCallbacks) {
+      cb();
+    }
+
+    // Clear instance callback arrays
+    instanceMountCallbacks.length = 0;
+    instanceUnmountCallbacks.length = 0;
+    instanceAttrChangeCallbacks.length = 0;
 
     // Unsubscribe from signals
     for (const unsubscribe of unsubscribers) {
@@ -186,26 +246,34 @@ export function createComponentLifecycle(options: ComponentLifecycleOptions): {
     }
     unsubscribers = [];
   }
-  
+
   /**
    * Handle attribute change event.
    */
   function handleAttributeChange(newAttrs: Record<string, unknown>): void {
     if (destroyed) return;
     if (!component.onAttributeChange?.actions) return;
-    
+
     const ctx: Partial<LifecycleContext> = {
       data: { ...dataSignal.get(), Attributes: newAttrs },
       abortController,
     };
-    
+
     for (const action of component.onAttributeChange.actions) {
       if (abortController.signal.aborted) break;
       handleAction(action, ctx);
     }
+
+    // Fire instance attribute change callbacks
+    for (const cb of instanceAttrChangeCallbacks) {
+      cb(newAttrs);
+    }
   }
-  
+
   return {
+    onMount: instanceOnMount,
+    onUnmount: instanceOnUnmount,
+    onAttributesChange: instanceOnAttributesChange,
     initialize,
     destroy,
     handleAttributeChange,
@@ -302,11 +370,11 @@ export function initToddleGlobal(options: {
     eventLog: [],
     env: options.env,
   };
-  
+
   if (typeof globalThis !== 'undefined') {
     (globalThis as any).__toddle = toddle;
   }
-  
+
   return toddle;
 }
 
@@ -323,7 +391,7 @@ export function logState(): void {
     console.log('Toddle global not found');
     return;
   }
-  
+
   console.table({
     project: toddle.project,
     branch: toddle.branch,
@@ -332,7 +400,7 @@ export function logState(): void {
     componentCount: toddle.components.length,
     runtime: toddle.env.runtime,
   });
-  
+
   if (toddle.errors.length > 0) {
     console.group('Errors');
     for (const error of toddle.errors) {

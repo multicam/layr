@@ -1,6 +1,8 @@
 /**
  * Action System Types
  * Based on specs/action-system.md
+ *
+ * Field names match the JSON schema (schemas.ts is the source of truth).
  */
 
 import type { Formula } from './formula';
@@ -17,7 +19,7 @@ export type ActionModel =
   | AbortFetchAction
   | CustomAction
   | SetURLParameterAction
-  | SetMultiUrlParameterAction
+  | SetURLParametersAction
   | TriggerWorkflowAction
   | WorkflowCallbackAction;
 
@@ -27,25 +29,27 @@ export type ActionModel =
 
 export interface SetVariableAction {
   type: 'SetVariable';
-  variable: string;
-  value: Formula;
+  name: string;
+  data?: Formula;
 }
 
 export interface TriggerEventAction {
   type: 'TriggerEvent';
-  event: string;
-  data: Formula;
+  name: string;
+  data?: Formula;
 }
 
 export interface SwitchAction {
   type: 'Switch';
+  data?: Formula;
   cases: Array<{ condition: Formula; actions: ActionModel[] }>;
-  default: { actions: ActionModel[] };
+  default?: { actions: ActionModel[] };
 }
 
 export interface FetchAction {
   type: 'Fetch';
-  api: string;
+  name: string;
+  inputs?: Array<{ name: string; formula?: Formula }>;
   onSuccess?: { actions: ActionModel[] };
   onError?: { actions: ActionModel[] };
   onMessage?: { actions: ActionModel[] };
@@ -53,17 +57,17 @@ export interface FetchAction {
 
 export interface AbortFetchAction {
   type: 'AbortFetch';
-  api: string;
+  name: string;
 }
 
 export interface CustomAction {
-  type: 'Custom';
+  type?: 'Custom';
   name: string;
   package?: string;
   version?: 2;
   arguments?: CustomActionArgument[];
   data?: Formula;
-  events?: Record<string, { actions: ActionModel[] }>;
+  events?: Record<string, { actions: ActionModel[]; dummyEvent?: unknown }>;
 }
 
 export interface CustomActionArgument {
@@ -73,27 +77,29 @@ export interface CustomActionArgument {
 
 export interface SetURLParameterAction {
   type: 'SetURLParameter';
-  parameter: string;
-  value: Formula;
+  name: string;
+  data?: Formula;
+  historyMode?: 'push' | 'replace';
 }
 
-export interface SetMultiUrlParameterAction {
-  type: 'SetMultiUrlParameter';
-  parameters: Record<string, { formula: Formula }>;
+export interface SetURLParametersAction {
+  type: 'SetURLParameters';
+  parameters: Array<{ name: string; formula: Formula }>;
+  historyMode?: 'push' | 'replace';
 }
 
 export interface TriggerWorkflowAction {
   type: 'TriggerWorkflow';
-  workflow: string;
-  contextProvider?: string;
-  parameters?: Record<string, { formula: Formula }>;
-  callbacks?: Record<string, { actions: ActionModel[] }>;
+  name: string;
+  parameters?: Array<{ name: string; formula?: Formula }>;
+  componentName?: string;
+  package?: string;
 }
 
 export interface WorkflowCallbackAction {
   type: 'TriggerWorkflowCallback';
-  event: string;
-  data: Formula;
+  name: string;
+  data?: Formula;
 }
 
 // ============================================================================
@@ -121,15 +127,15 @@ export function isAbortFetchAction(a: ActionModel): a is AbortFetchAction {
 }
 
 export function isCustomAction(a: ActionModel): a is CustomAction {
-  return a.type === 'Custom';
+  return a.type === 'Custom' || a.type === undefined;
 }
 
 export function isSetURLParameterAction(a: ActionModel): a is SetURLParameterAction {
   return a.type === 'SetURLParameter';
 }
 
-export function isSetMultiUrlParameterAction(a: ActionModel): a is SetMultiUrlParameterAction {
-  return a.type === 'SetMultiUrlParameter';
+export function isSetURLParametersAction(a: ActionModel): a is SetURLParametersAction {
+  return a.type === 'SetURLParameters';
 }
 
 export function isTriggerWorkflowAction(a: ActionModel): a is TriggerWorkflowAction {

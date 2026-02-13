@@ -1,26 +1,14 @@
 /**
  * Responsive Styling & Custom Property System
  * Based on specs/responsive-styling-system.md
- * 
+ *
  * Manages CSS custom properties, media queries, and style variants.
  */
 
-// ============================================================================
-// Media Query Types
-// ============================================================================
+import type { MediaQuery, BreakpointName, StyleVariant, CustomProperty } from '@layr/types';
 
-export interface MediaQuery {
-  'min-width'?: string;
-  'max-width'?: string;
-  'min-height'?: string;
-  'max-height'?: string;
-  'prefers-reduced-motion'?: 'reduce' | 'no-preference';
-}
-
-/**
- * Legacy breakpoint names.
- */
-export type BreakpointName = 'small' | 'medium' | 'large';
+// Re-export types from @layr/types (single source of truth)
+export type { MediaQuery, BreakpointName, StyleVariant, CustomProperty } from '@layr/types';
 
 /**
  * Breakpoint values in pixels.
@@ -30,38 +18,6 @@ export const BREAKPOINTS: Record<BreakpointName, number> = {
   medium: 960,
   large: 1440,
 };
-
-// ============================================================================
-// Style Variant Types
-// ============================================================================
-
-export interface StyleVariant {
-  id?: string;
-  className?: string;
-  hover?: boolean;
-  active?: boolean;
-  focus?: boolean;
-  focusWithin?: boolean;
-  disabled?: boolean;
-  checked?: boolean;
-  empty?: boolean;
-  firstChild?: boolean;
-  lastChild?: boolean;
-  evenChild?: boolean;
-  oddChild?: boolean;
-  autofill?: boolean;
-  startingStyle?: boolean;
-  mediaQuery?: MediaQuery;
-  breakpoint?: BreakpointName;
-  pseudoElement?: string;
-  style?: Record<string, string>;
-  customProperties?: Record<string, CustomProperty>;
-}
-
-export interface CustomProperty {
-  formula: unknown;
-  unit?: string;
-}
 
 // ============================================================================
 // Media Query Utilities

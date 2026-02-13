@@ -125,6 +125,7 @@ export type {
   LifecycleContext,
   LifecycleHandler,
   ComponentLifecycleOptions,
+  ComponentLifecycleAPI,
   ToddleEnv,
   ToddleGlobal,
 } from './lifecycle/index';

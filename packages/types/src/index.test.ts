@@ -2,17 +2,17 @@ import { describe, test, expect } from 'bun:test';
 
 describe('types package', () => {
   describe('formula type guards', async () => {
-    const { 
-      isValueOperation, 
-      isPathOperation, 
-      isFunctionOperation, 
-      isObjectOperation, 
-      isArrayOperation, 
-      isSwitchOperation, 
-      isOrOperation, 
-      isAndOperation, 
-      isApplyOperation, 
-      isRecordOperation 
+    const {
+      isValueOperation,
+      isPathOperation,
+      isFunctionOperation,
+      isObjectOperation,
+      isArrayOperation,
+      isSwitchOperation,
+      isOrOperation,
+      isAndOperation,
+      isApplyOperation,
+      isRecordOperation
     } = await import('./formula');
 
     test('isValueOperation returns true for value operations', () => {
@@ -67,67 +67,67 @@ describe('types package', () => {
   });
 
   describe('action type guards', async () => {
-    const { 
-      isSetVariableAction, 
-      isTriggerEventAction, 
-      isSwitchAction, 
-      isFetchAction, 
+    const {
+      isSetVariableAction,
+      isTriggerEventAction,
+      isSwitchAction,
+      isFetchAction,
       isAbortFetchAction,
       isCustomAction,
       isSetURLParameterAction,
-      isSetMultiUrlParameterAction,
+      isSetURLParametersAction,
       isTriggerWorkflowAction,
       isWorkflowCallbackAction
     } = await import('./action');
 
     test('isSetVariableAction returns true for SetVariable', () => {
-      expect(isSetVariableAction({ type: 'SetVariable', variable: 'x', value: { type: 'value', value: 1 } })).toBe(true);
-      expect(isSetVariableAction({ type: 'TriggerEvent', event: 'click', data: { type: 'value', value: null } })).toBe(false);
+      expect(isSetVariableAction({ type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } })).toBe(true);
+      expect(isSetVariableAction({ type: 'TriggerEvent', name: 'click', data: { type: 'value', value: null } })).toBe(false);
     });
 
     test('isTriggerEventAction returns true for TriggerEvent', () => {
-      expect(isTriggerEventAction({ type: 'TriggerEvent', event: 'submit', data: { type: 'value', value: null } })).toBe(true);
-      expect(isTriggerEventAction({ type: 'SetVariable', variable: 'x', value: { type: 'value', value: 1 } })).toBe(false);
+      expect(isTriggerEventAction({ type: 'TriggerEvent', name: 'submit', data: { type: 'value', value: null } })).toBe(true);
+      expect(isTriggerEventAction({ type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } })).toBe(false);
     });
 
     test('isSwitchAction returns true for Switch', () => {
       expect(isSwitchAction({ type: 'Switch', cases: [], default: { actions: [] } })).toBe(true);
-      expect(isSwitchAction({ type: 'Fetch', api: 'test' })).toBe(false);
+      expect(isSwitchAction({ type: 'Fetch', name: 'test' })).toBe(false);
     });
 
     test('isFetchAction returns true for Fetch', () => {
-      expect(isFetchAction({ type: 'Fetch', api: 'myApi' })).toBe(true);
-      expect(isFetchAction({ type: 'AbortFetch', api: 'myApi' })).toBe(false);
+      expect(isFetchAction({ type: 'Fetch', name: 'myApi' })).toBe(true);
+      expect(isFetchAction({ type: 'AbortFetch', name: 'myApi' })).toBe(false);
     });
 
     test('isAbortFetchAction returns true for AbortFetch', () => {
-      expect(isAbortFetchAction({ type: 'AbortFetch', api: 'myApi' })).toBe(true);
-      expect(isAbortFetchAction({ type: 'Fetch', api: 'myApi' })).toBe(false);
+      expect(isAbortFetchAction({ type: 'AbortFetch', name: 'myApi' })).toBe(true);
+      expect(isAbortFetchAction({ type: 'Fetch', name: 'myApi' })).toBe(false);
     });
 
     test('isCustomAction returns true for Custom', () => {
       expect(isCustomAction({ type: 'Custom', name: 'myAction' })).toBe(true);
-      expect(isCustomAction({ type: 'SetVariable', variable: 'x', value: { type: 'value', value: 1 } })).toBe(false);
+      expect(isCustomAction({ type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } })).toBe(false);
     });
 
     test('isSetURLParameterAction returns true for SetURLParameter', () => {
-      expect(isSetURLParameterAction({ type: 'SetURLParameter', parameter: 'page', value: { type: 'value', value: '1' } })).toBe(true);
-      expect(isSetURLParameterAction({ type: 'SetMultiUrlParameter', parameters: {} })).toBe(false);
+      expect(isSetURLParameterAction({ type: 'SetURLParameter', name: 'page', data: { type: 'value', value: '1' } })).toBe(true);
+      expect(isSetURLParameterAction({ type: 'SetURLParameters', parameters: [] })).toBe(false);
     });
 
-    test('isSetMultiUrlParameterAction returns true for SetMultiUrlParameter', () => {
-      expect(isSetMultiUrlParameterAction({ type: 'SetMultiUrlParameter', parameters: {} })).toBe(true);
-      expect(isSetMultiUrlParameterAction({ type: 'SetURLParameter', parameter: 'p', value: { type: 'value', value: '1' } })).toBe(false);
+    test('isSetURLParametersAction returns true for SetURLParameters', () => {
+      expect(isSetURLParametersAction({ type: 'SetURLParameters', parameters: [] })).toBe(true);
+      expect(isSetURLParametersAction({ type: 'SetURLParameter', name: 'p', data: { type: 'value', value: '1' } })).toBe(false);
     });
 
     test('isTriggerWorkflowAction returns true for TriggerWorkflow', () => {
-      expect(isTriggerWorkflowAction({ type: 'TriggerWorkflow', workflow: 'myWorkflow' })).toBe(true);
-      expect(isTriggerWorkflowAction({ type: 'TriggerWorkflowCallback', event: 'done', data: { type: 'value', value: null } })).toBe(false);
+      expect(isTriggerWorkflowAction({ type: 'TriggerWorkflow', name: 'myWorkflow' })).toBe(true);
+      expect(isTriggerWorkflowAction({ type: 'TriggerWorkflowCallback', name: 'done', data: { type: 'value', value: null } })).toBe(false);
     });
 
     test('isWorkflowCallbackAction returns true for TriggerWorkflowCallback', () => {
-      expect(isWorkflowCallbackAction({ type: 'TriggerWorkflowCallback', event: 'done', data: { type: 'value', value: null } })).toBe(true);
-      expect(isWorkflowCallbackAction({ type: 'TriggerWorkflow', workflow: 'test' })).toBe(false);
+      expect(isWorkflowCallbackAction({ type: 'TriggerWorkflowCallback', name: 'done', data: { type: 'value', value: null } })).toBe(true);
+      expect(isWorkflowCallbackAction({ type: 'TriggerWorkflow', name: 'test' })).toBe(false);
     });
   });
 });

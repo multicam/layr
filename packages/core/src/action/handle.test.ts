@@ -11,7 +11,7 @@ function createMockContext(): ActionContext {
     Variables: { count: 0 },
     Apis: {},
   });
-  
+
   return {
     dataSignal,
     apis: {},
@@ -43,9 +43,9 @@ describe('handleAction', () => {
       const consoleSpy = console.warn;
       const warns: string[] = [];
       console.warn = (msg: string) => { warns.push(msg); };
-      
+
       handleAction({ type: 'UnknownAction' } as any, ctx);
-      
+
       console.warn = consoleSpy;
       expect(warns.length).toBeGreaterThan(0);
     });
@@ -54,13 +54,13 @@ describe('handleAction', () => {
   describe('SetVariable', () => {
     test('handles SetVariable action', () => {
       const ctx = createMockContext();
-      
+
       handleAction({
         type: 'SetVariable',
-        variable: 'count',
-        value: { type: 'value', value: 10 },
+        name: 'count',
+        data: { type: 'value', value: 10 },
       }, ctx);
-      
+
       // Note: This is a placeholder - actual implementation would update the signal
       expect(true).toBe(true);
     });
@@ -73,13 +73,13 @@ describe('handleAction', () => {
       ctx.triggerEvent = (name: string, data: any) => {
         eventData = { name, data };
       };
-      
+
       handleAction({
         type: 'TriggerEvent',
-        event: 'submit',
+        name: 'submit',
         data: { type: 'value', value: { test: true } },
       }, ctx);
-      
+
       // Note: This is a placeholder - actual implementation would evaluate formula
       expect(true).toBe(true);
     });
@@ -88,8 +88,7 @@ describe('handleAction', () => {
   describe('Switch', () => {
     test('executes default when no cases match', () => {
       const ctx = createMockContext();
-      let defaultExecuted = false;
-      
+
       handleAction({
         type: 'Switch',
         cases: [
@@ -97,11 +96,11 @@ describe('handleAction', () => {
         ],
         default: {
           actions: [
-            { type: 'SetVariable', variable: 'x', value: { type: 'value', value: 1 } },
+            { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } },
           ],
         },
       }, ctx);
-      
+
       // Default executed
       expect(true).toBe(true);
     });
@@ -112,14 +111,14 @@ describe('handleAction', () => {
       const consoleSpy = console.warn;
       const warns: string[] = [];
       console.warn = (msg: string) => { warns.push(msg); };
-      
+
       const ctx = createMockContext();
-      
+
       handleAction({
         type: 'Fetch',
-        api: 'nonexistent',
+        name: 'nonexistent',
       }, ctx);
-      
+
       console.warn = consoleSpy;
       expect(warns.some(w => w.includes('API not found'))).toBe(true);
     });
@@ -128,12 +127,12 @@ describe('handleAction', () => {
   describe('AbortFetch', () => {
     test('handles missing API', () => {
       const ctx = createMockContext();
-      
+
       handleAction({
         type: 'AbortFetch',
-        api: 'nonexistent',
+        name: 'nonexistent',
       }, ctx);
-      
+
       // No error thrown
       expect(true).toBe(true);
     });
@@ -146,12 +145,12 @@ describe('handleAction', () => {
           cancel: () => { cancelled = true; },
         },
       };
-      
+
       handleAction({
         type: 'AbortFetch',
-        api: 'myApi',
+        name: 'myApi',
       }, ctx);
-      
+
       expect(cancelled).toBe(true);
     });
   });
@@ -161,31 +160,31 @@ describe('handleAction', () => {
       const ctx = createMockContext();
       let paramSet = false;
       ctx.setUrlParameter = () => { paramSet = true; };
-      
+
       handleAction({
         type: 'SetURLParameter',
-        parameter: 'page',
-        value: { type: 'value', value: '2' },
+        name: 'page',
+        data: { type: 'value', value: '2' },
       }, ctx);
-      
+
       expect(paramSet).toBe(true);
     });
   });
 
-  describe('SetMultiUrlParameter', () => {
+  describe('SetURLParameters', () => {
     test('handles multiple parameters', () => {
       const ctx = createMockContext();
       const params: Record<string, any> = {};
       ctx.setUrlParameter = (key: string, val: any) => { params[key] = val; };
-      
+
       handleAction({
-        type: 'SetMultiUrlParameter',
-        parameters: {
-          page: { formula: { type: 'value', value: '1' } },
-          size: { formula: { type: 'value', value: '10' } },
-        },
+        type: 'SetURLParameters',
+        parameters: [
+          { name: 'page', formula: { type: 'value', value: '1' } },
+          { name: 'size', formula: { type: 'value', value: '10' } },
+        ],
       }, ctx);
-      
+
       // Parameters would be set
       expect(true).toBe(true);
     });
@@ -196,12 +195,12 @@ describe('handleAction', () => {
       const ctx = createMockContext();
       let workflowTriggered = false;
       ctx.triggerWorkflow = () => { workflowTriggered = true; };
-      
+
       handleAction({
         type: 'TriggerWorkflow',
-        workflow: 'myWorkflow',
+        name: 'myWorkflow',
       }, ctx);
-      
+
       expect(workflowTriggered).toBe(true);
     });
   });
@@ -211,13 +210,13 @@ describe('handleAction', () => {
       const ctx = createMockContext();
       let callbackTriggered = false;
       ctx.workflowCallback = () => { callbackTriggered = true; };
-      
+
       handleAction({
         type: 'TriggerWorkflowCallback',
-        event: 'onSuccess',
+        name: 'onSuccess',
         data: { type: 'value', value: null },
       }, ctx);
-      
+
       expect(callbackTriggered).toBe(true);
     });
   });
@@ -227,14 +226,14 @@ describe('handleAction', () => {
       const consoleSpy = console.warn;
       const warns: string[] = [];
       console.warn = (msg: string) => { warns.push(msg); };
-      
+
       const ctx = createMockContext();
-      
+
       handleAction({
         type: 'Custom',
         name: 'myAction',
       }, ctx);
-      
+
       console.warn = consoleSpy;
       expect(warns.some(w => w.includes('Custom action not found'))).toBe(true);
     });

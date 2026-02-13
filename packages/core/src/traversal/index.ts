@@ -1,7 +1,7 @@
 /**
  * Introspection and Traversal System
  * Based on specs/introspection-and-traversal.md
- * 
+ *
  * Provides generator-based traversal for formulas, actions, and components.
  */
 
@@ -56,9 +56,6 @@ export function* getFormulasInFormula(
   formula: Formula | undefined | null,
   options: {
     path?: (string | number)[];
-    // TODO: Implement cycle detection - currently scaffolding only.
-    // Should .add() formula identifiers and .has() to skip already-visited formulas.
-    visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
 ): Generator<FormulaVisit> {
@@ -66,7 +63,6 @@ export function* getFormulasInFormula(
 
   const {
     path = [],
-    visitedFormulas = new Set<string>(),
     packageName,
   } = options;
 
@@ -88,7 +84,6 @@ export function* getFormulasInFormula(
         const arg = formula.arguments![i];
         yield* getFormulasInFormula(arg.formula, {
           path: [...path, 'arguments', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -100,7 +95,6 @@ export function* getFormulasInFormula(
         const arg = formula.arguments![i];
         yield* getFormulasInFormula(arg.formula, {
           path: [...path, 'arguments', i, 'formula'],
-          visitedFormulas,
           packageName: formula.package ?? packageName,
         });
       }
@@ -112,7 +106,6 @@ export function* getFormulasInFormula(
         const arg = formula.arguments![i];
         yield* getFormulasInFormula(arg.formula, {
           path: [...path, 'arguments', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -124,19 +117,16 @@ export function* getFormulasInFormula(
         const case_ = formula.cases[i];
         yield* getFormulasInFormula(case_.condition, {
           path: [...path, 'cases', i, 'condition'],
-          visitedFormulas,
           packageName,
         });
         yield* getFormulasInFormula(case_.formula, {
           path: [...path, 'cases', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
       // Visit default
       yield* getFormulasInFormula(formula.default, {
         path: [...path, 'default'],
-        visitedFormulas,
         packageName,
       });
       break;
@@ -154,7 +144,6 @@ export function* getFormulasInAction(
   action: ActionModel | ActionModel[] | undefined | null,
   options: {
     path?: (string | number)[];
-    visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
 ): Generator<FormulaVisit> {
@@ -171,7 +160,7 @@ export function* getFormulasInAction(
     return;
   }
 
-  const { path = [], visitedFormulas = new Set<string>(), packageName } = options;
+  const { path = [], packageName } = options;
 
   switch (action.type) {
     case 'AbortFetch':
@@ -185,7 +174,6 @@ export function* getFormulasInAction(
         if (input.formula) {
           yield* getFormulasInFormula(input.formula, {
             path: [...path, 'inputs', i, 'formula'],
-            visitedFormulas,
             packageName,
           });
         }
@@ -193,17 +181,14 @@ export function* getFormulasInAction(
       // Visit callbacks
       yield* getFormulasInAction(action.onSuccess?.actions, {
         path: [...path, 'onSuccess', 'actions'],
-        visitedFormulas,
         packageName,
       });
       yield* getFormulasInAction(action.onError?.actions, {
         path: [...path, 'onError', 'actions'],
-        visitedFormulas,
         packageName,
       });
       yield* getFormulasInAction(action.onMessage?.actions, {
         path: [...path, 'onMessage', 'actions'],
-        visitedFormulas,
         packageName,
       });
       break;
@@ -212,7 +197,6 @@ export function* getFormulasInAction(
       if (action.data) {
         yield* getFormulasInFormula(action.data, {
           path: [...path, 'data'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -222,7 +206,6 @@ export function* getFormulasInAction(
       if (action.data) {
         yield* getFormulasInFormula(action.data, {
           path: [...path, 'data'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -232,7 +215,6 @@ export function* getFormulasInAction(
       if (action.data) {
         yield* getFormulasInFormula(action.data, {
           path: [...path, 'data'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -242,7 +224,6 @@ export function* getFormulasInAction(
       if (action.data) {
         yield* getFormulasInFormula(action.data, {
           path: [...path, 'data'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -253,7 +234,6 @@ export function* getFormulasInAction(
         const param = action.parameters![i];
         yield* getFormulasInFormula(param.formula, {
           path: [...path, 'parameters', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -264,7 +244,6 @@ export function* getFormulasInAction(
         const param = action.parameters![i];
         yield* getFormulasInFormula(param.formula, {
           path: [...path, 'parameters', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -274,7 +253,6 @@ export function* getFormulasInAction(
       if (action.data) {
         yield* getFormulasInFormula(action.data, {
           path: [...path, 'data'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -282,18 +260,15 @@ export function* getFormulasInAction(
         const case_ = action.cases[i];
         yield* getFormulasInFormula(case_.condition, {
           path: [...path, 'cases', i, 'condition'],
-          visitedFormulas,
           packageName,
         });
         yield* getFormulasInAction(case_.actions, {
           path: [...path, 'cases', i, 'actions'],
-          visitedFormulas,
           packageName,
         });
       }
       yield* getFormulasInAction(action.default?.actions, {
         path: [...path, 'default', 'actions'],
-        visitedFormulas,
         packageName,
       });
       break;
@@ -306,7 +281,6 @@ export function* getFormulasInAction(
         const arg = action.arguments![i];
         yield* getFormulasInFormula(arg.formula, {
           path: [...path, 'arguments', i, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -315,7 +289,6 @@ export function* getFormulasInAction(
         for (const eventName of Object.keys(action.events)) {
           yield* getFormulasInAction(action.events[eventName].actions, {
             path: [...path, 'events', eventName, 'actions'],
-            visitedFormulas,
             packageName,
           });
         }
@@ -391,31 +364,27 @@ export function* getFormulasInNode(
   node: NodeModel,
   nodeId: string,
   options: {
-    visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
 ): Generator<FormulaVisit> {
-  const { visitedFormulas = new Set<string>(), packageName } = options;
+  const { packageName } = options;
 
   // Common: condition, repeat, repeatKey
   if (node.condition) {
     yield* getFormulasInFormula(node.condition, {
       path: ['nodes', nodeId, 'condition'],
-      visitedFormulas,
       packageName,
     });
   }
   if (node.repeat) {
     yield* getFormulasInFormula(node.repeat, {
       path: ['nodes', nodeId, 'repeat'],
-      visitedFormulas,
       packageName,
     });
   }
   if (node.repeatKey) {
     yield* getFormulasInFormula(node.repeatKey, {
       path: ['nodes', nodeId, 'repeatKey'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -425,7 +394,6 @@ export function* getFormulasInNode(
       const textNode = node as TextNodeModel;
       yield* getFormulasInFormula(textNode.value, {
         path: ['nodes', nodeId, 'value'],
-        visitedFormulas,
         packageName,
       });
       break;
@@ -437,7 +405,6 @@ export function* getFormulasInNode(
       for (const attrName of Object.keys(elemNode.attrs ?? {})) {
         yield* getFormulasInFormula(elemNode.attrs![attrName], {
           path: ['nodes', nodeId, 'attrs', attrName],
-          visitedFormulas,
           packageName,
         });
       }
@@ -445,7 +412,6 @@ export function* getFormulasInNode(
       for (const eventName of Object.keys(elemNode.events ?? {})) {
         yield* getFormulasInAction(elemNode.events![eventName].actions, {
           path: ['nodes', nodeId, 'events', eventName, 'actions'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -455,7 +421,6 @@ export function* getFormulasInNode(
         if (classDef.formula) {
           yield* getFormulasInFormula(classDef.formula, {
             path: ['nodes', nodeId, 'classes', className, 'formula'],
-            visitedFormulas,
             packageName,
           });
         }
@@ -464,7 +429,6 @@ export function* getFormulasInNode(
       for (const propName of Object.keys(elemNode.customProperties ?? {})) {
         yield* getFormulasInFormula(elemNode.customProperties![propName].formula, {
           path: ['nodes', nodeId, 'customProperties', propName, 'formula'],
-          visitedFormulas,
           packageName,
         });
       }
@@ -474,7 +438,6 @@ export function* getFormulasInNode(
         for (const propName of Object.keys(variant.customProperties ?? {})) {
           yield* getFormulasInFormula(variant.customProperties![propName].formula, {
             path: ['nodes', nodeId, 'variants', i, 'customProperties', propName, 'formula'],
-            visitedFormulas,
             packageName,
           });
         }
@@ -488,7 +451,6 @@ export function* getFormulasInNode(
       for (const attrName of Object.keys(compNode.attrs ?? {})) {
         yield* getFormulasInFormula(compNode.attrs![attrName], {
           path: ['nodes', nodeId, 'attrs', attrName],
-          visitedFormulas,
           packageName: compNode.package ?? packageName,
         });
       }
@@ -496,7 +458,6 @@ export function* getFormulasInNode(
       for (const eventName of Object.keys(compNode.events ?? {})) {
         yield* getFormulasInAction(compNode.events![eventName].actions, {
           path: ['nodes', nodeId, 'events', eventName, 'actions'],
-          visitedFormulas,
           packageName: compNode.package ?? packageName,
         });
       }
@@ -504,7 +465,6 @@ export function* getFormulasInNode(
       for (const propName of Object.keys(compNode.customProperties ?? {})) {
         yield* getFormulasInFormula(compNode.customProperties![propName].formula, {
           path: ['nodes', nodeId, 'customProperties', propName, 'formula'],
-          visitedFormulas,
           packageName: compNode.package ?? packageName,
         });
       }
@@ -547,25 +507,22 @@ export function* getActionsInNode(
 export function* getFormulasInComponent(
   component: Component,
   options: {
-    visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
 ): Generator<FormulaVisit> {
-  const { visitedFormulas = new Set<string>(), packageName } = options;
+  const { packageName } = options;
 
   // Route formulas (for pages)
   if (component.route) {
     if (component.route.info?.title?.formula) {
       yield* getFormulasInFormula(component.route.info.title.formula, {
         path: ['route', 'info', 'title', 'formula'],
-        visitedFormulas,
         packageName,
       });
     }
     if (component.route.info?.description?.formula) {
       yield* getFormulasInFormula(component.route.info.description.formula, {
         path: ['route', 'info', 'description', 'formula'],
-        visitedFormulas,
         packageName,
       });
     }
@@ -576,7 +533,6 @@ export function* getFormulasInComponent(
     const compFormula = component.formulas![formulaName];
     yield* getFormulasInFormula(compFormula.formula, {
       path: ['formulas', formulaName, 'formula'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -586,7 +542,6 @@ export function* getFormulasInComponent(
     const variable = component.variables![varName];
     yield* getFormulasInFormula(variable.initialValue, {
       path: ['variables', varName, 'initialValue'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -596,7 +551,6 @@ export function* getFormulasInComponent(
     const workflow = component.workflows![workflowName];
     yield* getFormulasInAction(workflow.actions, {
       path: ['workflows', workflowName, 'actions'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -606,7 +560,6 @@ export function* getFormulasInComponent(
     const api = component.apis![apiName];
     yield* getFormulasInApi(api, {
       path: ['apis', apiName],
-      visitedFormulas,
       packageName,
     });
   }
@@ -615,14 +568,12 @@ export function* getFormulasInComponent(
   if (component.onLoad) {
     yield* getFormulasInAction(component.onLoad.actions, {
       path: ['onLoad', 'actions'],
-      visitedFormulas,
       packageName,
     });
   }
   if (component.onAttributeChange) {
     yield* getFormulasInAction(component.onAttributeChange.actions, {
       path: ['onAttributeChange', 'actions'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -630,7 +581,7 @@ export function* getFormulasInComponent(
   // Nodes
   for (const nodeId of Object.keys(component.nodes ?? {})) {
     const node = component.nodes![nodeId];
-    yield* getFormulasInNode(node, nodeId, { visitedFormulas, packageName });
+    yield* getFormulasInNode(node, nodeId, { packageName });
   }
 }
 
@@ -684,17 +635,15 @@ export function* getFormulasInApi(
   api: ComponentAPI,
   options: {
     path?: (string | number)[];
-    visitedFormulas?: Set<string>;
     packageName?: string;
   } = {}
 ): Generator<FormulaVisit> {
-  const { path = ['api'], visitedFormulas = new Set<string>(), packageName } = options;
+  const { path = ['api'], packageName } = options;
 
   // Common fields
   if (api.autoFetch) {
     yield* getFormulasInFormula(api.autoFetch, {
       path: [...path, 'autoFetch'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -702,7 +651,6 @@ export function* getFormulasInApi(
   if (api.url) {
     yield* getFormulasInFormula(api.url, {
       path: [...path, 'url'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -710,7 +658,6 @@ export function* getFormulasInApi(
   if (api.method) {
     yield* getFormulasInFormula(api.method, {
       path: [...path, 'method'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -718,7 +665,6 @@ export function* getFormulasInApi(
   if (api.body) {
     yield* getFormulasInFormula(api.body, {
       path: [...path, 'body'],
-      visitedFormulas,
       packageName,
     });
   }
@@ -728,13 +674,11 @@ export function* getFormulasInApi(
     const header = api.headers![headerName];
     yield* getFormulasInFormula(header.formula, {
       path: [...path, 'headers', headerName, 'formula'],
-      visitedFormulas,
       packageName,
     });
     if (header.enabled) {
       yield* getFormulasInFormula(header.enabled, {
         path: [...path, 'headers', headerName, 'enabled'],
-        visitedFormulas,
         packageName,
       });
     }
@@ -745,13 +689,11 @@ export function* getFormulasInApi(
     const param = api.queryParams![paramName];
     yield* getFormulasInFormula(param.formula, {
       path: [...path, 'queryParams', paramName, 'formula'],
-      visitedFormulas,
       packageName,
     });
     if (param.enabled) {
       yield* getFormulasInFormula(param.enabled, {
         path: [...path, 'queryParams', paramName, 'enabled'],
-        visitedFormulas,
         packageName,
       });
     }
@@ -761,21 +703,18 @@ export function* getFormulasInApi(
   if (api.client?.onCompleted) {
     yield* getFormulasInAction(api.client.onCompleted.actions, {
       path: [...path, 'client', 'onCompleted', 'actions'],
-      visitedFormulas,
       packageName,
     });
   }
   if (api.client?.onFailed) {
     yield* getFormulasInAction(api.client.onFailed.actions, {
       path: [...path, 'client', 'onFailed', 'actions'],
-      visitedFormulas,
       packageName,
     });
   }
   if (api.client?.onMessage) {
     yield* getFormulasInAction(api.client.onMessage.actions, {
       path: [...path, 'client', 'onMessage', 'actions'],
-      visitedFormulas,
       packageName,
     });
   }

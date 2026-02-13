@@ -16,27 +16,31 @@ import type { Component } from '@layr/types';
 import { Signal } from '@layr/core';
 
 describe('Lifecycle System', () => {
+  afterEach(() => {
+    resetLifecycleCallbacks();
+  });
+
   describe('onMount / triggerMount', () => {
     test('calls mount callbacks', async () => {
       let called = false;
       const cleanup = onMount(() => {
         called = true;
       });
-      
+
       await triggerMount();
-      
+
       expect(called).toBe(true);
       cleanup();
     });
 
     test('supports multiple callbacks', async () => {
       const order: number[] = [];
-      
+
       onMount(() => { order.push(1); });
       onMount(() => { order.push(2); });
-      
+
       await triggerMount();
-      
+
       expect(order).toEqual([1, 2]);
     });
 
@@ -44,22 +48,22 @@ describe('Lifecycle System', () => {
       let called = false;
       const cleanup = onMount(() => { called = true; });
       cleanup();
-      
+
       await triggerMount();
-      
+
       expect(called).toBe(false);
     });
 
     test('supports async callbacks', async () => {
       let called = false;
-      
+
       onMount(async () => {
         await new Promise(r => setTimeout(r, 10));
         called = true;
       });
-      
+
       await triggerMount();
-      
+
       expect(called).toBe(true);
     });
   });
@@ -70,9 +74,9 @@ describe('Lifecycle System', () => {
       const cleanup = onUnmount(() => {
         called = true;
       });
-      
+
       await triggerUnmount();
-      
+
       expect(called).toBe(true);
       cleanup();
     });
@@ -81,9 +85,9 @@ describe('Lifecycle System', () => {
       let called = false;
       const cleanup = onUnmount(() => { called = true; });
       cleanup();
-      
+
       await triggerUnmount();
-      
+
       expect(called).toBe(false);
     });
   });
@@ -171,7 +175,7 @@ describe('Lifecycle System', () => {
           logErrors: true,
         },
       });
-      
+
       expect(toddle.project).toBe('test-project');
       expect(toddle.branch).toBe('main');
       expect(toddle.commit).toBe('abc123');
@@ -186,87 +190,84 @@ describe('Lifecycle System', () => {
 
     beforeEach(() => {
       abortController = new AbortController();
-      dataSignal = Signal({ Variables: {} });
+      dataSignal = new Signal({ Variables: {} });
     });
 
-    test.skip('creates lifecycle with initialize and destroy', () => {
-      // Requires full browser environment
+    test('creates lifecycle with all methods', () => {
       const component: Component = {
         name: 'Test',
         nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
       };
-      
+
       const lifecycle = createComponentLifecycle({
         component,
         dataSignal,
         abortController,
         handleAction: async () => {},
       });
-      
+
       expect(lifecycle.initialize).toBeDefined();
       expect(lifecycle.destroy).toBeDefined();
       expect(lifecycle.handleAttributeChange).toBeDefined();
+      expect(lifecycle.onMount).toBeDefined();
+      expect(lifecycle.onUnmount).toBeDefined();
+      expect(lifecycle.onAttributesChange).toBeDefined();
     });
 
-    test.skip('destroy aborts controller', () => {
-      // Requires full browser environment
+    test('destroy aborts controller', () => {
       const component: Component = {
         name: 'Test',
         nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
       };
-      
+
       const lifecycle = createComponentLifecycle({
         component,
         dataSignal,
         abortController,
         handleAction: async () => {},
       });
-      
+
       lifecycle.destroy();
-      
+
       expect(abortController.signal.aborted).toBe(true);
     });
 
-    test.skip('handles onLoad event', async () => {
-      // Requires full browser environment
+    test('handles onLoad event', async () => {
       let actionCalled = false;
       const component: Component = {
         name: 'Test',
         nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
         onLoad: {
-          trigger: 'Load',
           actions: [{ type: 'SetVariable', name: 'test', data: { type: 'value', value: 1 } as any }],
         },
       };
-      
+
       const lifecycle = createComponentLifecycle({
         component,
         dataSignal,
         abortController,
-        handleAction: async (action, ctx) => {
+        handleAction: async (action) => {
           if (action.type === 'SetVariable') {
             actionCalled = true;
           }
         },
       });
-      
+
       await lifecycle.initialize();
-      
+
       expect(actionCalled).toBe(true);
     });
 
-    test.skip('does not execute actions after destroy', async () => {
-      // Requires full browser environment
+    test('does not execute actions after destroy', async () => {
       let actionCalled = false;
       const component: Component = {
         name: 'Test',
         nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
         onLoad: {
-          trigger: 'Load',
           actions: [{ type: 'SetVariable', name: 'test' }],
         },
       };
-      
+
       const lifecycle = createComponentLifecycle({
         component,
         dataSignal,
@@ -275,11 +276,145 @@ describe('Lifecycle System', () => {
           actionCalled = true;
         },
       });
-      
+
       lifecycle.destroy();
       await lifecycle.initialize();
-      
+
       expect(actionCalled).toBe(false);
+    });
+
+    test('destroy fires instance unmount callbacks', () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let unmountCalled = false;
+      lifecycle.onUnmount(() => { unmountCalled = true; });
+
+      lifecycle.destroy();
+
+      expect(unmountCalled).toBe(true);
+    });
+
+    test('destroy does NOT fire global unmount callbacks', async () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let globalUnmountCalled = false;
+      onUnmount(() => { globalUnmountCalled = true; });
+
+      lifecycle.destroy();
+
+      expect(globalUnmountCalled).toBe(false);
+    });
+
+    test('two instances do not cross-contaminate', () => {
+      const makeComponent = (): Component => ({
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      });
+
+      const ac1 = new AbortController();
+      const ac2 = new AbortController();
+      const ds1 = new Signal<Record<string, unknown>>({ Variables: {} });
+      const ds2 = new Signal<Record<string, unknown>>({ Variables: {} });
+
+      const lc1 = createComponentLifecycle({
+        component: makeComponent(),
+        dataSignal: ds1,
+        abortController: ac1,
+        handleAction: async () => {},
+      });
+
+      const lc2 = createComponentLifecycle({
+        component: makeComponent(),
+        dataSignal: ds2,
+        abortController: ac2,
+        handleAction: async () => {},
+      });
+
+      let unmount1Called = false;
+      let unmount2Called = false;
+
+      lc1.onUnmount(() => { unmount1Called = true; });
+      lc2.onUnmount(() => { unmount2Called = true; });
+
+      // Destroy only instance 1
+      lc1.destroy();
+
+      expect(unmount1Called).toBe(true);
+      expect(unmount2Called).toBe(false);
+
+      // Now destroy instance 2
+      lc2.destroy();
+      expect(unmount2Called).toBe(true);
+    });
+
+    test('cannot register callbacks on destroyed lifecycle', () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      lifecycle.destroy();
+
+      let mountCalled = false;
+      let unmountCalled = false;
+      let attrCalled = false;
+
+      lifecycle.onMount(() => { mountCalled = true; });
+      lifecycle.onUnmount(() => { unmountCalled = true; });
+      lifecycle.onAttributesChange(() => { attrCalled = true; });
+
+      // None should be called — they were no-ops
+      expect(mountCalled).toBe(false);
+      expect(unmountCalled).toBe(false);
+      expect(attrCalled).toBe(false);
+    });
+
+    test('initialize fires instance mount callbacks', async () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let mountCalled = false;
+      lifecycle.onMount(() => { mountCalled = true; });
+
+      await lifecycle.initialize();
+
+      expect(mountCalled).toBe(true);
     });
   });
 });
