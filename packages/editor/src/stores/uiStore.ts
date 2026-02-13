@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Tab = 'properties' | 'styles' | 'events' | 'advanced';
+type Tab = 'properties' | 'styles' | 'events' | 'advanced' | 'animation';
 
 interface DevicePreset {
   name: string;
@@ -103,6 +103,9 @@ export const useUIStore = create<UIState>()(
 
 // Selector hooks
 export const useZoom = () => useUIStore(s => s.zoom);
-export const usePan = () => useUIStore(s => ({ x: s.panX, y: s.panY }));
+export const usePan = () => useUIStore(
+  s => ({ x: s.panX, y: s.panY }),
+  (a, b) => a.x === b.x && a.y === b.y
+);
 export const useActiveTab = () => useUIStore(s => s.activeTab);
 export const usePreviewDevice = () => useUIStore(s => s.previewDevice);

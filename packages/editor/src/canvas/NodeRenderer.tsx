@@ -2,6 +2,12 @@ import type { Component, NodeModel } from '@layr/types';
 import { useIsSelected, useIsHovered, useSelectionStore } from '../stores';
 import { clsx } from 'clsx';
 
+const ALLOWED_TAGS = new Set(['div','span','p','h1','h2','h3','h4','h5','h6',
+  'button','a','img','input','section','article','header','footer','nav',
+  'aside','main','ul','ol','li','form','label','textarea','select','option',
+  'table','thead','tbody','tr','td','th','br','hr','strong','em','b','i',
+  'video','audio','figure','figcaption','blockquote','pre','code','small','sub','sup']);
+
 interface NodeRendererProps {
   component: Component;
 }
@@ -100,8 +106,9 @@ function ElementWrapper({ node, allNodes, depth }: {
     isSelected && 'ring-2 ring-blue-500',
     isHovered && !isSelected && 'ring-1 ring-blue-300',
   );
-  
-  const Element = tag as keyof JSX.IntrinsicElements;
+
+  const safeTag = ALLOWED_TAGS.has(tag) ? tag : 'div';
+  const Element = safeTag as keyof JSX.IntrinsicElements;
   
   return (
     <Element

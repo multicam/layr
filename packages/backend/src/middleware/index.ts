@@ -23,21 +23,24 @@ export function corsMiddleware(options: {
   credentials?: boolean;
 } = {}): Middleware {
   const { origin = '*', methods = ['GET','POST','PUT','DELETE','OPTIONS'], headers = ['Content-Type','Authorization'], credentials = false } = options;
-  
+
   return async (ctx, next) => {
     const requestOrigin = ctx.req.header('Origin') || '*';
     let allowOrigin: string;
     if (Array.isArray(origin)) {
       allowOrigin = origin.includes(requestOrigin) ? requestOrigin : origin[0] || '*';
+      if (origin.includes(requestOrigin)) {
+        ctx.header('Vary', 'Origin');
+      }
     } else {
       allowOrigin = origin;
     }
-    
+
     ctx.header('Access-Control-Allow-Origin', allowOrigin);
     ctx.header('Access-Control-Allow-Methods', methods.join(', '));
     ctx.header('Access-Control-Allow-Headers', headers.join(', '));
     if (credentials) ctx.header('Access-Control-Allow-Credentials', 'true');
-    
+
     if (ctx.req.method === 'OPTIONS') return ctx.text('', 204);
     await next();
   };
@@ -57,7 +60,8 @@ export function errorHandlerMiddleware(): Middleware {
       await next();
     } catch (error) {
       console.error('Error:', error);
-      const message = error instanceof Error ? error.message : 'Internal Server Error';
+      const isDev = process.env.NODE_ENV !== 'production';
+      const message = isDev && error instanceof Error ? error.message : 'Internal Server Error';
       return ctx.json({ error: message }, 500);
     }
   };

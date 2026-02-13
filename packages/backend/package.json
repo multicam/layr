@@ -11,8 +11,8 @@
     }
   },
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts",
     "test": "bun test"
   },
   "dependencies": {

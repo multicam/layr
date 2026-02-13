@@ -17,8 +17,8 @@ export function Header() {
   const previewDevice = useUIStore(s => s.previewDevice);
   const setPreviewDevice = useUIStore(s => s.setPreviewDevice);
   
-  const canUndo = useHistoryStore(s => s.canUndo);
-  const canRedo = useHistoryStore(s => s.canRedo);
+  const canUndo = useHistoryStore(s => s.past.length > 0);
+  const canRedo = useHistoryStore(s => s.future.length > 0);
   const undo = useHistoryStore(s => s.undo);
   const redo = useHistoryStore(s => s.redo);
   
@@ -31,10 +31,10 @@ export function Header() {
       <div className="flex items-center gap-1">
         <button
           onClick={undo}
-          disabled={!canUndo()}
+          disabled={!canUndo}
           className={clsx(
             'p-2 rounded hover:bg-gray-100',
-            !canUndo() && 'opacity-50 cursor-not-allowed'
+            !canUndo && 'opacity-50 cursor-not-allowed'
           )}
           title="Undo (Ctrl+Z)"
         >
@@ -42,10 +42,10 @@ export function Header() {
         </button>
         <button
           onClick={redo}
-          disabled={!canRedo()}
+          disabled={!canRedo}
           className={clsx(
             'p-2 rounded hover:bg-gray-100',
-            !canRedo() && 'opacity-50 cursor-not-allowed'
+            !canRedo && 'opacity-50 cursor-not-allowed'
           )}
           title="Redo (Ctrl+Shift+Z)"
         >

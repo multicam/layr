@@ -33,4 +33,4 @@ registerLogicFormulas();
 registerComparisonFormulas();
 registerUtilityFormulas();
 
-console.log(`Registered ${formulas.size} formulas`);
+// console.log(`Registered ${formulas.size} formulas`);

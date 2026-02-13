@@ -22,13 +22,13 @@ export function registerLogicFormulas(): void {
     const value = args.value;
     const cases = args.cases as Record<string, unknown>;
     const defaultCase = args.default;
-    
+
     if (typeof cases !== 'object' || cases === null) {
       return defaultCase;
     }
-    
+
     const key = String(value);
-    return cases[key] ?? defaultCase;
+    return Object.prototype.hasOwnProperty.call(cases, key) ? cases[key] : defaultCase;
   });
 
   registerFormula('@toddle/is-null', (args, ctx) => {

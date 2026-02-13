@@ -17,7 +17,7 @@ import type { ActionModel } from './action';
  * Top-level project envelope - the complete JSON structure
  */
 export interface Project {
-  id: string; // UUID
+  id?: string; // UUID
   project: ToddleProject;
   commit: string; // SHA hash
   files: ProjectFiles;

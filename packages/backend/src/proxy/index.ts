@@ -7,23 +7,29 @@ export interface ProxyConfig {
   timeout?: number;
 }
 
+const SAFE_FORWARD_HEADERS = new Set([
+  'accept', 'accept-language', 'accept-encoding', 'content-type', 'content-length',
+  'user-agent', 'if-none-match', 'if-modified-since', 'range',
+]);
+
 export function createProxy(config: ProxyConfig) {
   const { target, changeOrigin = true, headers = {}, timeout = 30000 } = config;
-  
+
   return async (ctx: Context) => {
-    const url = new URL(ctx.req.path, target);
+    const reqUrl = new URL(ctx.req.url);
+    const url = new URL(reqUrl.pathname + reqUrl.search, target);
     const proxyHeaders: Record<string, string> = { ...headers };
     if (changeOrigin) proxyHeaders['Host'] = new URL(target).host;
-    
+
     ctx.req.raw.headers.forEach((value, key) => {
-      if (!['host','connection'].includes(key.toLowerCase())) {
+      if (SAFE_FORWARD_HEADERS.has(key.toLowerCase())) {
         proxyHeaders[key] = value;
       }
     });
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
       const response = await fetch(url.toString(), {
         method: ctx.req.method,

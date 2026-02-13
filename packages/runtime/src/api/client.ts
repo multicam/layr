@@ -78,10 +78,27 @@ export function createApiClient(
           signal: controller.signal,
           credentials: reqConfig.credentials || config.credentials,
         });
-        
+
+        // Check for HTTP errors
+        if (!response.ok) {
+          const errorStatus: ApiStatus<T> = {
+            data: null,
+            isLoading: false,
+            error: new Error(`HTTP ${response.status}: ${response.statusText}`),
+            response: {
+              headers: Object.fromEntries(response.headers.entries()),
+              status: response.status,
+              statusText: response.statusText,
+            },
+          };
+          statusMap.set(name, errorStatus);
+          updateApisInSignal(dataSignal, name, errorStatus);
+          return errorStatus;
+        }
+
         // Parse response
         let data: T;
-        
+
         if (reqConfig.parserMode === 'text') {
           data = (await response.text()) as T;
         } else if (reqConfig.parserMode === 'blob') {
@@ -96,7 +113,7 @@ export function createApiClient(
         } else {
           data = await response.json();
         }
-        
+
         const successStatus: ApiStatus<T> = {
           data,
           isLoading: false,
@@ -107,10 +124,10 @@ export function createApiClient(
             statusText: response.statusText,
           },
         };
-        
+
         statusMap.set(name, successStatus);
         updateApisInSignal(dataSignal, name, successStatus);
-        
+
         return successStatus;
         
       } catch (error) {
@@ -166,7 +183,6 @@ function updateApisInSignal(
   apiName: string,
   status: ApiStatus
 ): void {
-  const data = dataSignal.get();
   dataSignal.update((d) => ({
     ...d,
     Apis: {

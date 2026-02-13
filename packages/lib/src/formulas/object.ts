@@ -22,7 +22,11 @@ export function registerObjectFormulas(): void {
   registerFormula('@toddle/from-entries', (args, ctx) => {
     const entries = args.entries as [string, unknown][];
     if (!Array.isArray(entries)) return null;
-    return Object.fromEntries(entries);
+    try {
+      return Object.fromEntries(entries);
+    } catch {
+      return null;
+    }
   });
 
   registerFormula('@toddle/merge', (args, ctx) => {
@@ -38,7 +42,7 @@ export function registerObjectFormulas(): void {
     if (!Array.isArray(keys)) return null;
     const result: Record<string, unknown> = {};
     for (const key of keys) {
-      if (key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         result[key] = obj[key];
       }
     }
@@ -61,7 +65,7 @@ export function registerObjectFormulas(): void {
     const obj = args.object as Record<string, unknown>;
     const key = String(args.key ?? '');
     if (typeof obj !== 'object' || obj === null) return false;
-    return key in obj;
+    return Object.prototype.hasOwnProperty.call(obj, key);
   });
 
   registerFormula('@toddle/get', (args, ctx) => {
@@ -69,6 +73,6 @@ export function registerObjectFormulas(): void {
     const key = String(args.key ?? '');
     const fallback = args.fallback;
     if (typeof obj !== 'object' || obj === null) return fallback;
-    return obj[key] ?? fallback;
+    return Object.prototype.hasOwnProperty.call(obj, key) ? (obj[key] ?? fallback) : fallback;
   });
 }

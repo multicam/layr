@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { stat, readFile } from 'fs/promises';
-import { join, extname } from 'path';
+import { join, extname, resolve } from 'path';
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript',
@@ -13,8 +13,14 @@ export async function serveStatic(root: string, ctx: Context): Promise<Response 
   let path = ctx.req.path;
   if (path.endsWith('/')) path += 'index.html';
   
-  const filePath = join(root, path);
-  
+  const resolvedRoot = resolve(root);
+  const filePath = resolve(join(root, path));
+
+  // Prevent directory traversal
+  if (!filePath.startsWith(resolvedRoot + '/') && filePath !== resolvedRoot) {
+    return null;
+  }
+
   try {
     const stats = await stat(filePath);
     if (!stats.isFile()) return null;

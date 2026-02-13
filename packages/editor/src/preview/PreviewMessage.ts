@@ -150,26 +150,30 @@ export function sendToPreview(
   payload?: any
 ): void {
   if (!iframe?.contentWindow) return;
-  
-  iframe.contentWindow.postMessage({ type, payload }, '*');
+
+  const targetOrigin = window.location.origin;
+  iframe.contentWindow.postMessage({ type, payload }, targetOrigin);
 }
 
 /**
  * Create message listener for preview messages
  */
 export function createPreviewListener(
+  iframe: HTMLIFrameElement | null,
   handlers: Partial<Record<PreviewMessageType, (payload: any) => void>>
 ): () => void {
   const handler = (event: MessageEvent) => {
+    if (iframe && event.source !== iframe.contentWindow) return;
+
     const { type, payload } = event.data || {};
-    
+
     if (type && handlers[type as PreviewMessageType]) {
       handlers[type as PreviewMessageType]!(payload);
     }
   };
-  
+
   window.addEventListener('message', handler);
-  
+
   return () => window.removeEventListener('message', handler);
 }
 
@@ -178,14 +182,14 @@ export function createPreviewListener(
 export class PreviewBridge {
   private iframe: HTMLIFrameElement | null = null;
   private cleanup: (() => void) | null = null;
-  
+
   constructor(
     private handlers: Partial<Record<PreviewMessageType, (payload: any) => void>> = {}
   ) {}
-  
+
   attach(iframe: HTMLIFrameElement): void {
     this.iframe = iframe;
-    this.cleanup = createPreviewListener(this.handlers);
+    this.cleanup = createPreviewListener(iframe, this.handlers);
   }
   
   detach(): void {

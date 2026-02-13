@@ -17,7 +17,7 @@
             "type": "element",
             "tag": "div",
             "attrs": {
-              "class": { "type": "value", value: "container" }
+              "class": { "type": "value", "value": "container" }
             },
             "children": ["title", "description"]
           },

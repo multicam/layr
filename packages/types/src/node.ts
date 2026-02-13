@@ -41,7 +41,7 @@ export interface ElementNodeModel extends NodeBase {
   variants?: StyleVariant[];
   animations?: Record<string, Record<string, AnimationKeyframe>>;
   children: string[];
-  events?: Record<string, EventModel | null>;
+  events?: Record<string, EventModel>;
   classes?: Record<string, { formula?: Formula }>;
   customProperties?: Record<string, CustomProperty>;
 }
@@ -104,4 +104,33 @@ export interface SlotNodeModel extends NodeBase {
   children: string[];
   repeat?: never;
   repeatKey?: never;
+}
+
+// ============================================================================
+// Type Guards
+// ============================================================================
+
+export function isElementNode(node: NodeModel): node is ElementNodeModel {
+  return node.type === 'element';
+}
+
+export function isTextNode(node: NodeModel): node is TextNodeModel {
+  return node.type === 'text';
+}
+
+export function isComponentNode(node: NodeModel): node is ComponentNodeModel {
+  return node.type === 'component';
+}
+
+export function isSlotNode(node: NodeModel): node is SlotNodeModel {
+  return node.type === 'slot';
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+export function getNodeChildren(node: NodeModel): string[] {
+  if (node.type === 'text') return [];
+  return node.children;
 }

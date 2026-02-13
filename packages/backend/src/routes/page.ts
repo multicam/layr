@@ -2,6 +2,15 @@ import type { Context } from 'hono';
 import { loadProject } from '../loader/project';
 import type { Project } from '@layr/types';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 interface PageRouteParams {
   projectId: string;
 }
@@ -30,24 +39,40 @@ function matchRoute(project: Project, pathname: string): { page: string; params:
 export function matchPath(pattern: string, pathname: string): { params: Record<string, string | null> } | null {
   const patternParts = pattern.split('/').filter(Boolean);
   const pathParts = pathname.split('/').filter(Boolean);
-  
+
   const params: Record<string, string | null> = {};
-  
+
+  // Catch-all wildcard: /docs/* matches /docs/guide/intro
+  if (patternParts[patternParts.length - 1] === '*') {
+    if (pathParts.length < patternParts.length - 1) return null;
+    for (let i = 0; i < patternParts.length - 1; i++) {
+      const patternPart = patternParts[i];
+      const pathPart = pathParts[i];
+      if (patternPart.startsWith(':')) {
+        params[patternPart.slice(1)] = decodeURIComponent(pathPart);
+      } else if (patternPart !== pathPart) {
+        return null;
+      }
+    }
+    params['*'] = pathParts.slice(patternParts.length - 1).join('/');
+    return { params };
+  }
+
   if (patternParts.length !== pathParts.length) {
     return null;
   }
-  
+
   for (let i = 0; i < patternParts.length; i++) {
     const patternPart = patternParts[i];
     const pathPart = pathParts[i];
-    
+
     if (patternPart.startsWith(':')) {
       params[patternPart.slice(1)] = decodeURIComponent(pathPart);
     } else if (patternPart !== pathPart) {
       return null;
     }
   }
-  
+
   return { params };
 }
 
@@ -61,7 +86,9 @@ export async function handlePage(c: Context, projectId: string): Promise<Respons
     return c.html('<html><body><h1>Project not found</h1></body></html>', 404);
   }
   
-  const pathname = c.req.path;
+  // Strip the /:projectId prefix to get the page path
+  const fullPath = c.req.path;
+  const pathname = fullPath.replace(`/${projectId}`, '') || '/';
   const match = matchRoute(loaded.project, pathname);
   
   if (!match) {
@@ -88,21 +115,28 @@ function renderPage(project: Project, pageName: string, params: Record<string, s
   }
   
   // TODO: Implement actual SSR rendering
+  const safeName = escapeHtml(pageName);
+  const safeParams = escapeHtml(JSON.stringify(params));
+  const jsonData = JSON.stringify({
+    project: project.project?.short_id || 'unknown',
+    page: pageName,
+  }).replace(/</g, '\\u003c');
+
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${pageName}</title>
+  <title>${safeName}</title>
 </head>
 <body>
   <div id="App">
-    <h1>${pageName}</h1>
-    <p>Params: ${JSON.stringify(params)}</p>
+    <h1>${safeName}</h1>
+    <p>Params: ${safeParams}</p>
     <p>SSR rendering not yet implemented</p>
   </div>
   <script type="application/json" id="layr-data">
-    {"project":"${project.project?.short_id || 'unknown'}","page":"${pageName}"}
+    ${jsonData}
   </script>
 </body>
 </html>`;

@@ -99,7 +99,8 @@ function createElementNode(
   ctx: RenderContext,
   doc: Document
 ): Element {
-  const tag = node.tag || 'div';
+  const TAG_NAME_RE = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+  const tag = TAG_NAME_RE.test(node.tag) ? node.tag : 'div';
   const element = doc.createElement(tag);
   
   element.setAttribute('data-node-id', node.id || '');

@@ -28,7 +28,7 @@ export function Timeline({
   const trackRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   
-  const normalizedTime = currentTime / duration;
+  const normalizedTime = duration > 0 ? currentTime / duration : 0;
   
   const handleClick = (e: React.MouseEvent) => {
     if (!trackRef.current) return;

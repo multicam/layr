@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "/home/jean-marc/.local/share/mise/shims/chrome-devtools-mcp",
+      "args": ["--headless", "--executablePath", "/snap/bin/brave", "--isolated", "--viewport", "1280x720"]
+    }
+  }
+}

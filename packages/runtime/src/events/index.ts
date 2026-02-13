@@ -160,14 +160,14 @@ export function delegateEvent(
   ctx: EventContext
 ): () => void {
   const listener = (e: Event) => {
-    const target = e.target?.closest(selector);
-    if (target) {
+    const target = (e.target as Element)?.closest(selector);
+    if (target && container.contains(target)) {
       handleEvent(e, handler, ctx);
     }
   };
-  
+
   container.addEventListener(eventName, listener);
-  
+
   return () => {
     container.removeEventListener(eventName, listener);
   };

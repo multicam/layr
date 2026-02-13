@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; }
+    
+    /* Selection styles */
+    [data-selected] { outline: 2px solid #2563eb; }
+    
+    /* Drag mode styles */
+    .__drag-mode--reorder { }
+    .__drag-mode--move { }
+    .__drop-area { position: fixed; pointer-events: none; }
+    .__drop-area-line { position: fixed; pointer-events: none; }
+    
+    /* Panic screen */
+    .panic-screen {
+      position: fixed;
+      inset: 0;
+      background: #1e40af;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      z-index: 9999;
+    }
+    .panic-screen h1 { font-size: 24px; margin-bottom: 16px; }
+    .panic-screen pre { background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px; max-width: 80%; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Preview runtime
+    const state = {
+      component: null,
+      selectedId: null,
+      hoveredId: null,
+      mode: 'design',
+      dragState: null,
+    };
+    
+    // PostMessage handler
+    window.addEventListener('message', (event) => {
+      const { type, payload } = event.data || {};
+      
+      switch (type) {
+        case 'component':
+          state.component = payload.component;
+          render();
+          break;
+          
+        case 'selection':
+          state.selectedId = payload.nodeId;
+          updateSelection();
+          break;
+          
+        case 'highlight':
+          state.hoveredId = payload.nodeId;
+          updateHighlight();
+          break;
+          
+        case 'mode':
+          state.mode = payload.mode;
+          document.body.dataset.mode = payload.mode;
+          render();
+          break;
+          
+        case 'reload':
+          location.reload();
+          break;
+          
+        case 'drag-started':
+          handleDragStarted(payload);
+          break;
+          
+        case 'drag-ended':
+          handleDragEnded(payload);
+          break;
+          
+        case 'mousemove':
+          handleMouseMove(payload);
+          break;
+          
+        case 'preview_style':
+          applyPreviewStyle(payload);
+          break;
+          
+        case 'set_timeline_time':
+          setTimelineTime(payload);
+          break;
+      }
+    });
+    
+    // Render component
+    function render() {
+      const root = document.getElementById('root');
+      if (!state.component) {
+        root.innerHTML = '<div style="padding:20px;color:#666">No component loaded</div>';
+        return;
+      }
+      
+      // Simple render - real implementation would use @layr/runtime
+      const nodes = state.component.nodes || {};
+      const rootNode = nodes['root'];
+      
+      if (rootNode) {
+        root.innerHTML = renderNode(rootNode, nodes);
+      }
+      
+      // Set up click handlers
+      root.querySelectorAll('[data-id]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sendMessage('selection', { nodeId: el.dataset.id });
+        });
+        
+        el.addEventListener('mouseenter', () => {
+          sendMessage('highlight', { nodeId: el.dataset.id });
+        });
+        
+        el.addEventListener('mouseleave', () => {
+          sendMessage('highlight', { nodeId: null });
+        });
+      });
+    }
+    
+    function renderNode(node, allNodes) {
+      if (!node) return '';
+      
+      const id = node.id || '';
+      const dataId = `data-id="${id}"`;
+      
+      switch (node.type) {
+        case 'text':
+          const value = node.value?.type === 'value' ? node.value.value : '';
+          return `<span ${dataId} data-node-type="text">${value ?? ''}</span>`;
+          
+        case 'element':
+          const tag = node.tag || 'div';
+          const children = (node.children || [])
+            .map(childId => renderNode(allNodes[childId], allNodes))
+            .join('');
+          return `<${tag} ${dataId}>${children}</${tag}>`;
+          
+        case 'component':
+          return `<div ${dataId} data-component="${node.name || 'unknown'}">Component: ${node.name || 'unknown'}</div>`;
+          
+        case 'slot':
+          return (node.children || [])
+            .map(childId => renderNode(allNodes[childId], allNodes))
+            .join('');
+            
+        default:
+          return '';
+      }
+    }
+    
+    // Update selection visuals
+    function updateSelection() {
+      document.querySelectorAll('[data-selected]').forEach(el => {
+        el.removeAttribute('data-selected');
+      });
+      
+      if (state.selectedId) {
+        const el = document.querySelector(`[data-id="${state.selectedId}"]`);
+        if (el) {
+          el.setAttribute('data-selected', 'true');
+        }
+      }
+      
+      sendMessage('selectionRect', { rect: getSelectionRect() });
+    }
+    
+    function updateHighlight() {
+      document.querySelectorAll('[data-hovered]').forEach(el => {
+        el.removeAttribute('data-hovered');
+      });
+      
+      if (state.hoveredId) {
+        const el = document.querySelector(`[data-id="${state.hoveredId}"]`);
+        if (el) {
+          el.setAttribute('data-hovered', 'true');
+        }
+      }
+    }
+    
+    function getSelectionRect() {
+      if (!state.selectedId) return null;
+      const el = document.querySelector(`[data-id="${state.selectedId}"]`);
+      if (!el) return null;
+      
+      const rect = el.getBoundingClientRect();
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
+    
+    // Send message to parent
+    function sendMessage(type, payload) {
+      window.parent.postMessage({ type, payload }, '*');
+    }
+    
+    // Drag handling (simplified)
+    function handleDragStarted(payload) {
+      state.dragState = { ...payload };
+    }
+    
+    function handleDragEnded(payload) {
+      if (!payload.canceled && state.dragState) {
+        // Would calculate final position
+        sendMessage('nodeMoved', { copy: false, parent: null, index: 0 });
+      }
+      state.dragState = null;
+    }
+    
+    function handleMouseMove(payload) {
+      // Update drag state
+    }
+    
+    // Style preview
+    function applyPreviewStyle(payload) {
+      const { styles, pseudoElement } = payload;
+      const selectedEl = document.querySelector(`[data-id="${state.selectedId}"]`);
+      if (selectedEl) {
+        Object.assign(selectedEl.style, styles);
+      }
+    }
+    
+    // Timeline
+    function setTimelineTime(payload) {
+      const { time, timingFunction, fillMode } = payload;
+      // Would inject animation styles
+    }
+    
+    // Initial render
+    render();
+    
+    // Notify parent that preview is ready
+    sendMessage('previewReady', {});
+  </script>
+</body>
+</html>

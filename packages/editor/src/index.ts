@@ -12,7 +12,7 @@ export { Inspector } from './inspector';
 export { TextField, NumberField, FormulaField, ColorPicker, Select } from './inspector';
 
 // Preview
-export { Preview, sendToPreview, listenFromPreview } from './preview';
+export { Preview, sendToPreview, createPreviewListener } from './preview';
 
 // Stores
 export {

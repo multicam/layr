@@ -81,13 +81,7 @@ export function ComponentTree() {
       if (activeParent && overParent) {
         // For now, just reorder within same parent
         if (activeParent.parentId === overParent.parentId) {
-          const parent = component.nodes[activeParent.parentId];
-          if ('children' in parent && Array.isArray(parent.children)) {
-            const newChildren = [...parent.children];
-            const [removed] = newChildren.splice(activeParent.index, 1);
-            newChildren.splice(overParent.index, 0, removed);
-            (parent as any).children = newChildren;
-          }
+          moveNode(activeComponent, active.id as string, activeParent.parentId, overParent.index);
         }
       }
     }

@@ -3,6 +3,11 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
+// React Grab — dev-only component inspector
+if (import.meta.env.DEV) {
+  import('react-grab');
+}
+
 // Initialize with demo project for testing
 import { useProjectStore } from './stores';
 

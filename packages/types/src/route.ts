@@ -12,6 +12,8 @@ import type { Formula } from './formula';
 export interface PageRoute {
   path: string;
   query?: Record<string, RouteQueryParam>;
+  title?: string;
+  description?: string;
 }
 
 export interface RouteQueryParam {

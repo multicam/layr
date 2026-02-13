@@ -17,6 +17,9 @@ const providers = new Map<ContextKey, ContextProvider>();
 
 /**
  * Register a context provider
+ *
+ * WARNING: Global provide/consume are for browser-only usage.
+ * For SSR, use ContextScope to avoid cross-request state leakage.
  */
 export function provide<T>(key: ContextKey, value: T | Signal<T>): ContextProvider<T> {
   const isSignal = typeof (value as any)?.get === 'function' && typeof (value as any)?.subscribe === 'function';
@@ -92,14 +95,14 @@ export class ContextScope {
   }
   
   provide<T>(key: ContextKey, value: T | Signal<T>): ContextProvider<T> {
-    const isSignal = typeof (value as any)?.get === 'function';
-    
+    const isSignal = typeof (value as any)?.get === 'function' && typeof (value as any)?.subscribe === 'function';
+
     const provider: ContextProvider<T> = {
       key,
       get: () => isSignal ? (value as Signal<T>).get() : (value as T),
       getSignal: () => isSignal ? (value as Signal<T>) : undefined,
     };
-    
+
     this.providers.set(key, provider);
     return provider;
   }

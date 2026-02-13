@@ -6,6 +6,9 @@ export interface HeadItem {
   content?: string;
 }
 
+// Validation pattern for security
+const ATTR_NAME_RE = /^[a-zA-Z_][\w\-:.]*$/;
+
 /**
  * Extract head items from component
  */
@@ -155,7 +158,13 @@ function renderVoidElement(tag: string, attrs?: Record<string, string | null>): 
  */
 function renderElement(tag: string, attrs: Record<string, string | null> | undefined, content: string): string {
   const attrStr = attrs ? renderAttrs(attrs) : '';
-  return `<${tag}${attrStr}>${escapeHtml(content)}</${tag}>`;
+  // script/style are raw text elements — don't HTML-escape their content,
+  // but prevent closing tag injection
+  const isRawText = tag === 'script' || tag === 'style';
+  const safeContent = isRawText
+    ? content.replace(/<\//g, '<\\/')
+    : escapeHtml(content);
+  return `<${tag}${attrStr}>${safeContent}</${tag}>`;
 }
 
 /**
@@ -163,15 +172,18 @@ function renderElement(tag: string, attrs: Record<string, string | null> | undef
  */
 function renderAttrs(attrs: Record<string, string | null>): string {
   const parts: string[] = [];
-  
+
   for (const [key, value] of Object.entries(attrs)) {
+    // Validate attribute name to prevent injection
+    if (!ATTR_NAME_RE.test(key)) continue;
+
     if (value === null) {
       parts.push(` ${key}`);
     } else {
       parts.push(` ${key}="${escapeAttr(value)}"`);
     }
   }
-  
+
   return parts.join('');
 }
 
@@ -193,5 +205,8 @@ function escapeHtml(str: string): string {
 function escapeAttr(str: string): string {
   return str
     .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;');
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

@@ -70,13 +70,25 @@ export function registerNumberFormulas(): void {
   registerFormula('@toddle/min', (args, ctx) => {
     const values = args.values as number[];
     if (!Array.isArray(values) || values.length === 0) return null;
-    return Math.min(...values.map(v => Number(v)));
+    let result = Number(values[0]);
+    for (let i = 1; i < values.length; i++) {
+      const v = Number(values[i]);
+      if (isNaN(v)) continue;
+      if (isNaN(result) || v < result) result = v;
+    }
+    return isNaN(result) ? null : result;
   });
 
   registerFormula('@toddle/max', (args, ctx) => {
     const values = args.values as number[];
     if (!Array.isArray(values) || values.length === 0) return null;
-    return Math.max(...values.map(v => Number(v)));
+    let result = Number(values[0]);
+    for (let i = 1; i < values.length; i++) {
+      const v = Number(values[i]);
+      if (isNaN(v)) continue;
+      if (isNaN(result) || v > result) result = v;
+    }
+    return isNaN(result) ? null : result;
   });
 
   registerFormula('@toddle/random', (args, ctx) => {

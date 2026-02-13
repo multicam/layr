@@ -37,9 +37,25 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
   paste: () => {
     const { nodes } = get();
     if (nodes.length === 0) return null;
-    
-    // Return deep cloned nodes with new IDs
-    return JSON.parse(JSON.stringify(nodes));
+
+    // Deep clone nodes
+    const cloned: NodeModel[] = JSON.parse(JSON.stringify(nodes));
+
+    // Generate new IDs for all nodes
+    const idMap = new Map<string, string>();
+    const newNodes = cloned.map(node => {
+      const newId = crypto.randomUUID();
+      idMap.set(node.id, newId);
+      return { ...node, id: newId } as NodeModel;
+    });
+
+    // Update children references
+    return newNodes.map(node => {
+      if ('children' in node && Array.isArray(node.children)) {
+        return { ...node, children: node.children.map(id => idMap.get(id) || id) } as NodeModel;
+      }
+      return node;
+    });
   },
   
   clear: () => set({ nodes: [], sourceComponentId: null }),

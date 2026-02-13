@@ -9,3 +9,12 @@ export * from './route';
 export * from './signal';
 export * from './utils';
 export * from './project';
+
+// Explicitly export type guards and helpers
+export {
+  isElementNode,
+  isTextNode,
+  isComponentNode,
+  isSlotNode,
+  getNodeChildren,
+} from './node';

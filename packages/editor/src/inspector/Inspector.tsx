@@ -44,8 +44,8 @@ export function Inspector() {
       <div className="flex-1 overflow-auto p-4">
         {selectedNode ? (
           <>
-            {activeTab === 'properties' && <PropertiesTab node={selectedNode} />}
-            {activeTab === 'styles' && <StylesTab node={selectedNode} />}
+            {activeTab === 'properties' && <PropertiesTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
+            {activeTab === 'styles' && <StylesTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
             {activeTab === 'events' && <EventsTab node={selectedNode} />}
             {activeTab === 'animation' && <AnimationTab node={selectedNode} />}
             {activeTab === 'advanced' && <div>Advanced settings</div>}

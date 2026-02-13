@@ -61,7 +61,18 @@ export const useProjectStore = create<ProjectState>()(
       if (!state.project) return;
       const component = state.project.files?.components?.[componentId];
       if (!component) return;
-      
+
+      // Recursively collect all descendant nodes
+      const toRemove = new Set<string>();
+      const collect = (id: string) => {
+        toRemove.add(id);
+        const node = component.nodes[id];
+        if (node && 'children' in node && Array.isArray(node.children)) {
+          for (const childId of node.children) collect(childId);
+        }
+      };
+      collect(nodeId);
+
       // Remove from parent's children
       for (const node of Object.values(component.nodes)) {
         if ('children' in node && Array.isArray(node.children)) {
@@ -71,9 +82,9 @@ export const useProjectStore = create<ProjectState>()(
           }
         }
       }
-      
-      // Remove node
-      delete component.nodes[nodeId];
+
+      // Remove all collected nodes
+      for (const id of toRemove) delete component.nodes[id];
     }),
     
     moveNode: (componentId, nodeId, newParentId, index) => set((state) => {

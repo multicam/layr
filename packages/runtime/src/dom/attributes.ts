@@ -38,7 +38,7 @@ export function setClasses(element: Element, classes: Record<string, boolean>): 
 /**
  * Set CSS custom property
  */
-export function setCustomProperty(element: Element, name: string, value: string): void {
+export function setCustomProperty(element: HTMLElement, name: string, value: string): void {
   element.style.setProperty(name, value);
 }
 

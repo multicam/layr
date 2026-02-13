@@ -9,7 +9,6 @@ import type {
   Formula,
   ValueOperation,
   PathOperation,
-  PathOperation as PathOp,
   FunctionOperation,
   ObjectOperation,
   ArrayOperation,
@@ -79,7 +78,7 @@ export function applyFormula(
         return null;
     }
   } catch (e) {
-    ctx.toddle.errors.push(e as Error);
+    ctx.toddle.errors.push(e instanceof Error ? e : new Error(String(e)));
     if (ctx.env?.logErrors) {
       console.error('Formula evaluation error:', e);
     }
@@ -103,11 +102,19 @@ function evaluatePath(formula: PathOperation, ctx: FormulaContext): unknown {
     if (current == null) {
       return null;
     }
-    
+
+    // Guard against prototype pollution
+    if (segment === '__proto__' || segment === 'constructor' || segment === 'prototype') {
+      return null;
+    }
+
     // Handle array index access
     if (Array.isArray(current) && /^\d+$/.test(segment)) {
       current = current[parseInt(segment, 10)];
     } else if (typeof current === 'object') {
+      if (!Object.prototype.hasOwnProperty.call(current, segment)) {
+        return null;
+      }
       current = current[segment];
     } else {
       return null;
@@ -267,9 +274,17 @@ function evaluateApply(
   const args: Record<string, unknown> = {};
   for (const arg of formula.arguments ?? []) {
     if (arg.name) {
-      args[arg.name] = arg.isFunction
-        ? applyFormula(arg.formula, ctx, depth + 1)
-        : applyFormula(arg.formula, ctx, depth + 1);
+      if (arg.isFunction) {
+        args[arg.name] = (innerArgs: any) => {
+          const innerCtx: FormulaContext = {
+            ...ctx,
+            data: { ...ctx.data, Args: innerArgs },
+          };
+          return applyFormula(arg.formula, innerCtx, depth + 1);
+        };
+      } else {
+        args[arg.name] = applyFormula(arg.formula, ctx, depth + 1);
+      }
     }
   }
   
@@ -277,12 +292,12 @@ function evaluateApply(
   if (componentFormula.memoize && ctx.formulaCache) {
     const cache = ctx.formulaCache[formula.name];
     if (cache) {
-      const key = JSON.stringify(ctx.data); // Simplified cache key
+      const key = JSON.stringify(args); // Cache key based on arguments only
       const cached = cache.get(key);
       if (cached !== undefined) {
         return cached;
       }
-      
+
       const result = applyFormula(componentFormula.formula, {
         ...ctx,
         data: {
@@ -290,7 +305,7 @@ function evaluateApply(
           Args: args,
         },
       }, depth + 1);
-      
+
       cache.set(key, result);
       return result;
     }
@@ -312,7 +327,7 @@ function evaluateApply(
 export function toBoolean(value: unknown): boolean {
   if (value == null) return false;
   if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'number') return !isNaN(value) && value !== 0;
   if (typeof value === 'string') return value.length > 0;
   if (Array.isArray(value)) return value.length > 0;
   if (typeof value === 'object') return Object.keys(value).length > 0;

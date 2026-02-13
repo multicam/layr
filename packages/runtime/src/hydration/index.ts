@@ -96,7 +96,7 @@ function findChildByNodeId(parent: Element, nodeId: string): Element | null {
       return child;
     }
   }
-  return parent.querySelector(`[data-node-id="${nodeId}"]`);
+  return parent.querySelector(`[data-node-id="${CSS.escape(nodeId)}"]`);
 }
 
 function attachNodeEvent(
@@ -125,10 +125,15 @@ function attachNodeEvent(
 export function readSSRData(document: Document, id: string = 'layr-data'): ComponentData | null {
   const script = document.getElementById(id);
   if (!script) return null;
-  
+
   try {
-    const text = script.textContent || script.innerHTML;
-    return JSON.parse(text);
+    const text = script.textContent;
+    if (!text) return null;
+
+    const data = JSON.parse(text);
+    // Clear content after reading to prevent data leakage
+    script.textContent = '';
+    return data;
   } catch (e) {
     console.error('Failed to parse SSR data:', e);
     return null;
