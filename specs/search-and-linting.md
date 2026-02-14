@@ -1,8 +1,44 @@
 # Search & Linting Specification
 
+## Status: ⚠️ Partially Implemented
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Project Walker | ✅ Complete | `searchProject()` generator |
+| Contextless Evaluation | ✅ Complete | Static formula evaluation |
+| Problem Streaming | ✅ Complete | `findProblems()` with callbacks |
+| Auto-Fix System | ✅ Complete | `fixProblems()`, JSON patches |
+| Linting Rules | ❌ 3/58 | Only basic rules implemented |
+
+### Implemented Rules (3)
+
+| Rule | Category | Auto-fix |
+|------|----------|----------|
+| `unknownActionRule` | Actions | ❌ |
+| `unknownVariableRule` | Variables | ❌ |
+| `noStaticNodeCondition` | Logic | ✅ |
+
+### Not Yet Implemented (55+ rules)
+
+- Action rules: `unknownTriggerEventRule`, `noReferenceComponentWorkflowRule`
+- API rules: `noReferenceApiRule`, `unknownApiRule`, `unknownApiInputRule`
+- Attribute rules: `noReferenceAttributeRule`, `unknownAttributeRule`, `unknownComponentAttributeRule`
+- Component rules: `unknownComponentRule`, `noReferenceComponentRule`
+- Context rules: 6 rules
+- DOM rules: 9 rules (void elements, alt tags, meta, etc.)
+- Event rules: 4 rules
+- Formula rules: 3 rules
+- Misc rules: 3 rules
+- Routing rules: 4 rules
+- Slot rules: 1 rule
+- Style rules: 4 rules
+- Workflow rules: 6 rules
+
+---
+
 ## Purpose
 
-The Search & Linting system provides project-wide issue detection, auto-fixing, and search capabilities. It uses a visitor pattern to walk component trees, evaluating 100+ rules across 15 categories, with streaming results, memoization, and web worker support.
+The Search & Linting system provides project-wide issue detection, auto-fixing, and search capabilities. It uses a visitor pattern to walk component trees, evaluating 60+ rules across 15 categories, with streaming results, memoization, and web worker support.
 
 ### Jobs to Be Done
 

@@ -1,8 +1,17 @@
 # Standard Library Specification
 
+## Status: ⚠️ Partially Implemented
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Formulas | ✅ 78/97 | Missing: datetime, storage, DOM formulas |
+| Actions | ❌ 0/19 | Not yet implemented |
+
+---
+
 ## Purpose
 
-The Standard Library (`@layr/std-lib`, formerly `@toddle/std-lib`) provides the built-in formulas and actions available to all Layr components. It includes 97 formulas across 10 categories and 19 actions across 8 categories, all prefixed with `@toddle/` in the runtime registry.
+The Standard Library (`@layr/lib`) provides the built-in formulas and actions available to all Layr components. It includes formulas across 10 categories and actions across 8 categories, all prefixed with `@toddle/` in the runtime registry.
 
 ### Jobs to Be Done
 

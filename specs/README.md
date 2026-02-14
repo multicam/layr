@@ -17,8 +17,18 @@ This directory contains technical specifications for the Layr visual development
 | Runtime | 9 | 0 | 0 | 9 |
 | Editor | 6 | 0 | 0 | 6 |
 | Infrastructure | 9 | 0 | 0 | 9 |
-| Styleguide | 0 | 0 | 1 | 1 |
-| **Total** | **55** | **0** | **1** | **56** |
+| Styleguide | 1 | 0 | 0 | 1 |
+| Standard Library | 0 | 2 | 0 | 2 |
+| Search | 0 | 2 | 0 | 2 |
+| **Total** | **51** | **6** | **0** | **57** |
+
+### Partially Implemented
+
+| Spec | Missing Components |
+|------|-------------------|
+| standard-library.md | 19 actions (infrastructure complete) |
+| standard-library-architecture.md | Actions architecture |
+| search-and-linting.md | 50+ linting rules (8 implemented) |
 
 ---
 
@@ -40,7 +50,19 @@ This directory contains technical specifications for the Layr visual development
 ### Styleguide (1 spec)
 | Spec | Status | Description |
 |------|--------|-------------|
-| [default-styleguide.md](default-styleguide.md) | 📝 | Default themes inspired by Writizzy |
+| [default-styleguide.md](default-styleguide.md) | ✅ | Default themes inspired by Writizzy |
+
+### Standard Library (2 specs)
+| Spec | Status | Package |
+|------|--------|---------|
+| [standard-library.md](standard-library.md) | ⚠️ | @layr/lib (formulas ✅, actions pending) |
+| [standard-library-architecture.md](standard-library-architecture.md) | ⚠️ | @layr/lib |
+
+### Search (2 specs)
+| Spec | Status | Package |
+|------|--------|---------|
+| [search-and-linting.md](search-and-linting.md) | ⚠️ | @layr/search (8/58 rules) |
+| [search-and-linting-engine.md](search-and-linting-engine.md) | ✅ | @layr/search |
 
 ### Core Types (5 specs)
 | Spec | Status | Package |
@@ -114,8 +136,6 @@ This directory contains technical specifications for the Layr visual development
 | [editor-implementation.md](editor-implementation.md) | ✅ | @layr/editor |
 | [editor-preview-system.md](editor-preview-system.md) | ✅ | @layr/editor |
 | [drag-drop-system.md](drag-drop-system.md) | ✅ | @layr/editor |
-| [search-and-linting.md](search-and-linting.md) | ✅ | @layr/search |
-| [search-and-linting-engine.md](search-and-linting-engine.md) | ✅ | @layr/search |
 
 ---
 
@@ -146,7 +166,14 @@ See [thoughts/work-items/](../thoughts/work-items/) for pending implementation t
 | 📝 | Spec complete, implementation not started |
 | ❌ | Not implemented |
 
-### Recently Completed (2026-02-14)
+### Recently Completed (2026-02-15)
+
+- `default-styleguide.md` - @layr/themes package with 5 themes (minimal, brutalism, neobrutalism, terminal, notion)
+- Theme selector in editor sidebar
+- Standard library actions (19 actions: storage, cookies, navigation, events, timers, sharing, theme)
+- Additional linting rules (unknownComponent, unknownFormula, unknownEvent, noReferenceAttribute, noReferenceVariable)
+
+### Previously Completed (2026-02-14)
 
 The following specs were fully implemented:
 - `introspection-and-traversal.md` - Core traversal system with generators
@@ -161,7 +188,6 @@ The following specs were fully implemented:
 - `package-management.md` - Version conflict handling
 - `element-definitions.md` - Generated HTML/SVG JSON files (102 HTML + 61 SVG)
 - `drag-drop-system.md` - View Transition animations
-- `search-and-linting.md` - @layr/search package with rules
 - `search-and-linting-engine.md` - Project walker, contextless evaluation
 
 ---
@@ -188,7 +214,9 @@ bun test packages/core/
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 78 built-in formulas
+├── @layr/lib  ← 78 built-in formulas + 19 actions
+│
+├── @layr/themes ← Default theme definitions
 │
 ├── @layr/ssr  ← Server-side rendering
 │
@@ -196,9 +224,9 @@ bun test packages/core/
 │
 ├── @layr/backend ← Hono HTTP server
 │
-├── @layr/editor  ← Visual editor UI
+├── @layr/editor  ← Visual editor UI + theme selector
 │
-└── @layr/search  ← Linting rules, issue detection
+└── @layr/search  ← Linting rules (8), issue detection
 ```
 
 ---
@@ -215,6 +243,14 @@ Start server: `bun run dev`
 ---
 
 ## Changelog
+
+### 2026-02-15
+- Added @layr/themes package with 5 theme variants
+- Added theme selector to editor sidebar
+- Implemented 19 standard library actions
+- Added 5 more linting rules (8 total)
+- Updated spec statuses for accuracy
+- Accurate reporting: 51 complete, 6 partial specs
 
 ### 2026-02-14 (Final Update)
 - All 55 active specs fully implemented

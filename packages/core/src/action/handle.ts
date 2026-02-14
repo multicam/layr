@@ -33,6 +33,12 @@ export interface ActionContext {
   providers?: Record<string, { component: any; ctx: ActionContext }>;
   package?: string;
   applyFormula?: (formula: any, ctx: any) => unknown;
+  /** Current DOM event (for preventDefault/stopPropagation) */
+  event?: Event;
+  /** Preview mode flag */
+  preview?: boolean;
+  /** Cleanup callback registration */
+  onUnmount?: (cleanup: () => void) => void;
 }
 
 // Maximum action depth

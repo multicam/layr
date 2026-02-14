@@ -8,6 +8,7 @@ export type { FormulaContext } from './formula/context';
 
 // Actions
 export { handleAction } from './action/handle';
+export type { ActionContext } from './action/handle';
 
 // Context
 export { 

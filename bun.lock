@@ -40,6 +40,7 @@
         "@dnd-kit/sortable": "^8.0.0",
         "@layr/core": "workspace:*",
         "@layr/runtime": "workspace:*",
+        "@layr/themes": "workspace:*",
         "@layr/types": "workspace:*",
         "@monaco-editor/react": "^4.6.0",
         "clsx": "^2.1.0",
@@ -93,6 +94,13 @@
       "version": "0.0.1",
       "dependencies": {
         "@layr/core": "workspace:*",
+        "@layr/types": "workspace:*",
+      },
+    },
+    "packages/themes": {
+      "name": "@layr/themes",
+      "version": "0.0.1",
+      "dependencies": {
         "@layr/types": "workspace:*",
       },
     },
@@ -226,6 +234,8 @@
     "@layr/search": ["@layr/search@workspace:packages/search"],
 
     "@layr/ssr": ["@layr/ssr@workspace:packages/ssr"],
+
+    "@layr/themes": ["@layr/themes@workspace:packages/themes"],
 
     "@layr/types": ["@layr/types@workspace:packages/types"],
 

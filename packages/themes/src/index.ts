@@ -9,6 +9,13 @@ import type { Theme } from '@layr/types';
 // Export tokens
 export * from './tokens';
 
+// Import theme definitions (must be before usage)
+import { minimalTheme, minimalLight, minimalDark } from './minimal';
+import { brutalismTheme, brutalismLight, brutalismDark } from './brutalism';
+import { neobrutalismTheme, neobrutalismLight, neobrutalismDark } from './neobrutalism';
+import { terminalTheme, terminalLight, terminalDark } from './terminal';
+import { notionTheme, notionLight, notionDark } from './notion';
+
 // Export individual themes
 export { minimalTheme, minimalLight, minimalDark } from './minimal';
 export { brutalismTheme, brutalismLight, brutalismDark } from './brutalism';
@@ -25,6 +32,7 @@ export interface ThemeDefinition {
   defaultDark?: string;
   defaultLight?: string;
   themes: Record<string, Theme>;
+  order?: number;
 }
 
 // All available themes

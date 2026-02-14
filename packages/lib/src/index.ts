@@ -33,4 +33,12 @@ registerLogicFormulas();
 registerComparisonFormulas();
 registerUtilityFormulas();
 
-// console.log(`Registered ${formulas.size} formulas`);
+// Actions
+export { actions, registerAction, getAction, registerActions } from './actions';
+export type { ActionHandler, ActionRegistry } from './actions';
+
+// Register actions
+import { registerActions } from './actions';
+registerActions();
+
+// console.log(`Registered ${formulas.size} formulas and ${actions.size} actions`);
