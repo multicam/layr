@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "cite",
+    "categories": [
+      "typography"
+    ],
+    "description": "Citation",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "cite",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

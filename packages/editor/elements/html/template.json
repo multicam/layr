@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "template",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Template element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "template",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

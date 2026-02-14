@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "feFuncB",
+    "categories": [
+      "svg"
+    ],
+    "description": "Blue function",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncB",
+    "isVoid": true,
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feFuncB",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

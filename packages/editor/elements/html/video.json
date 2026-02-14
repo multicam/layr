@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "video",
+    "categories": [
+      "media"
+    ],
+    "description": "Video player",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
+    "interfaces": [
+      "HTMLVideoElement",
+      "HTMLMediaElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "video",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

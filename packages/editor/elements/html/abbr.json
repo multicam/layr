@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "abbr",
+    "categories": [
+      "typography"
+    ],
+    "description": "Abbreviation",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "abbr",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

@@ -60,7 +60,7 @@ Evaluates a formula and updates a named variable in the component's data signal.
 
 **Flow:**
 1. Evaluate `action.data` formula to get the new value
-2. Call `ctx.dataSignal.update()` with immutable update: spreads existing `Variables` and overwrites `[action.variable]`
+2. Call `ctx.dataSignal.update()` with immutable update: spreads existing `Variables` and overwrites `[action.name]`
 
 **Signal propagation:** The `update()` call triggers deep equality check. If the variable value actually changed, all subscribers (DOM bindings, derived signals) are notified.
 
@@ -70,7 +70,7 @@ Emits a named event from the component to its parent, carrying a formula-evaluat
 
 **Flow:**
 1. Evaluate `action.data` formula to get the payload
-2. Call `ctx.triggerEvent(action.event, payload)`
+2. Call `ctx.triggerEvent(action.name, payload)`
 
 The parent component receives this event through its event handler bindings on the child component node.
 
@@ -80,7 +80,7 @@ Sends data back to the workflow invoker via the `workflowCallback` function pass
 
 **Flow:**
 1. Evaluate `action.data` formula to get the payload
-2. Call `workflowCallback?.(action.event, payload)` — optional chaining because not all actions are invoked from a workflow context
+2. Call `workflowCallback?.(action.name, payload)` — optional chaining because not all actions are invoked from a workflow context
 
 ### SetURLParameter
 
@@ -90,7 +90,7 @@ Updates a single URL parameter with appropriate browser history handling.
 1. Inside `locationSignal.update()` callback:
 2. Evaluate `action.data` formula to get the new value
 3. Determine parameter type:
-   - If `action.parameter` matches a route **path** segment → default `historyMode = 'push'`
+   - If `action.name` matches a route **path** segment → default `historyMode = 'push'`
    - Otherwise → treat as **query** parameter, default `historyMode = 'replace'`
 4. Build new location object with updated params/query
 5. Compare old and new URLs via `getLocationUrl()`
@@ -146,7 +146,7 @@ Cancels all in-flight requests for a named API.
 Invokes a named workflow, either on the current component or on a context provider component.
 
 **Context provider workflow flow:**
-1. Resolve provider from `ctx.providers` using `[package, contextProvider]` key (with fallback to unqualified name)
+1. Resolve provider from `ctx.providers` using `[package, componentName]` key (with fallback to unqualified name)
 2. Look up workflow on `provider.component.workflows`
 3. Evaluate `action.parameters` formulas in current context
 4. Execute workflow actions with **provider's context** (`provider.ctx`), but merged data:
@@ -261,10 +261,10 @@ ActionModel =
 | Model | Notable Fields |
 |-------|---------------|
 | `SwitchActionModel` | `cases: Array<{ condition, actions }>`, `default: { actions }` |
-| `FetchActionModel` | `api: string`, `inputs`, `onSuccess`, `onError`, `onMessage` |
-| `SetURLParameterAction` | `parameter: string`, `historyMode?: 'replace' \| 'push'` |
+| `FetchActionModel` | `name: string`, `inputs`, `onSuccess`, `onError`, `onMessage` |
+| `SetURLParameterAction` | `name: string`, `historyMode?: 'replace' \| 'push'` |
 | `SetMultiUrlParameterAction` | `parameters: Record<string, Formula>`, `historyMode` |
-| `WorkflowActionModel` | `workflow: string`, `parameters`, `callbacks`, `contextProvider?` |
+| `WorkflowActionModel` | `name: string`, `parameters`, `callbacks`, `componentName?` |
 | `CustomActionModel` | `name: string`, `package?`, `arguments?`, `events?`, `version?: 2` |
 
 ---
@@ -277,7 +277,7 @@ ActionModel =
 - **URL unchanged after parameter update:** `history.pushState/replaceState` is skipped when URLs are equal, preventing empty history entries
 - **Custom action cleanup with Promise:** Awaits Promise resolution before calling cleanup, with error catching
 - **Workflow callback without caller context:** `workflowCallback?.()` uses optional chaining — safe when action isn't invoked from a workflow
-- **Provider resolution fallback:** Tries `[package/contextProvider]` key first, falls back to bare `contextProvider` name
+- **Provider resolution fallback:** Tries `[package/componentName]` key first, falls back to bare `componentName` name
 - **Missing route in SetURLParameters:** Returns current location unchanged when `current.route` is undefined
 
 ---

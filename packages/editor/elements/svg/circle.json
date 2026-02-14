@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "name": "circle",
+    "categories": [
+      "svg"
+    ],
+    "description": "Circle shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle",
+    "interfaces": [
+      "SVGCircleElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "circle",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

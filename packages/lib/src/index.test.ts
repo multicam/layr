@@ -353,12 +353,20 @@ describe('logic formulas', () => {
     expect(fn({ a: 1, b: 1 }, ctx)).toBe(true);
     expect(fn({ a: 1, b: 2 }, ctx)).toBe(false);
     expect(fn({ a: 'x', b: 'x' }, ctx)).toBe(true);
+    // Deep equality for objects and arrays
+    expect(fn({ a: { x: 1 }, b: { x: 1 } }, ctx)).toBe(true);
+    expect(fn({ a: { x: 1 }, b: { x: 2 } }, ctx)).toBe(false);
+    expect(fn({ a: [1, 2], b: [1, 2] }, ctx)).toBe(true);
+    expect(fn({ a: [1, 2], b: [2, 1] }, ctx)).toBe(false);
   });
 
   test('@toddle/not-equals compares inequality', () => {
     const fn = getFormula('@toddle/not-equals')!;
     expect(fn({ a: 1, b: 2 }, ctx)).toBe(true);
     expect(fn({ a: 1, b: 1 }, ctx)).toBe(false);
+    // Deep inequality for objects
+    expect(fn({ a: { x: 1 }, b: { x: 1 } }, ctx)).toBe(false);
+    expect(fn({ a: { x: 1 }, b: { x: 2 } }, ctx)).toBe(true);
   });
 
   test('@toddle/not negates value', () => {

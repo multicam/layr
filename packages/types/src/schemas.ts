@@ -238,6 +238,9 @@ const TriggerWorkflowActionSchema = ActionModelBase.extend({
     name: z.string(),
     formula: FormulaSchema.optional(),
   })).optional(),
+  callbacks: z.record(z.object({
+    actions: z.lazy(() => z.array(ActionModelSchema)),
+  })).optional(),
   componentName: z.string().optional(),
   package: z.string().optional(),
 });

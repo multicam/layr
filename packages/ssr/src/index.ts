@@ -1,4 +1,5 @@
-export { renderPageBody } from './render/page';
+export { renderPageBody, escapeHtml } from './render/page';
+export type { RenderResult, SSROptions } from './render/page';
 export { splitRoutes } from './split/routes';
 export { getHeadItems, renderHeadItems } from './render/head';
 

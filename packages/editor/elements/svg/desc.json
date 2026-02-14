@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "desc",
+    "categories": [
+      "svg"
+    ],
+    "description": "Description",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "desc",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

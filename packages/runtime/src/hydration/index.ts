@@ -5,7 +5,7 @@
 
 import type { Component, ComponentData } from '@layr/types';
 import type { Signal } from '@layr/core';
-import { createSignal } from '@layr/core';
+import { createSignal, handleAction } from '@layr/core';
 import type { RenderContext } from '../render/component';
 
 export interface HydrationResult {
@@ -108,7 +108,15 @@ function attachNodeEvent(
   const listener = (e: Event) => {
     if (handler.actions) {
       for (const action of handler.actions) {
-        console.log('Execute action:', action.type);
+        handleAction(action, {
+          dataSignal: ctx.dataSignal,
+          apis: {},
+          component: ctx.component,
+          triggerEvent: () => {},
+          setUrlParameter: () => {},
+          toddle: { actions: {}, formulas: {} },
+          env: {},
+        });
       }
     }
   };

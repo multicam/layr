@@ -31,7 +31,7 @@ All actions are one of 10 types:
 | `AbortFetch` | Cancel in-flight API request |
 | `Custom` | Call a custom/plugin action |
 | `SetURLParameter` | Update a single URL parameter |
-| `SetMultiUrlParameter` | Update multiple URL parameters |
+| `SetURLParameters` | Update multiple URL parameters |
 | `TriggerWorkflow` | Call a workflow with parameters and callbacks |
 | `WorkflowCallback` | Invoke a workflow callback from within the workflow |
 
@@ -40,15 +40,15 @@ All actions are one of 10 types:
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | `'SetVariable'` | Discriminator |
-| `variable` | `string` | Variable name to update |
-| `value` | `Formula` | New value formula |
+| `name` | `string` | Variable name to update |
+| `data` | `Formula?` | New value formula |
 
 ### TriggerEvent Action
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | `'TriggerEvent'` | Discriminator |
-| `event` | `string` | Event name |
+| `name` | `string` | Event name |
 | `data` | `Formula` | Event payload formula |
 
 ### Switch Action
@@ -64,7 +64,7 @@ All actions are one of 10 types:
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | `'Fetch'` | Discriminator |
-| `api` | `string` | API name to trigger |
+| `name` | `string` | API name to trigger |
 | `onSuccess` | `{ actions: ActionModel[] }?` | Success callback |
 | `onError` | `{ actions: ActionModel[] }?` | Error callback |
 | `onMessage` | `{ actions: ActionModel[] }?` | Stream message callback |
@@ -86,9 +86,9 @@ All actions are one of 10 types:
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | `'TriggerWorkflow'` | Discriminator |
-| `workflow` | `string` | Workflow name |
-| `contextProvider` | `string?` | Context provider component name |
-| `parameters` | `Record<string, { formula: Formula }>?` | Input parameters |
+| `name` | `string` | Workflow name |
+| `componentName` | `string?` | Context provider component name |
+| `parameters` | `Array<{ name: string; formula?: Formula }>?` | Input parameters |
 | `callbacks` | `Record<string, { actions: ActionModel[] }>?` | Callback handlers |
 
 ### WorkflowCallback Action
@@ -96,7 +96,7 @@ All actions are one of 10 types:
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | `'TriggerWorkflowCallback'` | Discriminator |
-| `event` | `string` | Callback name |
+| `name` | `string` | Callback name |
 | `data` | `Formula` | Callback payload formula |
 
 ---
@@ -128,13 +128,13 @@ All actions are one of 10 types:
 
 ### SetVariable
 
-1. Evaluate `action.value` formula
-2. Update `ctx.dataSignal.Variables[variableName]` via immutable signal update
+1. Evaluate `action.data` formula
+2. Update `ctx.dataSignal.Variables[action.name]` via immutable signal update
 
 ### TriggerEvent
 
 1. Evaluate `action.data` formula → payload
-2. Call `ctx.triggerEvent(action.event, payload)`
+2. Call `ctx.triggerEvent(action.name, payload)`
 3. Parent handles via event listener on `ComponentNodeModel`
 
 ### Switch
@@ -147,7 +147,7 @@ All actions are one of 10 types:
 
 ### Fetch
 
-1. Look up API by `action.api` in `ctx.apis`
+1. Look up API by `action.name` in `ctx.apis`
 2. Call API's `fetch()` method
 3. On success: Execute `onSuccess` actions with `Event = { type: 'success', data, status, headers }`
 4. On error: Execute `onError` actions with `Event = { type: 'failed', error, status, headers }`
@@ -169,7 +169,7 @@ All actions are one of 10 types:
 ### URL Parameter Actions
 
 - `SetURLParameter`: Updates single query parameter and pushes to browser history
-- `SetMultiUrlParameter`: Updates multiple parameters at once
+- `SetURLParameters`: Updates multiple parameters at once
 
 ---
 
@@ -205,7 +205,7 @@ Cleanup functions are registered by subscribing to the component data signal's d
 
 ### Context Provider Workflows
 
-When `contextProvider` is specified:
+When `componentName` is specified:
 - Workflow actions execute in the **provider's** `ComponentContext`
 - Callback actions execute in the **consumer's** `ComponentContext`
 - Parameters bridge both contexts
@@ -355,7 +355,7 @@ abortController.abort(`Component ${component.name} unmounted`)
 ### API Callbacks → Actions
 
 1. API response received
-2. `onCompleted` / `onFailed` / `onMessage` action lists execute
+2. `onSuccess` / `onError` / `onMessage` action lists execute
 3. `Event` contains response data, status, and headers
 
 ### Workflow Callbacks → Actions

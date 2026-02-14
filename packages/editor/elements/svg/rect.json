@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "name": "rect",
+    "categories": [
+      "svg"
+    ],
+    "description": "Rectangle shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect",
+    "aliases": [
+      "rectangle"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "SVGRectElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "rect",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

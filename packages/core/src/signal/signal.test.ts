@@ -190,11 +190,15 @@ describe('Signal', () => {
     test('destroys when parent destroys', () => {
       const signal = new Signal(5);
       const doubled = signal.map(x => x * 2);
-      
+
+      // Track if derived's subscriber destroy callbacks fire
+      let derivedSubscriberDestroyed = false;
+      doubled.subscribe(() => {}, { destroy: () => { derivedSubscriberDestroyed = true } });
+
       signal.destroy();
-      signal.set(20); // Parent won't update
-      
-      expect(doubled.get()).toBe(10); // Unchanged
+
+      // Derived signal's subscribers should have been destroyed via cascade
+      expect(derivedSubscriberDestroyed).toBe(true);
     });
 
     test('supports chaining', () => {
@@ -230,15 +234,73 @@ describe('map cleanup', () => {
   test('unsubscribes from parent when derived signal is destroyed directly', () => {
     const signal = new Signal(5);
     const doubled = signal.map(x => x * 2);
-    
-    // Verify derived updates
+
     expect(doubled.get()).toBe(10);
-    
-    // Destroy derived signal directly
+
     doubled.destroy();
-    
-    // Update parent - derived should not update (it's destroyed)
+
     signal.set(20);
     expect(doubled.get()).toBe(10); // Still 10, not 40
+  });
+
+  test('cascades destruction through chained maps', () => {
+    const signal = new Signal(2);
+    const tripled = signal.map(x => x * 3);
+    const plusFour = tripled.map(x => x + 4);
+
+    let leafDestroyed = false;
+    plusFour.subscribe(() => {}, { destroy: () => { leafDestroyed = true } });
+
+    // Destroying root should cascade through tripled → plusFour
+    signal.destroy();
+    expect(leafDestroyed).toBe(true);
+  });
+
+  test('derived destroy is idempotent after parent destroy', () => {
+    const signal = new Signal(5);
+    const doubled = signal.map(x => x * 2);
+
+    let destroyCount = 0;
+    doubled.subscribe(() => {}, { destroy: () => { destroyCount++ } });
+
+    signal.destroy();    // Cascades to doubled
+    doubled.destroy();   // Should be no-op (already destroyed)
+
+    expect(destroyCount).toBe(1);
+  });
+});
+
+describe('cleanSubscribers', () => {
+  test('destroys subscribers but keeps signal alive', () => {
+    const signal = new Signal(5);
+    let destroyed = false;
+    signal.subscribe(() => {}, { destroy: () => { destroyed = true } });
+
+    signal.cleanSubscribers();
+    expect(destroyed).toBe(true);
+
+    // Signal still works — can subscribe and update
+    let received: number | null = null;
+    signal.subscribe(v => { received = v });
+    expect(received).toBe(5);
+
+    signal.set(10);
+    expect(received).toBe(10);
+  });
+
+  test('destroys derived signals created by map', () => {
+    const signal = new Signal(5);
+    const doubled = signal.map(x => x * 2);
+
+    let derivedSubscriberDestroyed = false;
+    doubled.subscribe(() => {}, { destroy: () => { derivedSubscriberDestroyed = true } });
+
+    signal.cleanSubscribers();
+    expect(derivedSubscriberDestroyed).toBe(true);
+
+    // Parent signal still alive — can create new derived signals
+    const tripled = signal.map(x => x * 3);
+    signal.set(10);
+    expect(tripled.get()).toBe(30);
   });
 });

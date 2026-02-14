@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "name": "p",
+    "categories": [
+      "typography"
+    ],
+    "description": "Paragraph",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
+    "aliases": [
+      "paragraph"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "HTMLParagraphElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "p",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Paragraph text"
+        }
+      }
+    }
+  }
+}

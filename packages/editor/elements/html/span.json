@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "name": "span",
+    "categories": [
+      "typography"
+    ],
+    "description": "Inline container",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span",
+    "aliases": [
+      "inline"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "HTMLSpanElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "span",
+        "attrs": {},
+        "style": {
+          "display": {
+            "type": "value",
+            "value": "inline"
+          }
+        },
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

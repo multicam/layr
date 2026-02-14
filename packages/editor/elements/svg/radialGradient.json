@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "radialGradient",
+    "categories": [
+      "svg"
+    ],
+    "description": "Radial gradient",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "radialGradient",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

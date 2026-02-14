@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "source",
+    "categories": [
+      "media"
+    ],
+    "description": "Media source",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "source",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          },
+          "type": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

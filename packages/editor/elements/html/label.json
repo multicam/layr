@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "name": "label",
+    "categories": [
+      "form"
+    ],
+    "description": "Form label",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+    "isPopular": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "label",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Label"
+        }
+      }
+    }
+  }
+}

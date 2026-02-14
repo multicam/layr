@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "fePointLight",
+    "categories": [
+      "svg"
+    ],
+    "description": "Point light filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/fePointLight",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "fePointLight",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

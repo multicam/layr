@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "name": "summary",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Summary element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
+    "permittedParents": [
+      "details"
+    ],
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "summary",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Summary"
+        }
+      }
+    }
+  }
+}

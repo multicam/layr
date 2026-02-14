@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "name": "audio",
+    "categories": [
+      "media"
+    ],
+    "description": "Audio player",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio",
+    "interfaces": [
+      "HTMLAudioElement",
+      "HTMLMediaElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "audio",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

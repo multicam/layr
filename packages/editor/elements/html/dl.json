@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "dl",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Description list",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
+    "permittedChildren": [
+      "dd",
+      "dt",
+      "div",
+      "script",
+      "template"
+    ],
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "dl",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

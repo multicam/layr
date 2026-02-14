@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "set",
+    "categories": [
+      "svg"
+    ],
+    "description": "Set animation",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/set",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "set",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

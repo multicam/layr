@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "b",
+    "categories": [
+      "typography"
+    ],
+    "description": "Bold text",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/b",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "b",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Bold text"
+        }
+      }
+    }
+  }
+}

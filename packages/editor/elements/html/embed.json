@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "embed",
+    "categories": [
+      "media"
+    ],
+    "description": "Embedded content",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "embed",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          },
+          "type": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

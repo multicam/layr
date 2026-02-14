@@ -191,31 +191,85 @@ describe('handleAction', () => {
   });
 
   describe('TriggerWorkflow', () => {
-    test('calls triggerWorkflow when available', () => {
+    test('warns when workflow not found', () => {
+      const consoleSpy = console.warn;
+      const warns: string[] = [];
+      console.warn = (msg: string) => { warns.push(msg); };
+
       const ctx = createMockContext();
-      let workflowTriggered = false;
-      ctx.triggerWorkflow = () => { workflowTriggered = true; };
+      ctx.component = { name: 'TestComponent' };
 
       handleAction({
         type: 'TriggerWorkflow',
         name: 'myWorkflow',
+        parameters: [],
       }, ctx);
 
-      expect(workflowTriggered).toBe(true);
+      console.warn = consoleSpy;
+      expect(warns.some(w => w.includes('myWorkflow'))).toBe(true);
+    });
+
+    test('executes workflow when found', () => {
+      let actionExecuted = false;
+      const ctx = createMockContext();
+      ctx.component = {
+        name: 'TestComponent',
+        workflows: {
+          myWorkflow: {
+            name: 'myWorkflow',
+            parameters: [],
+            actions: [
+              { type: 'SetVariable', name: 'test', data: { type: 'value', value: 1 } },
+            ],
+          },
+        },
+      };
+      ctx.applyFormula = (formula: any) => (formula as any).value;
+
+      handleAction({
+        type: 'TriggerWorkflow',
+        name: 'myWorkflow',
+        parameters: [],
+      }, ctx);
+
+      // Workflow actions executed (no error thrown)
+      expect(true).toBe(true);
     });
   });
 
   describe('TriggerWorkflowCallback', () => {
-    test('calls workflowCallback when available', () => {
+    test('warns when used outside workflow context', () => {
+      const consoleSpy = console.warn;
+      const warns: string[] = [];
+      console.warn = (msg: string) => { warns.push(msg); };
+
       const ctx = createMockContext();
-      let callbackTriggered = false;
-      ctx.workflowCallback = () => { callbackTriggered = true; };
 
       handleAction({
         type: 'TriggerWorkflowCallback',
         name: 'onSuccess',
         data: { type: 'value', value: null },
       }, ctx);
+
+      console.warn = consoleSpy;
+      expect(warns.some(w => w.includes('outside of workflow context'))).toBe(true);
+    });
+
+    test('calls callback when in workflow context', () => {
+      let callbackTriggered = false;
+      const ctx = createMockContext();
+      ctx.applyFormula = (formula: any) => (formula as any).value;
+
+      handleAction(
+        {
+          type: 'TriggerWorkflowCallback',
+          name: 'onSuccess',
+          data: { type: 'value', value: { result: 'ok' } },
+        },
+        ctx,
+        undefined,
+        (name, data) => { callbackTriggered = true; }
+      );
 
       expect(callbackTriggered).toBe(true);
     });

@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "h5",
+    "categories": [
+      "typography"
+    ],
+    "description": "Heading level 5",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "h5",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Heading 5"
+        }
+      }
+    }
+  }
+}

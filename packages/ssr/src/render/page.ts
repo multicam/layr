@@ -1,9 +1,16 @@
-import type { Component, NodeModel } from '@layr/types';
+import type { Component, NodeModel, Formula, ComponentData } from '@layr/types';
+import { isElementNode, isTextNode, isComponentNode } from '@layr/types';
+import { applyFormula, toBoolean } from '@layr/core';
+import type { FormulaContext } from '@layr/core';
 
 export interface RenderResult {
   html: string;
   apiCache: Record<string, any>;
   customProperties: Record<string, string>;
+}
+
+export interface SSROptions {
+  getComponent?: (name: string, packageName?: string) => Component | undefined;
 }
 
 // Validation patterns for security
@@ -15,15 +22,33 @@ const VOID_ELEMENTS = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img'
 /**
  * Render a page component to HTML
  */
-export function renderPageBody(component: Component): RenderResult {
+export function renderPageBody(component: Component, options?: SSROptions): RenderResult {
   const apiCache: Record<string, any> = {};
   const customProperties: Record<string, string> = {};
-  
+
+  // Build initial component data from variable defaults
+  const variables: Record<string, unknown> = {};
+  for (const [name, variable] of Object.entries(component.variables ?? {})) {
+    if (variable.initialValue?.type === 'value') {
+      variables[name] = variable.initialValue.value;
+    }
+  }
+
+  const data: ComponentData = {
+    Attributes: {},
+    Variables: variables,
+    Apis: {},
+  };
+
+  const formulaCtx = buildFormulaContext(data, component);
+
   const bodyHtml = renderComponent(component, {
     apiCache,
     customProperties,
+    formulaCtx,
+    getComponent: options?.getComponent,
   });
-  
+
   return {
     html: bodyHtml,
     apiCache,
@@ -34,6 +59,37 @@ export function renderPageBody(component: Component): RenderResult {
 interface RenderContext {
   apiCache: Record<string, any>;
   customProperties: Record<string, string>;
+  formulaCtx: FormulaContext;
+  getComponent?: (name: string, packageName?: string) => Component | undefined;
+}
+
+/**
+ * Build a server-side FormulaContext
+ */
+function buildFormulaContext(data: ComponentData, component?: Component): FormulaContext {
+  return {
+    data,
+    component,
+    toddle: {
+      getCustomFormula: () => undefined,
+      errors: [],
+    },
+    env: {
+      isServer: true,
+    },
+  };
+}
+
+/**
+ * Safely evaluate a formula, returning null on error
+ */
+function safeApplyFormula(formula: Formula | undefined | null, ctx: FormulaContext): unknown {
+  if (!formula) return null;
+  try {
+    return applyFormula(formula, ctx);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -42,7 +98,7 @@ interface RenderContext {
 function renderComponent(component: Component, ctx: RenderContext): string {
   const nodes = component.nodes;
   const root = nodes['root'];
-  
+
   if (!root) {
     return '';
   }
@@ -59,32 +115,63 @@ function renderNode(node: NodeModel, allNodes: Record<string, NodeModel>, ctx: R
     return '<!-- max depth -->';
   }
 
-  // Check condition
-  // TODO: Evaluate condition formula
+  // Evaluate condition
+  if (node.condition) {
+    const conditionResult = safeApplyFormula(node.condition, ctx.formulaCtx);
+    if (!toBoolean(conditionResult)) {
+      return '';
+    }
+  }
 
   // Handle repeat
-  // TODO: Evaluate repeat formula
-
-  switch (node.type) {
-    case 'text':
-      return renderTextNode(node);
-    case 'element':
-      return renderElementNode(node, allNodes, ctx, depth);
-    case 'component':
-      return renderComponentNode(node, allNodes, ctx);
-    case 'slot':
-      return renderSlotNode(node, allNodes, ctx, depth);
-    default:
-      return '';
+  if (node.repeat) {
+    const items = safeApplyFormula(node.repeat, ctx.formulaCtx);
+    if (Array.isArray(items)) {
+      return items.map((item, index) => {
+        const repeatCtx: RenderContext = {
+          ...ctx,
+          formulaCtx: {
+            ...ctx.formulaCtx,
+            data: {
+              ...ctx.formulaCtx.data,
+              ListItem: { item, index },
+            },
+          },
+        };
+        return renderNodeInner(node, allNodes, repeatCtx, depth);
+      }).join('');
+    }
+    return '';
   }
+
+  return renderNodeInner(node, allNodes, ctx, depth);
+}
+
+/**
+ * Render a node's content (after condition/repeat evaluation)
+ */
+function renderNodeInner(node: NodeModel, allNodes: Record<string, NodeModel>, ctx: RenderContext, depth: number): string {
+  if (isTextNode(node)) {
+    return renderTextNode(node, ctx);
+  }
+  if (isElementNode(node)) {
+    return renderElementNode(node, allNodes, ctx, depth);
+  }
+  if (isComponentNode(node)) {
+    return renderComponentNode(node, allNodes, ctx, depth);
+  }
+  if (node.type === 'slot') {
+    return renderSlotNode(node, allNodes, ctx, depth);
+  }
+  return '';
 }
 
 /**
  * Render a text node
  */
-function renderTextNode(node: any): string {
-  const value = node.value?.type === 'value' ? String(node.value.value ?? '') : '';
-  const encoded = escapeHtml(value);
+function renderTextNode(node: NodeModel & { value?: Formula }, ctx: RenderContext): string {
+  const value = safeApplyFormula(node.value, ctx.formulaCtx);
+  const encoded = escapeHtml(String(value ?? ''));
   return `<span data-node-type="text" data-node-id="${node.id || ''}">${encoded}</span>`;
 }
 
@@ -96,7 +183,7 @@ function renderElementNode(node: any, allNodes: Record<string, NodeModel>, ctx: 
   const rawTag = node.tag || 'div';
   const tag = TAG_NAME_RE.test(rawTag) ? rawTag : 'div';
 
-  const attrs = buildAttributes(node.attrs);
+  const attrs = buildAttributes(node.attrs, ctx);
   const children = (node.children || [])
     .map((childId: string) => {
       const child = allNodes[childId];
@@ -114,10 +201,51 @@ function renderElementNode(node: any, allNodes: Record<string, NodeModel>, ctx: 
 /**
  * Render a component node
  */
-function renderComponentNode(node: any, allNodes: Record<string, NodeModel>, ctx: RenderContext): string {
-  // TODO: Look up and render actual component
+function renderComponentNode(node: any, allNodes: Record<string, NodeModel>, ctx: RenderContext, depth: number): string {
   const name = node.name || 'unknown';
-  return `<div data-component="${escapeHtml(name)}"><!-- component placeholder --></div>`;
+  const packageName = node.package;
+
+  // Look up sub-component if resolver is available
+  if (ctx.getComponent) {
+    const subComponent = ctx.getComponent(name, packageName);
+    if (subComponent) {
+      // Build component data from attributes passed to the component node
+      const attrs: Record<string, unknown> = {};
+      for (const [attrName, formula] of Object.entries(node.attrs ?? {})) {
+        attrs[attrName] = safeApplyFormula(formula as Formula, ctx.formulaCtx);
+      }
+
+      const variables: Record<string, unknown> = {};
+      for (const [varName, variable] of Object.entries(subComponent.variables ?? {}) as [string, any][]) {
+        if (variable.initialValue?.type === 'value') {
+          variables[varName] = variable.initialValue.value;
+        }
+      }
+
+      const subData: ComponentData = {
+        Attributes: attrs,
+        Variables: variables,
+        Apis: {},
+      };
+
+      const subCtx: RenderContext = {
+        ...ctx,
+        formulaCtx: buildFormulaContext(subData, subComponent),
+      };
+
+      return renderComponent(subComponent, subCtx);
+    }
+  }
+
+  // Fallback: render slot children if available
+  const children = (node.children || [])
+    .map((childId: string) => {
+      const child = allNodes[childId];
+      return child ? renderNode(child, allNodes, ctx, depth + 1) : '';
+    })
+    .join('');
+
+  return `<div data-component="${escapeHtml(name)}">${children}</div>`;
 }
 
 /**
@@ -137,15 +265,19 @@ function renderSlotNode(node: any, allNodes: Record<string, NodeModel>, ctx: Ren
 /**
  * Build HTML attributes string
  */
-function buildAttributes(attrs: Record<string, any> = {}): string {
+function buildAttributes(attrs: Record<string, any> = {}, ctx: RenderContext): string {
   const parts: string[] = [];
 
   for (const [key, value] of Object.entries(attrs)) {
     // Validate attribute name to prevent injection
     if (!ATTR_NAME_RE.test(key)) continue;
 
-    // TODO: Evaluate formula
-    const attrValue = value?.type === 'value' ? value.value : '';
+    const attrValue = safeApplyFormula(value, ctx.formulaCtx);
+    if (attrValue === null || attrValue === undefined || attrValue === false) continue;
+    if (attrValue === true) {
+      parts.push(` ${key}`);
+      continue;
+    }
     const encoded = escapeHtml(String(attrValue));
     parts.push(` ${key}="${encoded}"`);
   }

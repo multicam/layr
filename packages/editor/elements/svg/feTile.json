@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "feTile",
+    "categories": [
+      "svg"
+    ],
+    "description": "Tile filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTile",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feTile",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -92,6 +92,7 @@ export interface TriggerWorkflowAction {
   type: 'TriggerWorkflow';
   name: string;
   parameters?: Array<{ name: string; formula?: Formula }>;
+  callbacks?: Record<string, { actions: ActionModel[] }>;
   componentName?: string;
   package?: string;
 }

@@ -2,10 +2,13 @@
  * Backend Server
  */
 
+import { join } from 'path';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { handlePage } from './routes/page';
 import { listProjects } from './loader/project';
+import { staticMiddleware } from './static/index';
+import { escapeHtml } from '@layr/ssr';
 
 const app = new Hono();
 
@@ -18,19 +21,14 @@ app.get('/api/projects', (c) => {
   return c.json({ projects });
 });
 
-app.get('/_static/*', (c) => {
-  return c.text('Static assets not yet implemented', 501);
-});
+app.use('/_static/*', staticMiddleware(
+  join(import.meta.dir, '..', '..', '..', '..', 'static')
+));
 
 app.get('/:projectId/*', async (c) => {
   const projectId = c.req.param('projectId');
   return handlePage(c, projectId);
 });
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
 
 app.get('/', (c) => {
   const projects = listProjects();

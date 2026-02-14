@@ -24,16 +24,15 @@ export function StylesTab({ node, componentId, nodeId }: StylesTabProps) {
   const styles = 'style' in node ? (node.style ?? {}) : {};
 
   const setStyle = (property: string, value: string) => {
-    const currentStyle = 'style' in node ? (node.style ?? {}) : {};
-    const newStyle = { ...currentStyle };
-
+    const currentStyle = 'style' in node ? { ...(node.style ?? {}) } : {};
+    
     if (value === '') {
-      delete newStyle[property];
+      delete currentStyle[property];
     } else {
-      newStyle[property] = { type: 'value' as const, value };
+      currentStyle[property] = value;
     }
 
-    updateNode(componentId, nodeId, { style: newStyle } as Partial<NodeModel>);
+    updateNode(componentId, nodeId, { style: currentStyle } as Partial<NodeModel>);
   };
 
   return (
@@ -45,7 +44,7 @@ export function StylesTab({ node, componentId, nodeId }: StylesTabProps) {
           <TextField
             key={key}
             label={label}
-            value={styles[key]?.type === 'value' ? String(styles[key].value ?? '') : ''}
+            value={styles[key] ?? ''}
             onChange={(v) => setStyle(key, v)}
             placeholder={key}
           />

@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "name": "ul",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Unordered list",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
+    "aliases": [
+      "list"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "ul",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

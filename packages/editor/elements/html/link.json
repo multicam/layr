@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "link",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Link element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "link",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

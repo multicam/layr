@@ -19,6 +19,35 @@ export interface ThemePropertyDefinition {
   description?: string;
 }
 
+/**
+ * Complete theme definition with multiple variants (light/dark)
+ */
+export interface ThemeDefinition {
+  id: string;
+  displayName: string;
+  description: string;
+  default: string;
+  defaultDark?: string;
+  defaultLight?: string;
+  themes: Record<string, Theme>;
+}
+
+// ============================================================================
+// Project Theme Config
+// ============================================================================
+
+/**
+ * Theme configuration stored in project config
+ */
+export interface ProjectThemeConfig {
+  /** Selected theme definition ID (e.g., 'minimal', 'brutalism') */
+  themeId: string;
+  /** Active variant ('light', 'dark', or specific theme name) */
+  activeVariant: 'light' | 'dark' | string;
+  /** Whether to use system preference for dark mode */
+  followSystem?: boolean;
+}
+
 // ============================================================================
 // Design Tokens
 // ============================================================================

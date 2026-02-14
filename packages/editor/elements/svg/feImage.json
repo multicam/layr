@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "feImage",
+    "categories": [
+      "svg"
+    ],
+    "description": "Image filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feImage",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feImage",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

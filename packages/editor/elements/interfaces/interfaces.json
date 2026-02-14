@@ -1,0 +1,969 @@
+{
+  "HTMLElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLDivElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLSpanElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLParagraphElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLAnchorElement": {
+    "attributes": {
+      "href": {
+        "description": "Link URL"
+      },
+      "target": {
+        "description": "Target frame",
+        "values": [
+          "_self",
+          "_blank",
+          "_parent",
+          "_top"
+        ]
+      },
+      "rel": {
+        "description": "Relationship"
+      },
+      "download": {
+        "description": "Download filename"
+      }
+    },
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLImageElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLInputElement": {
+    "attributes": {
+      "type": {
+        "description": "Input type",
+        "values": [
+          "text",
+          "password",
+          "email",
+          "number",
+          "tel",
+          "url",
+          "search",
+          "date",
+          "datetime-local",
+          "time",
+          "week",
+          "month",
+          "color",
+          "file",
+          "checkbox",
+          "radio",
+          "range",
+          "hidden",
+          "submit",
+          "reset",
+          "button",
+          "image"
+        ]
+      },
+      "value": {
+        "description": "Current value"
+      },
+      "placeholder": {
+        "description": "Placeholder text"
+      },
+      "disabled": {
+        "description": "Disable the input"
+      },
+      "required": {
+        "description": "Mark as required"
+      },
+      "readonly": {
+        "description": "Make read-only"
+      },
+      "min": {
+        "description": "Minimum value"
+      },
+      "max": {
+        "description": "Maximum value"
+      },
+      "step": {
+        "description": "Step value"
+      },
+      "pattern": {
+        "description": "Validation pattern"
+      }
+    },
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLButtonElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLFormElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLSelectElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLTextAreaElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLTableElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLVideoElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLAudioElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLCanvasElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "HTMLIFrameElement": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "Element": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "Node": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  },
+  "EventTarget": {
+    "attributes": {},
+    "events": {
+      "click": {
+        "description": "Fired on mouse click"
+      },
+      "dblclick": {
+        "description": "Fired on double click"
+      },
+      "mousedown": {
+        "description": "Fired when mouse button is pressed"
+      },
+      "mouseup": {
+        "description": "Fired when mouse button is released"
+      },
+      "mousemove": {
+        "description": "Fired when mouse is moved"
+      },
+      "mouseover": {
+        "description": "Fired when mouse enters element"
+      },
+      "mouseout": {
+        "description": "Fired when mouse leaves element"
+      },
+      "focus": {
+        "description": "Fired when element receives focus"
+      },
+      "blur": {
+        "description": "Fired when element loses focus"
+      },
+      "keydown": {
+        "description": "Fired when key is pressed"
+      },
+      "keyup": {
+        "description": "Fired when key is released"
+      },
+      "change": {
+        "description": "Fired when value changes"
+      },
+      "input": {
+        "description": "Fired on input"
+      },
+      "submit": {
+        "description": "Fired on form submit"
+      }
+    }
+  }
+}

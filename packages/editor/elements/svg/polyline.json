@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "polyline",
+    "categories": [
+      "svg"
+    ],
+    "description": "Polyline shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "polyline",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

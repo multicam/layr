@@ -4,7 +4,7 @@
 ## Priority: HIGH
 ## Created: 2026-02-14
 ## Completed: 2026-02-14
-## Decision: V2 is the baseline - remove all v1/legacy code from codebase
+## Decision: V2 is the baseline - all v1/legacy code removed
 
 ---
 
@@ -35,14 +35,18 @@ Removed all v1/legacy compatibility code from the codebase. V2 is now the only s
 - `isLegacyPluginAction` tests (`packages/runtime/src/custom-code/index.test.ts`)
 - `getFormula` mock references from all test contexts (evaluate.test.ts, advanced.test.ts, lib/index.test.ts, template/index.test.ts, FormulaPreview.tsx)
 
-### Specs
-- Cleaned v1 references from all remaining spec files
+### Specs (Updated)
+- All remaining spec files cleaned of v1 references
+
+---
 
 ## What Was Already Gone (Pre-Existing)
 - Legacy API files (`createAPI.ts`, `LegacyToddleApi.ts`, `isLegacyApi()`)
 - `packages/search/` directory (linting rules never implemented)
 - `clearLegacyFormulas()`, `clearLegacyActions()` functions
 - `toddle.legacyFormulas`, `toddle.legacyActions` maps
+
+---
 
 ## What Was Kept (Not Legacy)
 - `RecordOperation` type — deprecated alias for `object`, but needed for project data backwards compatibility
@@ -54,8 +58,9 @@ Removed all v1/legacy compatibility code from the codebase. V2 is now the only s
 
 ## Verification
 
-- All 751 tests passing (0 failures)
-- Build succeeds
-- No `isLegacy*` functions remain (except `isLegacy` pattern matches in spec docs being cleaned)
-- No `OldTheme` or `V1Theme` types
-- No legacy ToddleGlobal stubs
+- ✅ All 751 tests passing (0 failures)
+- ✅ Build succeeds
+- ✅ No `isLegacy*` functions remain in code
+- ✅ No `OldTheme` or `V1Theme` types
+- ✅ No legacy ToddleGlobal stubs
+- ✅ Specs updated to reflect V2-only baseline

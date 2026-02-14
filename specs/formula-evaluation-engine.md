@@ -45,7 +45,7 @@ Formula =
   | AndOperation         // { type: 'and', arguments: Array<{ formula }> }
   | FunctionOperation    // { type: 'function', name, package?, arguments: FunctionArgument[] }
   | ObjectOperation      // { type: 'object', arguments?: FunctionArgument[] }
-  | RecordOperation      // { type: 'record', entries: FunctionArgument[] }
+  | RecordOperation      // { type: 'record', arguments?: FunctionArgument[] }
   | ArrayOperation       // { type: 'array', arguments: Array<{ formula }> }
   | ApplyOperation       // { type: 'apply', name, arguments: FunctionArgument[] }
 ```
@@ -166,11 +166,11 @@ Object.fromEntries(
 
 ### record
 
-Legacy alias for `object`. Uses `formula.entries` instead of `formula.arguments`:
+Legacy alias for `object`. Identical behavior and field structure:
 
 ```
 Object.fromEntries(
-  formula.entries.map(entry => [entry.name, applyFormula(entry.formula, ctx)])
+  formula.arguments.map(entry => [entry.name, applyFormula(entry.formula, ctx)])
 )
 ```
 
@@ -315,7 +315,7 @@ A generator function that yields all formulas (and sub-formulas) in a formula tr
 
 **Traversal rules per type:**
 - `path`, `value`: Leaf nodes — no recursion
-- `record`: Recurse into each `entries[i].formula`
+- `record`: Recurse into each `arguments[i].formula`
 - `function`: Recurse into arguments, then (if not already visited) follow into the global formula's definition
 - `array`, `or`, `and`, `object`: Recurse into each `arguments[i].formula`
 - `apply`: Recurse into each `arguments[i].formula`

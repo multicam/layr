@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "path",
+    "categories": [
+      "svg"
+    ],
+    "description": "Path shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path",
+    "isPopular": true,
+    "interfaces": [
+      "SVGPathElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "path",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

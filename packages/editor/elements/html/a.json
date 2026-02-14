@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "name": "a",
+    "categories": [
+      "typography"
+    ],
+    "description": "Hyperlink",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+    "aliases": [
+      "link",
+      "anchor"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "HTMLAnchorElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "a",
+        "attrs": {
+          "href": {
+            "type": "value",
+            "value": "/"
+          },
+          "data-prerender": {
+            "type": "value",
+            "value": "moderate"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Link"
+        }
+      }
+    }
+  }
+}

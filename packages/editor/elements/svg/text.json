@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "text",
+    "categories": [
+      "svg"
+    ],
+    "description": "Text element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
+    "interfaces": [
+      "SVGTextElement",
+      "SVGTextPositioningElement",
+      "SVGTextContentElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "text",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

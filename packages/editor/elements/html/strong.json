@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "name": "strong",
+    "categories": [
+      "typography"
+    ],
+    "description": "Strong emphasis",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong",
+    "aliases": [
+      "bold"
+    ],
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "strong",
+        "attrs": {},
+        "style": {
+          "fontWeight": {
+            "type": "value",
+            "value": "bold"
+          }
+        },
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Bold text"
+        }
+      }
+    }
+  }
+}

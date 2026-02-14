@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "name": "option",
+    "categories": [
+      "form"
+    ],
+    "description": "Select option",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option",
+    "permittedParents": [
+      "select",
+      "datalist",
+      "optgroup"
+    ],
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "option",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Option"
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 /**
  * Action Execution Engine
- * Based on specs/action-system.md
+ * Based on specs/action-system.md and specs/workflow-system.md
  */
 
 import type {
@@ -15,6 +15,7 @@ import type {
   SetURLParametersAction,
   TriggerWorkflowAction,
   WorkflowCallbackAction,
+  ComponentWorkflow,
 } from '@layr/types';
 import type { Signal } from '../signal/signal';
 import type { ComponentData } from '@layr/types';
@@ -29,6 +30,9 @@ export interface ActionContext {
   setUrlParameter: (key: string, value: string | null) => void;
   toddle: any;
   env: any;
+  providers?: Record<string, { component: any; ctx: ActionContext }>;
+  package?: string;
+  applyFormula?: (formula: any, ctx: any) => unknown;
 }
 
 // Maximum action depth
@@ -40,6 +44,8 @@ const MAX_ACTION_DEPTH = 100;
 export function handleAction(
   action: ActionModel,
   ctx: ActionContext,
+  event?: any,
+  workflowCallback?: (name: string, data: unknown) => void,
   depth: number = 0
 ): void {
   // Depth check
@@ -55,15 +61,15 @@ export function handleAction(
         break;
 
       case 'TriggerEvent':
-        handleTriggerEvent(action, ctx);
+        handleTriggerEvent(action, ctx, event);
         break;
 
       case 'Switch':
-        handleSwitch(action, ctx, depth);
+        handleSwitch(action, ctx, event, workflowCallback, depth);
         break;
 
       case 'Fetch':
-        handleFetch(action, ctx);
+        handleFetch(action, ctx, event, workflowCallback);
         break;
 
       case 'AbortFetch':
@@ -71,7 +77,7 @@ export function handleAction(
         break;
 
       case 'Custom':
-        handleCustom(action, ctx, depth);
+        handleCustom(action, ctx, event, workflowCallback, depth);
         break;
 
       case 'SetURLParameter':
@@ -83,11 +89,11 @@ export function handleAction(
         break;
 
       case 'TriggerWorkflow':
-        handleTriggerWorkflow(action, ctx, depth);
+        handleTriggerWorkflow(action, ctx, event, workflowCallback, depth);
         break;
 
       case 'TriggerWorkflowCallback':
-        handleWorkflowCallback(action, ctx);
+        handleWorkflowCallback(action, ctx, event, workflowCallback);
         break;
 
       default:
@@ -103,40 +109,70 @@ export function handleAction(
 // ============================================================================
 
 function handleSetVariable(action: SetVariableAction, ctx: ActionContext): void {
-  // This would use applyFormula to evaluate action.data
-  // For now, placeholder
-  console.log('SetVariable:', action.name);
+  // Evaluate the formula for the variable value
+  let value: unknown = null;
+  if (ctx.applyFormula && action.data) {
+    value = ctx.applyFormula(action.data, ctx);
+  }
+  
+  // Update the data signal
+  ctx.dataSignal.update(data => ({
+    ...data,
+    Variables: {
+      ...data.Variables,
+      [action.name]: value,
+    },
+  }));
 }
 
-function handleTriggerEvent(action: TriggerEventAction, ctx: ActionContext): void {
-  // Evaluate data formula and trigger event
-  ctx.triggerEvent(action.name, null); // Placeholder
+function handleTriggerEvent(action: TriggerEventAction, ctx: ActionContext, event?: any): void {
+  // Evaluate data formula
+  let data: unknown = null;
+  if (ctx.applyFormula && action.data) {
+    data = ctx.applyFormula(action.data, { ...ctx, Event: event });
+  }
+  
+  ctx.triggerEvent(action.name, data);
 }
 
-function handleSwitch(action: SwitchAction, ctx: ActionContext, depth: number): void {
+function handleSwitch(
+  action: SwitchAction, 
+  ctx: ActionContext, 
+  event: any,
+  workflowCallback: ((name: string, data: unknown) => void) | undefined,
+  depth: number
+): void {
   // Evaluate each case
   for (const case_ of action.cases) {
     // Evaluate condition
-    const condition = false; // Placeholder - would use applyFormula
+    let condition = false;
+    if (ctx.applyFormula && case_.condition) {
+      condition = !!ctx.applyFormula(case_.condition, { ...ctx, Event: event });
+    }
 
     if (condition) {
       // Execute actions
       for (const subAction of case_.actions) {
-        handleAction(subAction, ctx, depth + 1);
+        handleAction(subAction, ctx, event, workflowCallback, depth + 1);
       }
       return;
     }
   }
 
   // Execute default
-  if (action.default) {
+  if (action.default?.actions) {
     for (const subAction of action.default.actions) {
-      handleAction(subAction, ctx, depth + 1);
+      handleAction(subAction, ctx, event, workflowCallback, depth + 1);
     }
   }
 }
 
-function handleFetch(action: FetchAction, ctx: ActionContext): void {
+function handleFetch(
+  action: FetchAction, 
+  ctx: ActionContext,
+  event: any,
+  workflowCallback: ((name: string, data: unknown) => void) | undefined
+): void {
   // Trigger API fetch
   const api = ctx.apis[action.name];
   if (!api) {
@@ -144,7 +180,46 @@ function handleFetch(action: FetchAction, ctx: ActionContext): void {
     return;
   }
 
-  // api.fetch() would be called here
+  // Evaluate input formulas
+  const inputs: Record<string, unknown> = {};
+  if (ctx.applyFormula && action.inputs) {
+    for (const input of action.inputs) {
+      if (input.formula) {
+        inputs[input.name] = ctx.applyFormula(input.formula, { ...ctx, Event: event });
+      }
+    }
+  }
+
+  // Create callback handlers
+  const callbacks = {
+    onSuccess: (data: unknown) => {
+      if (action.onSuccess?.actions) {
+        const callbackCtx = { ...ctx };
+        for (const subAction of action.onSuccess.actions) {
+          handleAction(subAction, callbackCtx, data, workflowCallback);
+        }
+      }
+    },
+    onError: (error: unknown) => {
+      if (action.onError?.actions) {
+        for (const subAction of action.onError.actions) {
+          handleAction(subAction, ctx, error, workflowCallback);
+        }
+      }
+    },
+    onMessage: (message: unknown) => {
+      if (action.onMessage?.actions) {
+        for (const subAction of action.onMessage.actions) {
+          handleAction(subAction, ctx, message, workflowCallback);
+        }
+      }
+    },
+  };
+
+  // Call fetch with inputs and callbacks
+  if (api.fetch) {
+    api.fetch({ inputs, callbacks });
+  }
 }
 
 function handleAbortFetch(action: AbortFetchAction, ctx: ActionContext): void {
@@ -154,46 +229,172 @@ function handleAbortFetch(action: AbortFetchAction, ctx: ActionContext): void {
   }
 }
 
-function handleCustom(action: CustomAction, ctx: ActionContext, depth: number): void {
+function handleCustom(
+  action: CustomAction, 
+  ctx: ActionContext, 
+  event: any,
+  workflowCallback: ((name: string, data: unknown) => void) | undefined,
+  depth: number
+): void {
   // Look up custom action handler
-  const handler = ctx.toddle?.actions?.[action.name];
+  const handler = ctx.toddle?.getCustomAction?.(action.name, ctx.package);
 
   if (!handler) {
     console.warn(`Custom action not found: ${action.name}`);
     return;
   }
 
-  // Execute with arguments
-  // Would evaluate arguments and call handler
+  // Evaluate arguments
+  const args: Record<string, unknown> = {};
+  if (ctx.applyFormula && action.arguments) {
+    for (const arg of action.arguments) {
+      args[arg.name] = ctx.applyFormula(arg.formula, { ...ctx, Event: event });
+    }
+  }
+
+  // Create trigger function for nested events
+  const triggerActionEvent = (triggerName: string, triggerData: unknown) => {
+    const eventActions = (action as any).events?.[triggerName]?.actions;
+    if (eventActions) {
+      for (const subAction of eventActions) {
+        handleAction(subAction, ctx, triggerData, workflowCallback, depth + 1);
+      }
+    }
+  };
+
+  // Execute handler
+  const result = handler(args, { root: document, triggerActionEvent }, event);
+  
+  // Handle cleanup function
+  if (typeof result === 'function') {
+    ctx.dataSignal.subscribe(() => {}, { 
+      destroy: result 
+    });
+  } else if (result?.then && typeof result.then === 'function') {
+    result.then((cleanup: unknown) => {
+      if (typeof cleanup === 'function') {
+        ctx.dataSignal.subscribe(() => {}, { destroy: cleanup });
+      }
+    });
+  }
 }
 
 function handleSetUrlParameter(action: SetURLParameterAction, ctx: ActionContext): void {
-  // Evaluate data and set URL parameter
-  ctx.setUrlParameter(action.name, null); // Placeholder
+  // Evaluate data formula
+  let value: string | null = null;
+  if (ctx.applyFormula && action.data) {
+    value = ctx.applyFormula(action.data, ctx) as string | null;
+  }
+  
+  ctx.setUrlParameter(action.name, value);
 }
 
 function handleSetUrlParameters(action: SetURLParametersAction, ctx: ActionContext): void {
   for (const param of action.parameters) {
     // Evaluate param.formula and set
-    ctx.setUrlParameter(param.name, null); // Placeholder
+    let value: string | null = null;
+    if (ctx.applyFormula && param.formula) {
+      value = ctx.applyFormula(param.formula, ctx) as string | null;
+    }
+    ctx.setUrlParameter(param.name, value);
   }
 }
 
-function handleTriggerWorkflow(action: TriggerWorkflowAction, ctx: ActionContext, depth: number): void {
-  if (ctx.triggerWorkflow) {
-    // Evaluate parameters
-    const params: Record<string, unknown> = {};
-    for (const param of action.parameters ?? []) {
-      // params[param.name] = applyFormula(param.formula, ...)
+function handleTriggerWorkflow(
+  action: TriggerWorkflowAction, 
+  ctx: ActionContext,
+  event: any,
+  outerCallback: ((name: string, data: unknown) => void) | undefined,
+  depth: number
+): void {
+  // Find workflow
+  let workflow: ComponentWorkflow | undefined;
+  let workflowCtx = ctx;
+  
+  if (action.componentName) {
+    // Context provider workflow - look up in providers
+    const providerKey = ctx.package
+      ? `${ctx.package}/${action.componentName}`
+      : action.componentName;
+
+    const provider = ctx.providers?.[providerKey] ?? ctx.providers?.[action.componentName];
+
+    if (!provider) {
+      console.warn(`Context provider not found: ${action.componentName}`);
+      return;
     }
 
-    ctx.triggerWorkflow(action.name, params);
+    workflow = provider.component.workflows?.[action.name];
+    workflowCtx = provider.ctx;
+
+    if (!workflow) {
+      console.warn(`Workflow ${action.name} not found on provider ${action.componentName}`);
+      return;
+    }
+  } else {
+    // Local workflow
+    workflow = ctx.component.workflows?.[action.name];
+
+    if (!workflow) {
+      console.warn(`Workflow ${action.name} does not exist on component ${ctx.component?.name}`);
+      return;
+    }
+  }
+  
+  // Evaluate parameters in caller's context
+  const params: Record<string, unknown> = {};
+  if (ctx.applyFormula && action.parameters) {
+    for (const param of action.parameters) {
+      if (param.formula) {
+        params[param.name] = ctx.applyFormula(param.formula, { ...ctx, Event: event });
+      }
+    }
+  }
+  
+  // Create callback handler
+  const callbackHandler = (callbackName: string, callbackData: unknown) => {
+    const callback = action.callbacks?.[callbackName];
+    if (callback?.actions) {
+      // Callbacks execute in caller's context
+      const callbackDataCtx = {
+        ...ctx,
+        Event: callbackData,
+        Parameters: params,
+      };
+      
+      for (const subAction of callback.actions) {
+        handleAction(subAction, callbackDataCtx, callbackData, outerCallback, depth + 1);
+      }
+    }
+  };
+  
+  // Execute workflow actions in workflow owner's context
+  const workflowData = {
+    ...workflowCtx.dataSignal.get(),
+    Parameters: params,
+  };
+  
+  for (const subAction of workflow.actions) {
+    handleAction(subAction, workflowCtx, event, callbackHandler, depth + 1);
   }
 }
 
-function handleWorkflowCallback(action: WorkflowCallbackAction, ctx: ActionContext): void {
-  if (ctx.workflowCallback) {
-    // Evaluate data
-    ctx.workflowCallback(action.name, null); // Placeholder
+function handleWorkflowCallback(
+  action: WorkflowCallbackAction, 
+  ctx: ActionContext,
+  event: any,
+  workflowCallback: ((name: string, data: unknown) => void) | undefined
+): void {
+  if (!workflowCallback) {
+    console.warn('TriggerWorkflowCallback used outside of workflow context');
+    return;
   }
+  
+  // Evaluate data formula
+  let data: unknown = null;
+  if (ctx.applyFormula && action.data) {
+    data = ctx.applyFormula(action.data, { ...ctx, Event: event });
+  }
+  
+  workflowCallback(action.name, data);
 }

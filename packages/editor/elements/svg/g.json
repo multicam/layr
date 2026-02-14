@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "name": "g",
+    "categories": [
+      "svg"
+    ],
+    "description": "Group element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g",
+    "aliases": [
+      "group"
+    ],
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "g",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

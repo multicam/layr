@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "kbd",
+    "categories": [
+      "typography"
+    ],
+    "description": "Keyboard input",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "kbd",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

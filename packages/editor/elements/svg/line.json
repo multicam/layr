@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "line",
+    "categories": [
+      "svg"
+    ],
+    "description": "Line shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line",
+    "isPopular": true,
+    "interfaces": [
+      "SVGLineElement",
+      "SVGGeometryElement",
+      "SVGGraphicsElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "line",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

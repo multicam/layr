@@ -1,15 +1,7 @@
 import type { Context } from 'hono';
 import { loadProject } from '../loader/project';
 import type { Project } from '@layr/types';
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { renderPageBody, escapeHtml } from '@layr/ssr';
 
 interface PageRouteParams {
   projectId: string;
@@ -105,21 +97,26 @@ export async function handlePage(c: Context, projectId: string): Promise<Respons
 }
 
 /**
- * Render a page to HTML (placeholder for SSR)
+ * Render a page to HTML using SSR
  */
 function renderPage(project: Project, pageName: string, params: Record<string, string | null>): string {
   const page = project.files?.components?.[pageName];
-  
+
   if (!page) {
     return '<html><body><h1>Page component not found</h1></body></html>';
   }
-  
-  // TODO: Implement actual SSR rendering
+
+  const getComponent = (name: string, packageName?: string) => {
+    return project.files?.components?.[name];
+  };
+
+  const { html: bodyHtml } = renderPageBody(page, { getComponent });
+
   const safeName = escapeHtml(pageName);
-  const safeParams = escapeHtml(JSON.stringify(params));
   const jsonData = JSON.stringify({
     project: project.project?.short_id || 'unknown',
     page: pageName,
+    params,
   }).replace(/</g, '\\u003c');
 
   return `<!DOCTYPE html>
@@ -131,9 +128,7 @@ function renderPage(project: Project, pageName: string, params: Record<string, s
 </head>
 <body>
   <div id="App">
-    <h1>${safeName}</h1>
-    <p>Params: ${safeParams}</p>
-    <p>SSR rendering not yet implemented</p>
+    ${bodyHtml}
   </div>
   <script type="application/json" id="layr-data">
     ${jsonData}

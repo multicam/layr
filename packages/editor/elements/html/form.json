@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "form",
+    "categories": [
+      "form"
+    ],
+    "description": "Form container",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form",
+    "isPopular": true,
+    "interfaces": [
+      "HTMLFormElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "form",
+        "attrs": {
+          "action": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

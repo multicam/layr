@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "name": "code",
+    "categories": [
+      "typography"
+    ],
+    "description": "Code fragment",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "code",
+        "attrs": {},
+        "style": {
+          "fontFamily": {
+            "type": "value",
+            "value": "monospace"
+          }
+        },
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "code"
+        }
+      }
+    }
+  }
+}

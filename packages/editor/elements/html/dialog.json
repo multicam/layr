@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "dialog",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Dialog box",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "dialog",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

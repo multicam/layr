@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "blockquote",
+    "categories": [
+      "typography"
+    ],
+    "description": "Block quotation",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "blockquote",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Quote"
+        }
+      }
+    }
+  }
+}

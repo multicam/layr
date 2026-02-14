@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "feComposite",
+    "categories": [
+      "svg"
+    ],
+    "description": "Composite filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feComposite",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feComposite",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "feDistantLight",
+    "categories": [
+      "svg"
+    ],
+    "description": "Distant light filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDistantLight",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feDistantLight",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

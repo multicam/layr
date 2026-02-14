@@ -5,6 +5,7 @@
 
 import type { ActionModel, ComponentData } from '@layr/types';
 import type { Signal } from '@layr/core';
+import { handleAction } from '@layr/core';
 
 export interface EventHandler {
   actions: ActionModel[];
@@ -140,7 +141,15 @@ function executeAction(
   ctx: EventContext,
   eventData: Record<string, unknown>
 ): void {
-  console.log('Execute action:', action.type);
+  handleAction(action, {
+    dataSignal: ctx.dataSignal,
+    apis: ctx.apis,
+    component: ctx.component,
+    triggerEvent: ctx.triggerEvent,
+    setUrlParameter: ctx.setUrlParameter,
+    toddle: ctx.toddle,
+    env: ctx.env,
+  }, eventData);
 }
 
 export const EventConfigs = {

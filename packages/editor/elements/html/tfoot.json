@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "name": "tfoot",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Table footer",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot",
+    "permittedChildren": [
+      "tr"
+    ],
+    "permittedParents": [
+      "table"
+    ],
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "tfoot",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Text"
+        }
+      }
+    }
+  }
+}

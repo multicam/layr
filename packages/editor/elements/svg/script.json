@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "script",
+    "categories": [
+      "svg"
+    ],
+    "description": "SVG script",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/script",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "script",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

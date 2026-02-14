@@ -1,5 +1,5 @@
 // Signal
-export { Signal, createSignal } from './signal/signal';
+export { Signal, createSignal, isSignal } from './signal/signal';
 
 // Formula
 export { applyFormula, toBoolean } from './formula/evaluate';

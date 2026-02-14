@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "name": "track",
+    "categories": [
+      "media"
+    ],
+    "description": "Text track",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "track",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          },
+          "kind": {
+            "type": "value",
+            "value": "subtitles"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

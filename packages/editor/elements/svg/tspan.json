@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "tspan",
+    "categories": [
+      "svg"
+    ],
+    "description": "Text span",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "tspan",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

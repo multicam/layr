@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "polygon",
+    "categories": [
+      "svg"
+    ],
+    "description": "Polygon shape",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "polygon",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

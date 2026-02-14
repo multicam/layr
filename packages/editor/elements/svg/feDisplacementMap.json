@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "feDisplacementMap",
+    "categories": [
+      "svg"
+    ],
+    "description": "Displacement map filter",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feDisplacementMap",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feDisplacementMap",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

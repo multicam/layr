@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "feFuncR",
+    "categories": [
+      "svg"
+    ],
+    "description": "Red function",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncR",
+    "isVoid": true,
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feFuncR",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

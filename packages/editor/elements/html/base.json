@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "base",
+    "categories": [
+      "semantic"
+    ],
+    "description": "Base URL",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "base",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "feFuncG",
+    "categories": [
+      "svg"
+    ],
+    "description": "Green function",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feFuncG",
+    "isVoid": true,
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "feFuncG",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 import { ComponentTree } from '../tree/ComponentTree';
 import { ElementCatalog } from '../elements';
+import { ThemeSelector } from '../inspector/ThemeSelector';
 
-type Tab = 'tree' | 'elements';
+type Tab = 'tree' | 'elements' | 'theme';
 
 export function Sidebar() {
   const [tab, setTab] = useState<Tab>('tree');
@@ -34,12 +35,24 @@ export function Sidebar() {
         >
           Elements
         </button>
+        <button
+          onClick={() => setTab('theme')}
+          className={clsx(
+            'flex-1 px-3 py-2 text-sm font-medium',
+            tab === 'theme'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Theme
+        </button>
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         {tab === 'tree' && <ComponentTree />}
         {tab === 'elements' && <ElementCatalog />}
+        {tab === 'theme' && <div className="p-4"><ThemeSelector /></div>}
       </div>
     </div>
   );

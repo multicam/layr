@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Project, Component, NodeModel } from '@layr/types';
+import type { Project, Component, NodeModel, ProjectThemeConfig } from '@layr/types';
 
 interface ProjectState {
   project: Project | null;
@@ -14,6 +14,7 @@ interface ProjectState {
   removeNode: (componentId: string, nodeId: string) => void;
   moveNode: (componentId: string, nodeId: string, newParentId: string, index: number) => void;
   updateNode: (componentId: string, nodeId: string, updates: Partial<NodeModel>) => void;
+  setThemeConfig: (config: ProjectThemeConfig) => void;
 }
 
 export const useProjectStore = create<ProjectState>()(
@@ -120,6 +121,15 @@ export const useProjectStore = create<ProjectState>()(
       if (node) {
         Object.assign(node, updates);
       }
+    }),
+    
+    setThemeConfig: (config) => set((state) => {
+      if (!state.project) return;
+      if (!state.project.files?.config) {
+        state.project.files = state.project.files || {};
+        state.project.files.config = {};
+      }
+      state.project.files!.config!.theme = config;
     }),
   }))
 );

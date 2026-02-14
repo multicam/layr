@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "name": "button",
+    "categories": [
+      "form"
+    ],
+    "description": "Button element",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
+    "isPopular": true,
+    "interfaces": [
+      "HTMLButtonElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "button",
+        "attrs": {
+          "type": {
+            "type": "value",
+            "value": "button"
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": [
+          "text"
+        ]
+      },
+      "text": {
+        "id": "text",
+        "type": "text",
+        "value": {
+          "type": "value",
+          "value": "Button"
+        }
+      }
+    }
+  }
+}

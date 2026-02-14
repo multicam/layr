@@ -125,18 +125,35 @@ export class Signal<T> {
   }
 
   /**
-   * Create a derived signal with automatic cleanup
+   * Destroy all subscribers without destroying the signal itself.
+   * Used by the editor for preview re-rendering.
+   */
+  cleanSubscribers(): void {
+    for (const subscriber of this.subscribers) {
+      try {
+        subscriber.destroy?.();
+      } catch (e) {
+        console.error('Error in cleanSubscribers destroy callback:', e);
+      }
+    }
+    this.subscribers.clear();
+  }
+
+  /**
+   * Create a derived signal with automatic cleanup.
+   * Parent destruction cascades to derived signal via subscriber destroy callback.
    */
   map<T2>(fn: (value: T) => T2): Signal<T2> {
     // Create derived signal with initial value
     const derived = new Signal<T2>(fn(this.value));
 
-    // Subscribe to parent
-    const unsubscribe = this.subscribe((value) => {
-      derived.set(fn(value));
-    });
+    // Subscribe to parent — destroy callback cascades parent destruction to child
+    const unsubscribe = this.subscribe(
+      (value) => derived.set(fn(value)),
+      { destroy: () => derived.destroy() }
+    );
 
-    // When parent destroys, also destroy child
+    // When derived is destroyed directly, unsubscribe from parent first
     const originalDestroy = derived.destroy.bind(derived);
     derived.destroy = () => {
       unsubscribe();
@@ -152,4 +169,11 @@ export class Signal<T> {
  */
 export function createSignal<T>(initialValue: T, config?: SignalConfig): Signal<T> {
   return new Signal(initialValue, config);
+}
+
+/**
+ * Type guard for Signal instances
+ */
+export function isSignal(value: unknown): value is Signal<unknown> {
+  return value instanceof Signal;
 }

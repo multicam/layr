@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "name": "svg",
+    "categories": [
+      "svg",
+      "semantic"
+    ],
+    "description": "SVG root",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
+    "aliases": [
+      "vector"
+    ],
+    "isPopular": true,
+    "interfaces": [
+      "SVGSVGElement",
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "svg",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

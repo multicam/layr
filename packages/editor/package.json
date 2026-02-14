@@ -29,7 +29,8 @@
     "tailwind-merge": "^2.2.0",
     "@layr/types": "workspace:*",
     "@layr/core": "workspace:*",
-    "@layr/runtime": "workspace:*"
+    "@layr/runtime": "workspace:*",
+    "@layr/themes": "workspace:*"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",

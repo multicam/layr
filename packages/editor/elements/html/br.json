@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "br",
+    "categories": [
+      "typography"
+    ],
+    "description": "Line break",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
+    "isVoid": true,
+    "interfaces": [
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "br",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

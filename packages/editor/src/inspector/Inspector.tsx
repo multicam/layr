@@ -3,6 +3,8 @@ import { PropertiesTab } from './tabs/PropertiesTab';
 import { StylesTab } from './tabs/StylesTab';
 import { EventsTab } from './tabs/EventsTab';
 import { AnimationTab } from './tabs/AnimationTab';
+import { AdvancedTab } from './tabs/AdvancedTab';
+import type { Component } from '@layr/types';
 
 type Tab = 'properties' | 'styles' | 'events' | 'animation' | 'advanced';
 
@@ -15,8 +17,9 @@ export function Inspector() {
   const activeComponent = useProjectStore(s => s.activeComponent);
   
   const selectedId = selectedIds[0];
-  const component = activeComponent && project?.files?.components?.[activeComponent];
-  const selectedNode = selectedId && component?.nodes[selectedId];
+  const components = project?.files?.components;
+  const component: Component | undefined = activeComponent ? components?.[activeComponent] : undefined;
+  const selectedNode = selectedId && component?.nodes?.[selectedId];
   
   const tabs: Tab[] = ['properties', 'styles', 'events', 'animation', 'advanced'];
   
@@ -46,9 +49,9 @@ export function Inspector() {
           <>
             {activeTab === 'properties' && <PropertiesTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
             {activeTab === 'styles' && <StylesTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
-            {activeTab === 'events' && <EventsTab node={selectedNode} />}
+            {activeTab === 'events' && <EventsTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
             {activeTab === 'animation' && <AnimationTab node={selectedNode} />}
-            {activeTab === 'advanced' && <div>Advanced settings</div>}
+            {activeTab === 'advanced' && <AdvancedTab node={selectedNode} componentId={activeComponent!} nodeId={selectedId} />}
           </>
         ) : (
           <div className="text-gray-500 text-sm">

@@ -4,7 +4,7 @@
  */
 
 import type { Component } from './component';
-import type { Theme } from './theme';
+import type { Theme, ProjectThemeConfig } from './theme';
 import type { CustomRoute } from './route';
 import type { Formula } from './formula';
 import type { ActionModel } from './action';
@@ -93,6 +93,7 @@ export interface PluginFormula {
 export interface ProjectConfig {
   runtimeVersion?: string;
   meta?: ProjectMeta;
+  theme?: ProjectThemeConfig;
 }
 
 export interface ProjectMeta {

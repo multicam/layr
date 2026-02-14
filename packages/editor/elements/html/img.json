@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "name": "img",
+    "categories": [
+      "media"
+    ],
+    "description": "Image",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
+    "aliases": [
+      "image",
+      "picture"
+    ],
+    "isVoid": true,
+    "isPopular": true,
+    "interfaces": [
+      "HTMLImageElement",
+      "HTMLElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "img",
+        "attrs": {
+          "src": {
+            "type": "value",
+            "value": ""
+          },
+          "alt": {
+            "type": "value",
+            "value": ""
+          }
+        },
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}

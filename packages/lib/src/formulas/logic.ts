@@ -1,12 +1,13 @@
+import deepEqual from 'fast-deep-equal';
 import { registerFormula } from '../index';
 
 export function registerLogicFormulas(): void {
   registerFormula('@toddle/equals', (args, ctx) => {
-    return args.a === args.b;
+    return deepEqual(args.a, args.b);
   });
 
   registerFormula('@toddle/not-equals', (args, ctx) => {
-    return args.a !== args.b;
+    return !deepEqual(args.a, args.b);
   });
 
   registerFormula('@toddle/not', (args, ctx) => {

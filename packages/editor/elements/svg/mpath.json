@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "mpath",
+    "categories": [
+      "svg"
+    ],
+    "description": "Motion path",
+    "link": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mpath",
+    "interfaces": [
+      "SVGElement",
+      "Element",
+      "Node",
+      "EventTarget",
+      "global"
+    ]
+  },
+  "element": {
+    "type": "nodes",
+    "source": "catalog",
+    "nodes": {
+      "root": {
+        "id": "root",
+        "type": "element",
+        "tag": "mpath",
+        "attrs": {},
+        "style": {},
+        "events": {},
+        "classes": {},
+        "children": []
+      }
+    }
+  }
+}
