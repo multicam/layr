@@ -44,7 +44,7 @@ export function provide<T>(key: ContextKey, value: T | Signal<T>): ContextProvid
     getSignal: () => valueIsSignal ? (value as Signal<T>) : undefined,
   };
   
-  providers.set(key, provider);
+  providers.set(key, provider as ContextProvider<unknown>);
   return provider;
 }
 
@@ -117,7 +117,7 @@ export class ContextScope {
       getSignal: () => valueIsSignal ? (value as Signal<T>) : undefined,
     };
 
-    this.providers.set(key, provider);
+    this.providers.set(key, provider as ContextProvider<unknown>);
     return provider;
   }
   

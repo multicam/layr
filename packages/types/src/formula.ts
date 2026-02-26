@@ -43,7 +43,7 @@ export interface FunctionOperation {
 }
 
 export interface FunctionArgument {
-  name: string;
+  name?: string;
   formula: Formula;
   isFunction?: boolean;
 }

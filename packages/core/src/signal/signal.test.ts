@@ -76,7 +76,7 @@ describe('Signal', () => {
   describe('subscribe', () => {
     test('immediately invokes with current value', () => {
       const signal = new Signal('hello');
-      let received: string | null = null;
+      let received: string | undefined;
       signal.subscribe(value => { received = value });
       expect(received).toBe('hello');
     });
@@ -280,7 +280,7 @@ describe('cleanSubscribers', () => {
     expect(destroyed).toBe(true);
 
     // Signal still works — can subscribe and update
-    let received: number | null = null;
+    let received: number | undefined;
     signal.subscribe(v => { received = v });
     expect(received).toBe(5);
 

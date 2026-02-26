@@ -499,7 +499,7 @@ describe('applyFormula', () => {
 
     test('logs error when env.logErrors is true', () => {
       const ctx = createTestContext();
-      ctx.env = { logErrors: true };
+      ctx.env = { isServer: false, logErrors: true };
       
       let errorLogged = false;
       const origError = console.error;

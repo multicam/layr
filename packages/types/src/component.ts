@@ -70,7 +70,7 @@ export interface ComponentEvent {
 export interface ComponentAPI {
   name: string;
   type: 'v1' | 'v2';
-  
+
   // V2 fields
   method?: Formula;
   url?: Formula;
@@ -81,7 +81,7 @@ export interface ComponentAPI {
   credentials?: Formula;
   parserMode?: Formula;
   isError?: Formula;
-  
+
   // V1 fields
   path?: Formula;
   searchParams?: Array<{ name: string; value: Formula }>;
@@ -90,13 +90,20 @@ export interface ComponentAPI {
   methodV1?: Formula;
   throttle?: number;
   debounce?: number;
-  
+
   // Common
   autoFetch?: Formula;
   server?: {
     ssr?: {
       enabled: Formula;
     };
+  };
+
+  // Client callbacks
+  client?: {
+    onCompleted?: EventModel;
+    onFailed?: EventModel;
+    onMessage?: EventModel;
   };
 }
 

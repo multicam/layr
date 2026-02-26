@@ -4,6 +4,7 @@
  */
 
 import type { Formula } from './formula';
+import type { ActionModel } from './action';
 
 // ============================================================================
 // Page Route
@@ -14,6 +15,14 @@ export interface PageRoute {
   query?: Record<string, RouteQueryParam>;
   title?: string;
   description?: string;
+  info?: RouteInfo;
+}
+
+export interface RouteInfo {
+  title?: { formula: Formula };
+  description?: { formula: Formula };
+  language?: { formula: Formula };
+  meta?: Array<{ name: string; content: { formula: Formula } }>;
 }
 
 export interface RouteQueryParam {
