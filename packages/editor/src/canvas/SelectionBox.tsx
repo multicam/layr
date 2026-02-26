@@ -89,9 +89,9 @@ function ResizeHandle({ position }: { position: 'nw' | 'ne' | 'sw' | 'se' }) {
     <div
       className="absolute w-2 h-2 bg-white border border-blue-500 rounded-sm"
       style={{
-        top: pos.top,
+        top: 'top' in pos ? pos.top : undefined,
         bottom: 'bottom' in pos ? pos.bottom : undefined,
-        left: pos.left,
+        left: 'left' in pos ? pos.left : undefined,
         right: 'right' in pos ? pos.right : undefined,
         cursor: pos.cursor,
       }}

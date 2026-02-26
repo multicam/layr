@@ -68,7 +68,7 @@ export const PathOperationSchema = z.object({
 }).describe('Data path lookup');
 
 export const FunctionArgumentSchema = z.object({
-  name: z.string(),
+  name: z.string().optional(),
   formula: z.lazy(() => FormulaSchema),
   isFunction: z.boolean().optional(),
 });
@@ -96,7 +96,7 @@ const ArrayOperationSchema = z.object({
 }).describe('Array literal');
 
 const ObjectEntrySchema = z.object({
-  name: z.string(),
+  name: z.string().optional(),
   formula: z.lazy(() => FormulaSchema),
 });
 

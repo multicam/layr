@@ -1,7 +1,7 @@
 # Code Review Plan
 
 **Last updated**: 2026-02-26
-**Iteration**: 8
+**Iteration**: 9
 **Coverage**: ~95% statements (target: 80%)
 **Tests**: 1325 passing, 0 failing, 2 skipped
 
@@ -48,6 +48,13 @@
 |---|------|------|-------|--------|
 | L1 | packages/editor/src/stores/uiStore.ts | 93-98,106-107 | Unused code branches in uiStore | fixed |
 | L2 | packages/core/src/formula/evaluate.ts | - | Console warnings for missing formulas (expected behavior) | fixed |
+| L3 | packages/editor/src/canvas/SelectionBox.tsx | 92,94 | TypeScript union type narrowing issue | fixed |
+| L4 | packages/types/src/schemas.ts | 71,99 | FunctionArgument.name should be optional to match type | fixed |
+| L5 | packages/editor/src/formula-editor/FormulaEditor.tsx | 35 | Map callback type mismatch with FunctionArgument | fixed |
+| L6 | packages/editor/src/main.tsx | 7,66 | ImportMeta.env and project.type literal issues | pending |
+| L7 | packages/editor/src/preview/Preview.tsx | 56 | Object literal type issue | pending |
+| L8 | packages/editor/src/stores/clipboardStore.ts | 48 | Type narrowing with string \| undefined | pending |
+| L9 | packages/editor/src/stores/projectStore.ts | 46,53 | Undefined index type issues | pending |
 
 ## Coverage Gaps (files below 80%)
 | File | Statements | Branches | Functions | Priority |
@@ -63,6 +70,15 @@
 | packages/editor/src/stores/historyStore.ts | 80.00% | - | 90% | LOW |
 
 ## Iteration Log
+### Iteration 9 -- 2026-02-26
+- Fixed: L3 - SelectionBox.tsx TypeScript union type narrowing - added type guards for pos.top/pos.left
+- Fixed: L4 - schemas.ts FunctionArgument.name made optional to match TypeScript interface
+- Fixed: L5 - FormulaEditor.tsx map callback - changed to access arg.formula instead of passing FunctionArgument
+- Discovered: L6-L9 - Additional TypeScript issues in editor package (pre-existing, non-blocking)
+- Coverage: ~95% (stable - target met)
+- Tests: 1325 passing (stable)
+- Next iteration: Address remaining LOW priority TypeScript issues (L6-L9)
+
 ### Iteration 8 -- 2026-02-26
 - Added: 77 new tests across action handlers, lib actions, and hydration modules
   - packages/core/src/action/handle.test.ts - 85 tests (from 29) - comprehensive tests for depth limits, error handling, SetVariable, TriggerEvent, Switch, Fetch (with callbacks), AbortFetch, SetURLParameter(s), TriggerWorkflow (with providers and callbacks), TriggerWorkflowCallback, Custom actions (sync/async cleanup)

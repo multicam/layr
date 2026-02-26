@@ -32,7 +32,7 @@ export function FormulaEditor({
     if (f.type === 'value') return String(f.value ?? '');
     if (f.type === 'path') return f.path.join('.');
     if (f.type === 'function') {
-      const args = (f.arguments || []).map(formulaToString).join(', ');
+      const args = (f.arguments || []).map(arg => formulaToString(arg.formula)).join(', ');
       return `${f.name}(${args})`;
     }
     return '';
