@@ -1,7 +1,8 @@
 # Layr Implementation Plan
 
-**Generated:** 2026-02-26
+**Generated:** 2026-02-27
 **Status:** 51 specs complete, 6 partial, 1 parked
+**Last Gap Analysis:** 2026-02-27
 
 ---
 
@@ -14,7 +15,7 @@ Layr is a visual development platform with the following architecture:
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 78 built-in formulas + 19 actions
+├── @layr/lib  ← 84 built-in formulas + 19 actions
 │
 ├── @layr/themes ← Default theme definitions
 │
@@ -26,21 +27,22 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (8/58), issue detection
+└── @layr/search  ← Linting rules (10/58), issue detection
 ```
 
 ---
 
-## Spec Gaps & Analysis
+## Spec Gaps & Analysis (Phase 0)
 
 ### Gap Summary
 
 | Category | Found | Details |
 |----------|-------|---------|
 | Skipped Tests | 2 | In runtime package |
-| TODO/FIXME | 0 | None critical |
+| TODO/FIXME | 0 | None found in codebase |
 | Placeholder implementations | 0 | None found |
 | Partial specs | 6 | Standard library, search/linting |
+| Stale references | 0 | None detected |
 
 ### Skipped Tests
 
@@ -49,6 +51,32 @@ Layr is a visual development platform with the following architecture:
 | `packages/runtime/src/api/client.test.ts` | 121 | `test.skip('merges headers')` | Implement or remove |
 | `packages/runtime/src/custom-code/index.test.ts` | 282 | `test.skip('returns false for empty package')` | Implement or remove |
 
+### Code Inventory (Verified 2026-02-27)
+
+**Formulas (84 implemented):**
+- Array: concat, every, filter, find, first, flat, includes, index-of, join, last, length, map, nth, reduce, reverse, slice, some, sort (18)
+- Comparison: between, greater-than, greater-than-or-equal, less-than, less-than-or-equal (5)
+- Logic: equals, if, is-empty, is-not-null, is-null, not, not-equals, switch (8)
+- Number: abs, add, ceil, clamp, divide, floor, max, min, mod, multiply, power, random, round, sqrt, subtract (15)
+- Object: entries, from-entries, get, has-key, keys, merge, omit, pick, values (9)
+- String: char-at, concatenate, ends-with, lowercase, pad-end, pad-start, repeat, replace, replace-all, split, starts-with, string-includes, string-index-of, string-length, substring, to-string, trim, uppercase (18)
+- Utility: default, to-array, to-boolean, to-number, to-string, type-of (6)
+
+**Actions (19 implemented - COMPLETE):**
+- Storage: saveToLocalStorage, deleteFromLocalStorage, clearLocalStorage, saveToSessionStorage, deleteFromSessionStorage, clearSessionStorage (6)
+- Cookies: setCookie (1)
+- Navigation: goToURL (1)
+- Events: focus, preventDefault, stopPropagation (3)
+- Timers: sleep, interval (2)
+- Debug: logToConsole (1)
+- Sharing: copyToClipboard, share (2)
+- Theme: setTheme (1)
+
+**Linting Rules (10 implemented):**
+- unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
+- noReferenceAttributeRule, noReferenceVariableRule (2 noReference* rules)
+- noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule (3 logic rules)
+
 ---
 
 ## Priority 1: Complete Partial Specs
@@ -56,10 +84,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY)
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 8/58 rules implemented (14%)
+**Status:** 10/58 rules implemented (17%)
 **Package:** `@layr/search`
 
-**Implemented Rules (8):**
+**Implemented Rules (10):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `unknownEventRule` - Events
@@ -67,7 +95,9 @@ Layr is a visual development platform with the following architecture:
 - `unknownVariableRule` - Variables
 - `noReferenceAttributeRule` - Attributes
 - `noReferenceVariableRule` - Variables
-- `noStaticNodeConditionRule`, `noUnnecessaryConditionTruthyRule`, `noUnnecessaryConditionFalsyRule` - Logic
+- `noStaticNodeConditionRule` - Logic (auto-fix)
+- `noUnnecessaryConditionTruthyRule` - Logic
+- `noUnnecessaryConditionFalsyRule` - Logic
 
 **Missing Rules by Category (50+ rules):**
 
@@ -155,19 +185,19 @@ Layr is a visual development platform with the following architecture:
 ### 1.2 Standard Library Formulas (MEDIUM PRIORITY)
 
 **Spec:** `specs/standard-library.md`
-**Status:** ~78/97 formulas implemented (80%)
+**Status:** 84/97 formulas implemented (87%)
 **Package:** `@layr/lib`
 
-**Missing Formula Categories:**
+**Missing Formula Categories (13 formulas):**
 
-#### Date/Time Formulas (5 formulas)
+#### Date/Time Formulas (5 formulas) - NOT IMPLEMENTED
 - [ ] `dateFromString` - Parse date string
 - [ ] `dateFromTimestamp` - Create date from timestamp
 - [ ] `formatDate` - Format date to string
 - [ ] `now` - Current date/time
 - [ ] `timestamp` - Date to Unix timestamp
 
-#### Environment & DOM Formulas (9 formulas)
+#### Environment & DOM Formulas (9 formulas) - NOT IMPLEMENTED
 - [ ] `branchName` - Returns `env.branchName`
 - [ ] `canShare` - Returns `navigator.canShare()` result
 - [ ] `currentURL` - Returns current URL (server/client aware)
@@ -178,27 +208,31 @@ Layr is a visual development platform with the following architecture:
 - [ ] `languages` - Returns `navigator.languages`
 - [ ] `userAgent` - Returns user agent string
 
-#### Storage Formulas (2 formulas)
+#### Storage Formulas (2 formulas) - NOT IMPLEMENTED
 - [ ] `getFromLocalStorage` - Read and JSON parse from `localStorage`
 - [ ] `getFromSessionStorage` - Read and JSON parse from `sessionStorage`
 
-#### Additional Array Formulas (7 formulas)
+#### Array Formulas (7 missing from spec)
 - [ ] `append` - Add element to end
 - [ ] `drop` - Remove first N elements
 - [ ] `dropLast` - Remove last N elements
 - [ ] `findIndex` - Index of first match
 - [ ] `findLast` - Last matching element
-- [ ] `first` - First element
-- [ ] `last` - Last element
 - [ ] `prepend` - Add element to start
 - [ ] `shuffle` - Random order
-- [ ] `sort_by` - Sort by derived value
+- [ ] `sort_by` - Sort by derived value (different from sort)
 - [ ] `take` - Keep first N elements
 - [ ] `takeLast` - Keep last N elements
 - [ ] `unique` - Remove duplicates
-- [ ] `flatten` - Flatten one level of nesting
 
-#### Additional String Formulas (5 formulas)
+#### Object Formulas (5 missing from spec)
+- [ ] `deleteKey` - Remove key from object
+- [ ] `groupBy` - Group array elements by key
+- [ ] `keyBy` - Index array by key
+- [ ] `set` - Set key in object (immutable)
+- [ ] `size` - Count of keys
+
+#### String Formulas (9 missing from spec)
 - [ ] `capitalize` - Capitalize first letter
 - [ ] `decodeBase64` - Decode Base64
 - [ ] `decodeURIComponent` - Decode URI component
@@ -209,31 +243,21 @@ Layr is a visual development platform with the following architecture:
 - [ ] `parseURL` - Parse URL string
 - [ ] `matches` - Regex match test
 
-#### Additional Number Formulas (2 formulas)
-- [ ] `clamp` - Constrain to range
-- [ ] `randomNumber` - Random integer in range
+#### Number Formulas (2 missing from spec)
+- [ ] `logarithm` - Natural logarithm
+- [ ] `randomNumber` - Random integer in range (different from random?)
 
-#### Rounding Formulas (3 formulas)
-- [ ] `round` - Round to nearest
-- [ ] `roundDown` - Floor
-- [ ] `roundUp` - Ceil
-
-#### Data Utility Formulas (4 formulas)
-- [ ] `defaultTo` - Return default if value is null/undefined
+#### Data Utility Formulas (3 missing from spec)
 - [ ] `lastIndexOf` - Last index of value
 - [ ] `range` - Generate number sequence
-- [ ] `typeOf` - Type name
 - [ ] `json` - Deep clone via JSON round-trip
 
-#### Object Formulas (1 remaining)
-- [ ] `groupBy` - Group array elements by key
-
-#### Formatting Formulas (1 formula)
+#### Formatting Formulas (1 missing from spec)
 - [ ] `formatNumber` - Format number with Intl.NumberFormat
 
 ---
 
-### 1.3 Standard Library Actions (COMPLETE)
+### 1.3 Standard Library Actions (COMPLETE ✅)
 
 **Spec:** `specs/standard-library.md`
 **Status:** 19/19 actions implemented (100%)
@@ -336,6 +360,16 @@ bun run build               # Build all packages
 ---
 
 ## Changelog
+
+### 2026-02-27 (Gap Analysis Update)
+- Verified formula count: 84 implemented (not 78 as previously stated)
+- Verified linting rules: 10 implemented (not 8 as previously stated)
+- Updated architecture diagram with accurate counts
+- Added detailed Code Inventory section with verified counts
+- No TODO/FIXME comments found in codebase
+- No placeholder implementations found
+- 2 skipped tests confirmed in runtime package
+- Spec gap analysis complete: 13 formula categories missing items
 
 ### 2026-02-26
 - Initial IMPLEMENTATION_PLAN.md created

@@ -26,9 +26,9 @@ This directory contains technical specifications for the Layr visual development
 
 | Spec | Missing Components |
 |------|-------------------|
-| standard-library.md | 19 actions (infrastructure complete) |
+| standard-library.md | 13 formulas (datetime, env/DOM, storage) |
 | standard-library-architecture.md | Actions architecture |
-| search-and-linting.md | 50+ linting rules (8 implemented) |
+| search-and-linting.md | 48 linting rules (10 implemented) |
 
 ---
 
@@ -214,7 +214,7 @@ bun test packages/core/
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 78 built-in formulas + 19 actions
+├── @layr/lib  ← 84 built-in formulas + 19 actions
 │
 ├── @layr/themes ← Default theme definitions
 │
@@ -226,7 +226,7 @@ bun test packages/core/
 │
 ├── @layr/editor  ← Visual editor UI + theme selector
 │
-└── @layr/search  ← Linting rules (8), issue detection
+└── @layr/search  ← Linting rules (10), issue detection
 ```
 
 ---

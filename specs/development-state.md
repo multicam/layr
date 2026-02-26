@@ -54,9 +54,9 @@
 
 | Spec | Status | Missing |
 |------|--------|---------|
-| `standard-library.md` | ⚠️ | 19 actions, some formulas |
+| `standard-library.md` | ⚠️ | 13 formulas (datetime, env/DOM, storage) |
 | `standard-library-architecture.md` | ⚠️ | Actions architecture |
-| `search-and-linting.md` | ⚠️ | 57+ linting rules |
+| `search-and-linting.md` | ⚠️ | 48 linting rules |
 
 ### Parked (1 spec)
 - `custom-elements.md` - Web components export (lower priority)
@@ -79,7 +79,7 @@
 - Component traversal/introspection
 
 ### @layr/lib
-- 78 built-in formulas (@toddle/*)
+- 84 built-in formulas (@toddle/*)
 - 19 built-in actions
 
 ### @layr/backend
@@ -120,7 +120,7 @@
 
 ### @layr/search
 - Project walker
-- Linting rules engine
+- 10 linting rules (unknown*, noReference*, logic rules)
 - Contextless evaluation
 
 ---

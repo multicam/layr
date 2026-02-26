@@ -8,15 +8,22 @@
 | Contextless Evaluation | ✅ Complete | Static formula evaluation |
 | Problem Streaming | ✅ Complete | `findProblems()` with callbacks |
 | Auto-Fix System | ✅ Complete | `fixProblems()`, JSON patches |
-| Linting Rules | ❌ 3/58 | Only basic rules implemented |
+| Linting Rules | ⚠️ 10/58 | Core unknown/noReference rules |
 
-### Implemented Rules (3)
+### Implemented Rules (10)
 
 | Rule | Category | Auto-fix |
 |------|----------|----------|
 | `unknownActionRule` | Actions | ❌ |
+| `unknownComponentRule` | Components | ❌ |
+| `unknownEventRule` | Events | ❌ |
+| `unknownFormulaRule` | Formulas | ❌ |
 | `unknownVariableRule` | Variables | ❌ |
-| `noStaticNodeCondition` | Logic | ✅ |
+| `noReferenceAttributeRule` | Attributes | ❌ |
+| `noReferenceVariableRule` | Variables | ❌ |
+| `noStaticNodeConditionRule` | Logic | ✅ |
+| `noUnnecessaryConditionTruthyRule` | Logic | ❌ |
+| `noUnnecessaryConditionFalsyRule` | Logic | ❌ |
 
 ### Not Yet Implemented (55+ rules)
 
