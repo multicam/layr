@@ -1,0 +1,346 @@
+# Layr Implementation Plan
+
+**Generated:** 2026-02-26
+**Status:** 51 specs complete, 6 partial, 1 parked
+
+---
+
+## Project Overview
+
+Layr is a visual development platform with the following architecture:
+
+```
+@layr/types     ← All type definitions
+     │
+@layr/core     ← Signal, formula, action engines
+     │
+├── @layr/lib  ← 78 built-in formulas + 19 actions
+│
+├── @layr/themes ← Default theme definitions
+│
+├── @layr/ssr  ← Server-side rendering
+│
+├── @layr/runtime ← Client-side rendering
+│
+├── @layr/backend ← Hono HTTP server
+│
+├── @layr/editor  ← Visual editor UI
+│
+└── @layr/search  ← Linting rules (8/58), issue detection
+```
+
+---
+
+## Spec Gaps & Analysis
+
+### Gap Summary
+
+| Category | Found | Details |
+|----------|-------|---------|
+| Skipped Tests | 2 | In runtime package |
+| TODO/FIXME | 0 | None critical |
+| Placeholder implementations | 0 | None found |
+| Partial specs | 6 | Standard library, search/linting |
+
+### Skipped Tests
+
+| File | Line | Test | Action |
+|------|------|------|--------|
+| `packages/runtime/src/api/client.test.ts` | 121 | `test.skip('merges headers')` | Implement or remove |
+| `packages/runtime/src/custom-code/index.test.ts` | 282 | `test.skip('returns false for empty package')` | Implement or remove |
+
+---
+
+## Priority 1: Complete Partial Specs
+
+### 1.1 Search & Linting Rules (HIGH PRIORITY)
+
+**Spec:** `specs/search-and-linting.md`
+**Status:** 8/58 rules implemented (14%)
+**Package:** `@layr/search`
+
+**Implemented Rules (8):**
+- `unknownActionRule` - Actions
+- `unknownComponentRule` - Components
+- `unknownEventRule` - Events
+- `unknownFormulaRule` - Formulas
+- `unknownVariableRule` - Variables
+- `noReferenceAttributeRule` - Attributes
+- `noReferenceVariableRule` - Variables
+- `noStaticNodeConditionRule`, `noUnnecessaryConditionTruthyRule`, `noUnnecessaryConditionFalsyRule` - Logic
+
+**Missing Rules by Category (50+ rules):**
+
+#### Action Rules (2 remaining)
+- [ ] `unknownTriggerEventRule` - Unknown event triggers
+- [ ] `noReferenceComponentWorkflowRule` - Unused workflows
+
+#### API Rules (3 rules)
+- [ ] `noReferenceApiRule` - Unused APIs
+- [ ] `unknownApiRule` - References to non-existent APIs
+- [ ] `unknownApiInputRule` - Unknown API input references
+
+#### Attribute Rules (2 remaining)
+- [ ] `unknownAttributeRule` - References to non-existent attributes
+- [ ] `unknownComponentAttributeRule` - Unknown attributes on component instances
+
+#### Component Rules (1 remaining)
+- [ ] `noReferenceComponentRule` - Components not used anywhere
+
+#### Context Rules (6 rules)
+- [ ] `noContextConsumersRule` - Context providers without consumers
+- [ ] `unknownContextFormulaRule` - Unknown context formula references
+- [ ] `unknownContextProviderFormulaRule` - Unknown provider formula references
+- [ ] `unknownContextProviderRule` - References to non-existent providers
+- [ ] `unknownContextProviderWorkflowRule` - Unknown provider workflow references
+- [ ] `unknownContextWorkflowRule` - Unknown context workflow references
+
+#### DOM Rules (9 rules)
+- [ ] `nonEmptyVoidElementRule` - Void elements with children
+- [ ] `createRequiredElementAttributeRule('img', 'alt')` - Missing alt on images
+- [ ] `createRequiredMetaTagRule('description')` - Missing meta description
+- [ ] `createRequiredDirectChildRule` - Invalid list children
+- [ ] `elementWithoutInteractiveContentRule` - Non-interactive content issues
+- [ ] `imageWithoutDimensionRule` - Images without explicit dimensions
+
+#### Event Rules (4 rules)
+- [ ] `duplicateEventTriggerRule` - Multiple handlers for same trigger
+- [ ] `noReferenceEventRule` - Unused event definitions
+- [ ] `unknownTriggerEventRule` - Unknown event trigger references (duplicate from Action)
+
+#### Formula Rules (3 rules)
+- [ ] `duplicateFormulaArgumentNameRule` - Duplicate argument names
+- [ ] `noReferenceComponentFormulaRule` - Unused component formulas
+- [ ] `noReferenceProjectFormulaRule` - Unused project formulas
+
+#### Logic Rules (4 remaining)
+- [ ] `unknownFormulaRule` - Unknown formula references
+- [ ] `unknownProjectFormulaRule` - Unknown project formula references
+- [ ] `unknownRepeatIndexFormulaRule` - Unknown repeat index references
+- [ ] `unknownRepeatItemFormulaRule` - Unknown repeat item references
+
+#### Miscellaneous Rules (3 rules)
+- [ ] `noReferenceNodeRule` - Orphaned nodes
+- [ ] `requireExtensionRule` - Missing required extensions
+- [ ] `unknownCookieRule` - Unknown cookie references
+
+#### Routing Rules (4 rules)
+- [ ] `duplicateUrlParameterRule` - Duplicate URL parameter names
+- [ ] `duplicateRouteRule` - Multiple pages with same route pattern
+- [ ] `unknownSetUrlParameterRule` - Setting unknown URL parameters
+- [ ] `unknownUrlParameterRule` - References to unknown URL parameters
+
+#### Slot Rules (1 rule)
+- [ ] `unknownComponentSlotRule` - References to non-existent slots
+
+#### Style Rules (4 rules)
+- [ ] `invalidStyleSyntaxRule` - CSS that fails PostCSS parsing (with auto-fix)
+- [ ] `unknownClassnameRule` - References to non-existent class names
+- [ ] `unknownCSSVariableRule` - CSS `var()` referencing undefined variables
+- [ ] `noReferenceGlobalCSSVariableRule` - Unused global CSS variables
+
+#### Variable Rules (1 remaining)
+- [ ] `unknownVariableSetterRule` - Setting non-existent variables
+
+#### Workflow Rules (5 remaining)
+- [ ] `duplicateWorkflowParameterRule` - Duplicate parameter names
+- [ ] `noPostNavigateAction` - Actions after navigation (unreachable code, with auto-fix)
+- [ ] `noReferenceComponentWorkflowRule` - Unused workflows (duplicate from Action)
+- [ ] `unknownTriggerWorkflowParameterRule` - Unknown workflow parameter references
+- [ ] `unknownTriggerWorkflowRule` - References to non-existent workflows
+- [ ] `unknownWorkflowParameterRule` - Unknown parameter references
+
+---
+
+### 1.2 Standard Library Formulas (MEDIUM PRIORITY)
+
+**Spec:** `specs/standard-library.md`
+**Status:** ~78/97 formulas implemented (80%)
+**Package:** `@layr/lib`
+
+**Missing Formula Categories:**
+
+#### Date/Time Formulas (5 formulas)
+- [ ] `dateFromString` - Parse date string
+- [ ] `dateFromTimestamp` - Create date from timestamp
+- [ ] `formatDate` - Format date to string
+- [ ] `now` - Current date/time
+- [ ] `timestamp` - Date to Unix timestamp
+
+#### Environment & DOM Formulas (9 formulas)
+- [ ] `branchName` - Returns `env.branchName`
+- [ ] `canShare` - Returns `navigator.canShare()` result
+- [ ] `currentURL` - Returns current URL (server/client aware)
+- [ ] `getElementById` - Returns `document.getElementById()`
+- [ ] `getCookie` - Reads cookie (server/client aware)
+- [ ] `getHttpOnlyCookie` - Reads HttpOnly cookie (server only)
+- [ ] `isServer` - Returns true on server, false on client
+- [ ] `languages` - Returns `navigator.languages`
+- [ ] `userAgent` - Returns user agent string
+
+#### Storage Formulas (2 formulas)
+- [ ] `getFromLocalStorage` - Read and JSON parse from `localStorage`
+- [ ] `getFromSessionStorage` - Read and JSON parse from `sessionStorage`
+
+#### Additional Array Formulas (7 formulas)
+- [ ] `append` - Add element to end
+- [ ] `drop` - Remove first N elements
+- [ ] `dropLast` - Remove last N elements
+- [ ] `findIndex` - Index of first match
+- [ ] `findLast` - Last matching element
+- [ ] `first` - First element
+- [ ] `last` - Last element
+- [ ] `prepend` - Add element to start
+- [ ] `shuffle` - Random order
+- [ ] `sort_by` - Sort by derived value
+- [ ] `take` - Keep first N elements
+- [ ] `takeLast` - Keep last N elements
+- [ ] `unique` - Remove duplicates
+- [ ] `flatten` - Flatten one level of nesting
+
+#### Additional String Formulas (5 formulas)
+- [ ] `capitalize` - Capitalize first letter
+- [ ] `decodeBase64` - Decode Base64
+- [ ] `decodeURIComponent` - Decode URI component
+- [ ] `encodeBase64` - Encode to Base64
+- [ ] `encodeJSON` - `JSON.stringify()`
+- [ ] `encodeURIComponent` - Encode URI component
+- [ ] `parseJSON` - `JSON.parse()`
+- [ ] `parseURL` - Parse URL string
+- [ ] `matches` - Regex match test
+
+#### Additional Number Formulas (2 formulas)
+- [ ] `clamp` - Constrain to range
+- [ ] `randomNumber` - Random integer in range
+
+#### Rounding Formulas (3 formulas)
+- [ ] `round` - Round to nearest
+- [ ] `roundDown` - Floor
+- [ ] `roundUp` - Ceil
+
+#### Data Utility Formulas (4 formulas)
+- [ ] `defaultTo` - Return default if value is null/undefined
+- [ ] `lastIndexOf` - Last index of value
+- [ ] `range` - Generate number sequence
+- [ ] `typeOf` - Type name
+- [ ] `json` - Deep clone via JSON round-trip
+
+#### Object Formulas (1 remaining)
+- [ ] `groupBy` - Group array elements by key
+
+#### Formatting Formulas (1 formula)
+- [ ] `formatNumber` - Format number with Intl.NumberFormat
+
+---
+
+### 1.3 Standard Library Actions (COMPLETE)
+
+**Spec:** `specs/standard-library.md`
+**Status:** 19/19 actions implemented (100%)
+**Package:** `@layr/lib`
+
+All actions are implemented:
+- Local Storage: `saveToLocalStorage`, `deleteFromLocalStorage`, `clearLocalStorage`
+- Session Storage: `saveToSessionStorage`, `deleteFromSessionStorage`, `clearSessionStorage`
+- Cookies: `setCookie`
+- Navigation: `goToURL`
+- Events: `focus`, `preventDefault`, `stopPropagation`
+- Timers: `sleep`, `interval`
+- Debug: `logToConsole`
+- Sharing: `copyToClipboard`, `share`
+- Theme: `setTheme`
+
+---
+
+## Priority 2: Test Coverage Improvements
+
+### 2.1 Fix Skipped Tests
+
+| Test | File | Action |
+|------|------|--------|
+| `merges headers` | `packages/runtime/src/api/client.test.ts:121` | Implement test |
+| `returns false for empty package` | `packages/runtime/src/custom-code/index.test.ts:282` | Implement test |
+
+### 2.2 Coverage Gaps by Package
+
+| Package | Current Coverage | Target |
+|---------|------------------|--------|
+| @layr/backend | 60% | 80% |
+| @layr/runtime | 69% | 85% |
+| @layr/editor | 70% | 80% (E2E needed) |
+
+---
+
+## Priority 3: Parked Specifications
+
+### 3.1 Custom Elements (PARKED)
+
+**Location:** `specs/parked/`
+**Status:** Lower priority
+**Description:** Web components export feature
+
+This spec is parked and not currently being implemented.
+
+---
+
+## Implementation Order
+
+### Phase 1: Critical Linting Rules (Week 1-2)
+1. Implement core reference rules (unknown* rules)
+2. Implement DOM accessibility rules (alt tags, meta tags)
+3. Implement routing rules (duplicate routes, URL parameters)
+
+### Phase 2: Standard Library Completion (Week 3-4)
+1. Implement Date/Time formulas
+2. Implement Environment/DOM formulas
+3. Implement remaining Array/String formulas
+
+### Phase 3: Remaining Linting Rules (Week 5-6)
+1. Implement Context rules
+2. Implement Style rules
+3. Implement Workflow rules
+
+### Phase 4: Test Coverage (Ongoing)
+1. Fix skipped tests
+2. Add missing tests for new features
+3. Improve E2E coverage for editor
+
+---
+
+## Architecture Notes
+
+### Key Patterns
+
+1. **Formula Registration:** All formulas are registered with `@toddle/` prefix via `registerFormula()`
+2. **Action Registration:** All actions are registered with `@toddle/` prefix via `registerAction()`
+3. **Rule Pattern:** Linting rules implement `Rule<Data, NodeType, Value>` interface with `visit()` function
+4. **Higher-Order Formulas:** Formulas accepting function arguments use closure pattern with `{ item, index }` context
+
+### Test Command
+
+```bash
+bun test                    # Run all tests
+bun test --coverage         # Run with coverage
+bun test packages/core/     # Run specific package
+```
+
+### Development Commands
+
+```bash
+bun run dev                 # Start backend + editor
+bun run dev:backend         # Start backend only
+bun run dev:editor          # Start editor only
+bun run build               # Build all packages
+```
+
+---
+
+## Changelog
+
+### 2026-02-26
+- Initial IMPLEMENTATION_PLAN.md created
+- Analyzed 57 specs (51 complete, 6 partial, 1 parked)
+- Identified 50+ missing linting rules
+- Identified ~19 missing formulas
+- Found 2 skipped tests
+- Actions confirmed complete (19/19)
