@@ -56,6 +56,7 @@ export function parseQuery(queryString: string): Record<string, string> {
 
 /**
  * Parse URL into location data.
+ * @throws Error if path cannot be safely parsed
  */
 export function parseUrl(component: {
   route?: Location['route'];
@@ -64,39 +65,49 @@ export function parseUrl(component: {
   const path = window.location.pathname;
   const hash = window.location.hash.split('?')[0].slice(1) || null;
   const searchParams = window.location.search;
-  
+
   const params: Record<string, string | null> = {};
   const query: Record<string, string | string[] | null> = {};
-  
-  // Parse path parameters
+
+  // Parse path parameters with error handling
   if (component.route?.path) {
     const segments = path.split('/').filter(Boolean);
-    
+
     for (let i = 0; i < component.route.path.length; i++) {
       const segment = component.route.path[i];
-      
+
       if (segment.type === 'param') {
         const value = segments[i];
-        params[segment.name] = value ? decodeURIComponent(value) : null;
+        try {
+          params[segment.name] = value ? decodeURIComponent(value) : null;
+        } catch {
+          // Malformed URI component - use raw value
+          params[segment.name] = value ?? null;
+        }
       }
     }
   }
-  
-  // Parse query parameters
-  const parsedQuery = parseQuery(searchParams);
-  
+
+  // Parse query parameters with error handling
+  let parsedQuery: Record<string, string> = {};
+  try {
+    parsedQuery = parseQuery(searchParams);
+  } catch {
+    // Malformed query string - continue with empty query
+  }
+
   // Initialize declared query params to null
   if (component.route?.query) {
     for (const key of Object.keys(component.route.query)) {
       query[key] = null;
     }
   }
-  
+
   // Overlay actual values
   for (const [key, value] of Object.entries(parsedQuery)) {
     query[key] = value;
   }
-  
+
   return { path, params, query, hash };
 }
 
@@ -161,6 +172,7 @@ export function getLocationUrl(location: Location): string {
 
 /**
  * Update browser history and location signal.
+ * Validates URL before modifying history to prevent malformed URLs.
  */
 export function navigate(
   location: Location,
@@ -169,15 +181,22 @@ export function navigate(
 ): void {
   const url = getLocationUrl(location);
   const currentUrl = getLocationUrl(locationSignal.get());
-  
+
   if (url === currentUrl) return;
-  
+
+  // Validate URL before modifying history
+  const validated = validateUrl({ path: url, origin: window.location.origin });
+  if (!validated) {
+    console.warn('Navigation blocked: invalid URL generated', { url });
+    return;
+  }
+
   if (mode === 'push') {
     window.history.pushState({}, '', url);
   } else {
     window.history.replaceState({}, '', url);
   }
-  
+
   locationSignal.set(location);
 }
 
