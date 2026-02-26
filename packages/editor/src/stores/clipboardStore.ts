@@ -45,14 +45,17 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
     const idMap = new Map<string, string>();
     const newNodes = cloned.map(node => {
       const newId = crypto.randomUUID();
-      idMap.set(node.id, newId);
+      // Track old id -> new id mapping (skip if node had no id)
+      if (node.id) {
+        idMap.set(node.id, newId);
+      }
       return { ...node, id: newId } as NodeModel;
     });
 
     // Update children references
     return newNodes.map(node => {
       if ('children' in node && Array.isArray(node.children)) {
-        return { ...node, children: node.children.map(id => idMap.get(id) || id) } as NodeModel;
+        return { ...node, children: node.children.map(id => idMap.get(id) ?? id) } as NodeModel;
       }
       return node;
     });
@@ -64,7 +67,7 @@ export const useClipboardStore = create<ClipboardState>((set, get) => ({
 }));
 
 // Read from system clipboard
-export async function readSystemClipboard(): Promise<{ nodes: NodeModel[]; sourceId: string } | null> {
+export async function readSystemClipboard(): Promise<{ nodes: NodeModel[]; sourceId: string | undefined } | null> {
   try {
     const text = await navigator.clipboard.readText();
     const data = JSON.parse(text);

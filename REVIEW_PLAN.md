@@ -1,7 +1,7 @@
 # Code Review Plan
 
 **Last updated**: 2026-02-26
-**Iteration**: 9
+**Iteration**: 10
 **Coverage**: ~95% statements (target: 80%)
 **Tests**: 1325 passing, 0 failing, 2 skipped
 
@@ -51,10 +51,10 @@
 | L3 | packages/editor/src/canvas/SelectionBox.tsx | 92,94 | TypeScript union type narrowing issue | fixed |
 | L4 | packages/types/src/schemas.ts | 71,99 | FunctionArgument.name should be optional to match type | fixed |
 | L5 | packages/editor/src/formula-editor/FormulaEditor.tsx | 35 | Map callback type mismatch with FunctionArgument | fixed |
-| L6 | packages/editor/src/main.tsx | 7,66 | ImportMeta.env and project.type literal issues | pending |
-| L7 | packages/editor/src/preview/Preview.tsx | 56 | Object literal type issue | pending |
-| L8 | packages/editor/src/stores/clipboardStore.ts | 48 | Type narrowing with string \| undefined | pending |
-| L9 | packages/editor/src/stores/projectStore.ts | 46,53 | Undefined index type issues | pending |
+| L6 | packages/editor/src/main.tsx | 7,66 | ImportMeta.env and project.type literal issues | fixed |
+| L7 | packages/editor/src/preview/Preview.tsx | 56 | Object literal type issue | fixed |
+| L8 | packages/editor/src/stores/clipboardStore.ts | 48 | Type narrowing with string \| undefined | fixed |
+| L9 | packages/editor/src/stores/projectStore.ts | 46,53 | Undefined index type issues | fixed |
 
 ## Coverage Gaps (files below 80%)
 | File | Statements | Branches | Functions | Priority |
@@ -70,6 +70,16 @@
 | packages/editor/src/stores/historyStore.ts | 80.00% | - | 90% | LOW |
 
 ## Iteration Log
+### Iteration 10 -- 2026-02-26
+- Fixed: L6 - main.tsx project.type literal - added Project type annotation to demoProject object
+- Fixed: L7 - Preview.tsx object literal type - added 'error' to PreviewMessageType union
+- Fixed: L8 - clipboardStore.ts type narrowing - added null check for optional node.id, fixed return type for readSystemClipboard
+- Fixed: L9 - projectStore.ts undefined index - added null check for node.id in addNode, replaced `as any` with proper ElementNodeModel type cast
+- Coverage: ~95% (stable - target exceeded)
+- Tests: 1325 passing (stable)
+- All tracked issues (C1-C4, H1-H6, M1-M14, L1-L9) are now FIXED
+- Note: Some pre-existing TypeScript errors remain in test files (non-blocking, tests pass)
+
 ### Iteration 9 -- 2026-02-26
 - Fixed: L3 - SelectionBox.tsx TypeScript union type narrowing - added type guards for pos.top/pos.left
 - Fixed: L4 - schemas.ts FunctionArgument.name made optional to match TypeScript interface

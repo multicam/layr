@@ -55,12 +55,13 @@ export type PreviewMessageType =
   | 'highlightRect'
   | 'textComputedStyle'
   | 'computedStyle'
-  
+
   // Navigation & Events
   | 'navigate'
   | 'component event'
   | 'data'
   | 'documentScrollSize'
+  | 'error'
   
   // Keyboard Forwarding
   | 'keydown'

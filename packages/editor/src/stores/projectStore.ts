@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Project, Component, NodeModel, ProjectThemeConfig } from '@layr/types';
+import type { Project, Component, NodeModel, ProjectThemeConfig, ElementNodeModel } from '@layr/types';
 
 interface ProjectState {
   project: Project | null;
@@ -41,10 +41,13 @@ export const useProjectStore = create<ProjectState>()(
       if (!state.project) return;
       const component = state.project.files?.components?.[componentId];
       if (!component) return;
-      
+
+      // Require node.id to be present
+      if (!node.id) return;
+
       // Add node to nodes map
       component.nodes[node.id] = node;
-      
+
       // Add to parent's children
       const parent = component.nodes[parentId];
       if (parent && 'children' in parent) {
@@ -54,7 +57,7 @@ export const useProjectStore = create<ProjectState>()(
         } else {
           children.push(node.id);
         }
-        (parent as any).children = children;
+        (parent as ElementNodeModel).children = children;
       }
     }),
     
@@ -92,7 +95,7 @@ export const useProjectStore = create<ProjectState>()(
       if (!state.project) return;
       const component = state.project.files?.components?.[componentId];
       if (!component) return;
-      
+
       // Remove from old parent
       for (const node of Object.values(component.nodes)) {
         if ('children' in node && Array.isArray(node.children)) {
@@ -102,13 +105,13 @@ export const useProjectStore = create<ProjectState>()(
           }
         }
       }
-      
+
       // Add to new parent
       const newParent = component.nodes[newParentId];
       if (newParent && 'children' in newParent) {
         const children = (newParent.children as string[]) || [];
         children.splice(index, 0, nodeId);
-        (newParent as any).children = children;
+        (newParent as ElementNodeModel).children = children;
       }
     }),
     

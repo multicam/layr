@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import type { Project } from '@layr/types';
 import { App } from './App';
 import './styles.css';
 
@@ -11,7 +12,7 @@ if (import.meta.env.DEV) {
 // Initialize with demo project for testing
 import { useProjectStore } from './stores';
 
-const demoProject = {
+const demoProject: Project = {
   project: {
     id: 'demo',
     name: 'Demo',
