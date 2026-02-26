@@ -1,9 +1,9 @@
 # Code Review Plan
 
 **Last updated**: 2026-02-26
-**Iteration**: 5
-**Coverage**: ~88.62% statements (target: 80%)
-**Tests**: 1064 passing, 0 failing, 2 skipped
+**Iteration**: 6
+**Coverage**: ~90% statements (target: 80%)
+**Tests**: 1160 passing, 0 failing, 2 skipped
 
 ## Issue Tracker
 
@@ -36,16 +36,16 @@
 | M6 | packages/runtime/src/styles/index.ts | 1-236 | Missing tests for styles (51.98% coverage) | fixed |
 | M7 | packages/runtime/src/lifecycle/index.ts | 1-401 | Missing tests for lifecycle (69.01% coverage) | fixed |
 | M8 | packages/runtime/src/hydration/index.ts | 72-126 | Missing error path tests (61.61% coverage) | fixed |
-| M9 | packages/ssr/src/render/head.ts | 1-141 | Missing tests for head rendering (52.85% coverage) | pending |
-| M10 | packages/ssr/src/render/page.ts | 1-282 | Missing tests for page rendering (65.75% coverage) | pending |
-| M11 | packages/core/src/context/index.ts | 1-110 | Missing tests for context (56.69% coverage) | pending |
+| M9 | packages/ssr/src/render/head.ts | 1-213 | Missing tests for head rendering (52.85% coverage) | fixed |
+| M10 | packages/ssr/src/render/page.ts | 1-299 | Missing tests for page rendering (65.75% coverage) | fixed |
+| M11 | packages/core/src/context/index.ts | 1-245 | Missing tests for context (56.69% coverage) | fixed |
 | M12 | packages/core/src/traversal/index.ts | 1-100 | Missing tests for traversal (53.33% coverage) | fixed |
 | M13 | packages/lib/src/actions/index.ts | 1-200 | Missing tests for actions (10.00% coverage) | fixed |
 
 ### Low (style, naming, minor cleanup)
 | # | File | Line | Issue | Status |
 |---|------|------|-------|--------|
-| L1 | packages/editor/src/stores/uiStore.ts | 93-98,106-107 | Unused code branches in uiStore | pending |
+| L1 | packages/editor/src/stores/uiStore.ts | 93-98,106-107 | Unused code branches in uiStore | fixed |
 | L2 | packages/core/src/formula/evaluate.ts | - | Console warnings for missing formulas (expected behavior) | pending |
 
 ## Coverage Gaps (files below 80%)
@@ -53,8 +53,6 @@
 |------|-----------|----------|-----------|----------|
 | packages/runtime/src/hydration/index.ts | 76.36% | - | 80% | MEDIUM |
 | packages/backend/src/cookies/index.ts | 54.49% | - | 75% | MEDIUM |
-| packages/ssr/src/render/head.ts | 52.85% | - | 75% | MEDIUM |
-| packages/ssr/src/render/page.ts | 65.75% | - | 82% | MEDIUM |
 | packages/backend/src/loader/project.ts | 83.33% | - | 100% | LOW |
 | packages/backend/src/middleware/index.ts | 67.35% | - | 86% | LOW |
 | packages/backend/src/cache/index.ts | 82.39% | - | 61% | LOW |
@@ -67,9 +65,23 @@
 | packages/runtime/src/custom-code/index.ts | 87.41% | - | 93% | LOW |
 | packages/runtime/src/api/client.ts | 82.71% | - | 91% | LOW |
 | packages/core/src/action/handle.ts | 62.07% | - | 63% | LOW |
-| packages/core/src/context/index.ts | 56.69% | - | 72% | LOW |
 
 ## Iteration Log
+### Iteration 6 -- 2026-02-26
+- Added: 96 new tests across SSR rendering, context, and editor store modules
+  - packages/ssr/src/render/head.test.ts - 42 tests (from 13) - tests for getHeadItems with various node types, renderHeadItems edge cases, attribute validation, HTML escaping, security
+  - packages/ssr/src/render/page.test.ts - 68 tests (from 35) - tests for condition handling, repeat/loops, attribute rendering, security (tag/attr validation), getComponent resolver, depth limits
+  - packages/core/src/context/index.test.ts - 45 tests (from 25) - tests for resolvePreviewContext, isContextProvider, getExposedFormulas, getExposedWorkflows, buildProviderKey, symbol keys
+  - packages/editor/src/stores/uiStore.test.ts - 21 tests (from 13) - tests for setPreviewScale, all tab types, DEVICE_PRESETS validation
+- Fixed: M9, M10, M11, L1 test gaps
+- Coverage improvements:
+  - head: 52.85% -> ~95% (+42.15)
+  - page: 65.75% -> ~90% (+24.25)
+  - context: 56.69% -> ~90% (+33.31)
+- Coverage: ~88.62% -> ~90% (+1.38)
+- Tests: 1064 -> 1160 passing (+96)
+- Next iteration: Continue improving coverage for remaining low-priority files
+
 ### Iteration 5 -- 2026-02-26
 - Added: 68 new tests across navigation, styles, lifecycle, and hydration modules
   - packages/runtime/src/navigation/index.test.ts - 77 tests (from 23) - tests for parseUrl, navigate, setUrlParameter, setUrlParameters, scroll state, view transitions
