@@ -8,5 +8,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      if (import.meta.env.DEV) {
+        import('react-grab').then(({ default: grab }) => {
+          grab();
+        });
+      }
+    </script>
   </body>
 </html>
