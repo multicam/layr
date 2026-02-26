@@ -4,8 +4,8 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Formulas | ⚠️ 84/97 | Missing: datetime (5), env/DOM (9), storage (2), utilities |
-| Actions | ✅ 19/19 | All actions implemented |
+| Formulas | ⚠️ 78/97 | Missing: datetime (5), env/DOM (9), storage (2), utilities |
+| Actions | ⚠️ 17/19 | Missing: setHttpOnlyCookie, setSessionCookies |
 
 ---
 

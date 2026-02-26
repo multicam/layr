@@ -214,7 +214,7 @@ bun test packages/core/
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 84 built-in formulas + 19 actions
+├── @layr/lib  ← 78 built-in formulas + 17 actions
 │
 ├── @layr/themes ← Default theme definitions
 │
@@ -226,7 +226,7 @@ bun test packages/core/
 │
 ├── @layr/editor  ← Visual editor UI + theme selector
 │
-└── @layr/search  ← Linting rules (10), issue detection
+└── @layr/search  ← Linting rules (10/58), issue detection
 ```
 
 ---

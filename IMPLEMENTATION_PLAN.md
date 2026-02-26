@@ -15,7 +15,7 @@ Layr is a visual development platform with the following architecture:
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 84 built-in formulas + 19 actions
+├── @layr/lib  ← 78 built-in formulas + 17 actions
 │
 ├── @layr/themes ← Default theme definitions
 │
@@ -53,16 +53,16 @@ Layr is a visual development platform with the following architecture:
 
 ### Code Inventory (Verified 2026-02-27)
 
-**Formulas (84 implemented):**
-- Array: concat, every, filter, find, first, flat, includes, index-of, join, last, length, map, nth, reduce, reverse, slice, some, sort (18)
+**Formulas (78 implemented):**
+- Array: concat, every, filter, find, flat, includes, index-of, join, length, map, reduce, reverse, slice, some, sort (15)
 - Comparison: between, greater-than, greater-than-or-equal, less-than, less-than-or-equal (5)
 - Logic: equals, if, is-empty, is-not-null, is-null, not, not-equals, switch (8)
 - Number: abs, add, ceil, clamp, divide, floor, max, min, mod, multiply, power, random, round, sqrt, subtract (15)
 - Object: entries, from-entries, get, has-key, keys, merge, omit, pick, values (9)
-- String: char-at, concatenate, ends-with, lowercase, pad-end, pad-start, repeat, replace, replace-all, split, starts-with, string-includes, string-index-of, string-length, substring, to-string, trim, uppercase (18)
-- Utility: default, to-array, to-boolean, to-number, to-string, type-of (6)
+- String: char-at, concatenate, ends-with, lowercase, pad-end, pad-start, repeat, replace, replace-all, split, starts-with, string-includes, string-index-of, string-length, substring, trim, uppercase (17)
+- Utility: default, first, last, nth, to-array, to-boolean, to-number, to-string, type-of (9)
 
-**Actions (19 implemented - COMPLETE):**
+**Actions (17 implemented):**
 - Storage: saveToLocalStorage, deleteFromLocalStorage, clearLocalStorage, saveToSessionStorage, deleteFromSessionStorage, clearSessionStorage (6)
 - Cookies: setCookie (1)
 - Navigation: goToURL (1)
@@ -185,10 +185,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.2 Standard Library Formulas (MEDIUM PRIORITY)
 
 **Spec:** `specs/standard-library.md`
-**Status:** 84/97 formulas implemented (87%)
+**Status:** 78/97 formulas implemented (80%)
 **Package:** `@layr/lib`
 
-**Missing Formula Categories (13 formulas):**
+**Missing Formula Categories (19 formulas):**
 
 #### Date/Time Formulas (5 formulas) - NOT IMPLEMENTED
 - [ ] `dateFromString` - Parse date string
@@ -257,13 +257,13 @@ Layr is a visual development platform with the following architecture:
 
 ---
 
-### 1.3 Standard Library Actions (COMPLETE ✅)
+### 1.3 Standard Library Actions (NEARLY COMPLETE)
 
 **Spec:** `specs/standard-library.md`
-**Status:** 19/19 actions implemented (100%)
+**Status:** 17/19 actions implemented (89%)
 **Package:** `@layr/lib`
 
-All actions are implemented:
+**Implemented Actions (17):**
 - Local Storage: `saveToLocalStorage`, `deleteFromLocalStorage`, `clearLocalStorage`
 - Session Storage: `saveToSessionStorage`, `deleteFromSessionStorage`, `clearSessionStorage`
 - Cookies: `setCookie`
@@ -273,6 +273,10 @@ All actions are implemented:
 - Debug: `logToConsole`
 - Sharing: `copyToClipboard`, `share`
 - Theme: `setTheme`
+
+**Missing Actions (2):**
+- [ ] `setHttpOnlyCookie` - Server-only HttpOnly cookie setting
+- [ ] `setSessionCookies` - (deprecated in spec, may not need implementation)
 
 ---
 
@@ -361,15 +365,16 @@ bun run build               # Build all packages
 
 ## Changelog
 
-### 2026-02-27 (Gap Analysis Update)
-- Verified formula count: 84 implemented (not 78 as previously stated)
-- Verified linting rules: 10 implemented (not 8 as previously stated)
+### 2026-02-27 (Verified Gap Analysis Update)
+- **Corrected formula count:** 78 implemented (not 84 as previously stated)
+- **Corrected action count:** 17 implemented (not 19 as previously stated)
+- **Corrected linting rules:** 10 implemented (verified)
 - Updated architecture diagram with accurate counts
 - Added detailed Code Inventory section with verified counts
 - No TODO/FIXME comments found in codebase
 - No placeholder implementations found
 - 2 skipped tests confirmed in runtime package
-- Spec gap analysis complete: 13 formula categories missing items
+- Spec gap analysis complete: 19 formulas missing, 48 linting rules missing, 2 actions missing
 
 ### 2026-02-26
 - Initial IMPLEMENTATION_PLAN.md created
