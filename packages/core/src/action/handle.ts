@@ -273,13 +273,13 @@ function handleCustom(
   
   // Handle cleanup function
   if (typeof result === 'function') {
-    ctx.dataSignal.subscribe(() => {}, { 
-      destroy: result 
+    ctx.dataSignal.subscribe(() => {}, {
+      destroy: result as () => void
     });
   } else if (result?.then && typeof result.then === 'function') {
     result.then((cleanup: unknown) => {
       if (typeof cleanup === 'function') {
-        ctx.dataSignal.subscribe(() => {}, { destroy: cleanup });
+        ctx.dataSignal.subscribe(() => {}, { destroy: cleanup as () => void });
       }
     });
   }

@@ -58,12 +58,10 @@ export function* walkProject(
     );
   };
   
-  const visit = (nodeType: NodeType, value: unknown, path: (string | number)[]) => {
-    if (!shouldVisit(path)) return;
+  const visit = (nodeType: NodeType, value: unknown, path: (string | number)[]): { visitor: Visitor; value: unknown; path: (string | number)[]; ctx: RuleContext }[] => {
+    if (!shouldVisit(path)) return [];
     const typeVisitors = visitorsByType.get(nodeType) || [];
-    for (const visitor of typeVisitors) {
-      yield { visitor, value, path, ctx };
-    }
+    return typeVisitors.map(visitor => ({ visitor, value, path, ctx }));
   };
   
   // Walk components

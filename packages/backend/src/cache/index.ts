@@ -144,7 +144,7 @@ function getFormulaCacheConfig(formula: unknown): { canCache: boolean; keys: str
       for (let i = 0; i < formulaObj.arguments.length; i++) {
         const arg = formulaObj.arguments[i];
         if (arg && typeof arg === 'object' && 'formula' in arg) {
-          visit(arg.formula, [...path, 'arguments', i, 'formula']);
+          visit(arg.formula, [...path, 'arguments', String(i), 'formula']);
         }
       }
     }

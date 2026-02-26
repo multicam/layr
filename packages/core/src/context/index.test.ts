@@ -20,7 +20,7 @@ describe('Context Providers', () => {
   describe('provide/consume', () => {
     test('provides and consumes a value', () => {
       provide('test-key', 'test-value');
-      expect(consume('test-key')).toBe('test-value');
+      expect(consume<string>('test-key')).toBe('test-value');
     });
 
     test('consumes with default value', () => {
@@ -34,17 +34,17 @@ describe('Context Providers', () => {
     test('provides a signal', () => {
       const signal = new Signal(10);
       provide('signal-key', signal);
-      
-      expect(consume('signal-key')).toBe(10);
-      
+
+      expect(consume<number>('signal-key')).toBe(10);
+
       signal.set(20);
-      expect(consume('signal-key')).toBe(20);
+      expect(consume<number>('signal-key')).toBe(20);
     });
 
     test('overwrites existing provider', () => {
       provide('key', 'first');
       provide('key', 'second');
-      expect(consume('key')).toBe('second');
+      expect(consume<string>('key')).toBe('second');
     });
   });
 
@@ -52,8 +52,8 @@ describe('Context Providers', () => {
     test('returns signal for signal provider', () => {
       const signal = new Signal(5);
       provide('sig-key', signal);
-      
-      const consumed = consumeSignal('sig-key');
+
+      const consumed = consumeSignal<number>('sig-key');
       expect(consumed).toBe(signal);
     });
 
@@ -133,43 +133,43 @@ describe('Context Providers', () => {
     test('provides and consumes in scope', () => {
       const scope = new ContextScope();
       scope.provide('scoped-key', 'scoped-value');
-      
-      expect(scope.consume('scoped-key')).toBe('scoped-value');
+
+      expect(scope.consume<string>('scoped-key')).toBe('scoped-value');
     });
 
     test('falls back to parent scope', () => {
       const parent = new ContextScope();
       const child = new ContextScope(parent);
-      
+
       parent.provide('parent-key', 'parent-value');
-      expect(child.consume('parent-key')).toBe('parent-value');
+      expect(child.consume<string>('parent-key')).toBe('parent-value');
     });
 
     test('falls back to global providers', () => {
       const scope = new ContextScope();
       provide('global-key', 'global-value');
-      
-      expect(scope.consume('global-key')).toBe('global-value');
+
+      expect(scope.consume<string>('global-key')).toBe('global-value');
     });
 
     test('scope takes precedence over global', () => {
       provide('key', 'global');
-      
+
       const scope = new ContextScope();
       scope.provide('key', 'scoped');
-      
-      expect(scope.consume('key')).toBe('scoped');
-      expect(consume('key')).toBe('global');
+
+      expect(scope.consume<string>('key')).toBe('scoped');
+      expect(consume<string>('key')).toBe('global');
     });
 
     test('child scope takes precedence over parent', () => {
       const parent = new ContextScope();
       const child = new ContextScope(parent);
-      
+
       parent.provide('key', 'parent');
       child.provide('key', 'child');
-      
-      expect(child.consume('key')).toBe('child');
+
+      expect(child.consume<string>('key')).toBe('child');
     });
 
     test('has() checks scope chain', () => {

@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { loadProject } from '../loader/project';
-import type { Project } from '@layr/types';
+import type { Project, Component } from '@layr/types';
 import { renderPageBody, escapeHtml } from '@layr/ssr';
 
 interface PageRouteParams {
@@ -11,8 +11,10 @@ interface PageRouteParams {
  * Match a route to a page in the project
  */
 function matchRoute(project: Project, pathname: string): { page: string; params: Record<string, string | null> } | null {
-  const pages = Object.values(project.files?.components || {})
-    .filter((c): c is NonNullable<typeof c> & { route: NonNullable<typeof c.route> } => c != null && c.route != null);
+  const components = project.files?.components || {};
+  const pages = Object.values(components).filter((c): c is Component & { route: NonNullable<Component['route']> } =>
+    c != null && c.route != null
+  );
   
   for (const page of pages) {
     const route = page.route;

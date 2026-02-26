@@ -3,7 +3,7 @@
  * Based on specs/api-integration.md
  */
 
-import type { Signal } from '@layr/core';
+import { Signal } from '@layr/core';
 import type { ApiStatus, ComponentData } from '@layr/types';
 
 export interface ApiClientConfig {
@@ -225,6 +225,3 @@ export function createApiSignal<T = unknown>(
   // For now, return a simple signal
   return new Signal({ data: null, isLoading: false, error: null });
 }
-
-// Need to import Signal class
-import { Signal } from '@layr/core';

@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { handleAction } from './handle';
 import type { ActionContext } from './handle';
-import type { Signal } from '../signal/signal';
 import { Signal } from '../signal/signal';
 import type { ComponentData } from '@layr/types';
 

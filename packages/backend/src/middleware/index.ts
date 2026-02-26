@@ -1,6 +1,6 @@
 import type { Context, Next } from 'hono';
 
-export type Middleware = (ctx: Context, next: Next) => Promise<void> | void;
+export type Middleware = (ctx: Context, next: Next) => Promise<void | Response> | void | Response;
 
 export function compose(middleware: Middleware[]): Middleware {
   return async (ctx, next) => {
@@ -41,7 +41,7 @@ export function corsMiddleware(options: {
     ctx.header('Access-Control-Allow-Headers', headers.join(', '));
     if (credentials) ctx.header('Access-Control-Allow-Credentials', 'true');
 
-    if (ctx.req.method === 'OPTIONS') return ctx.text('', 204);
+    if (ctx.req.method === 'OPTIONS') return new Response(null, { status: 204 });
     await next();
   };
 }
