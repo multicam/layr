@@ -178,7 +178,9 @@ function evaluateFunction(
   }
   
   // Not found
-  console.warn(`Formula not found: ${formula.name}`);
+  if (ctx.env?.logErrors) {
+    console.warn(`Formula not found: ${formula.name}`);
+  }
   return null;
 }
 
@@ -257,7 +259,9 @@ function evaluateApply(
   const componentFormula = ctx.component?.formulas?.[formula.name];
   
   if (!componentFormula) {
-    console.warn(`Component formula not found: ${formula.name}`);
+    if (ctx.env?.logErrors) {
+      console.warn(`Component formula not found: ${formula.name}`);
+    }
     return null;
   }
   
