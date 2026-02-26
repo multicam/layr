@@ -195,6 +195,24 @@ describe('clipboardStore', () => {
 });
 
 describe('readSystemClipboard', () => {
+  beforeEach(() => {
+    // Ensure navigator.clipboard exists on globalThis
+    if (typeof navigator === 'undefined') {
+      (globalThis as any).navigator = {
+        clipboard: {
+          readText: () => Promise.resolve(''),
+        },
+      };
+    } else if (!navigator.clipboard) {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          readText: () => Promise.resolve(''),
+        },
+        configurable: true,
+      });
+    }
+  });
+
   test('returns null when clipboard API fails', async () => {
     // Override clipboard API temporarily
     const original = navigator.clipboard;

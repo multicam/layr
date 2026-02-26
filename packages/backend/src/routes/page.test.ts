@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, mock, afterEach } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import { matchPath } from './page';
 
 describe('matchPath', () => {
