@@ -11,6 +11,7 @@ import {
   getToddleGlobal,
   initToddleGlobal,
   createComponentLifecycle,
+  logState,
 } from './index';
 import type { Component } from '@layr/types';
 import { Signal } from '@layr/core';
@@ -415,6 +416,308 @@ describe('Lifecycle System', () => {
       await lifecycle.initialize();
 
       expect(mountCalled).toBe(true);
+    });
+
+    test('instance mount callback cleanup removes from array', async () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let mountCalled = false;
+      const cleanup = lifecycle.onMount(() => { mountCalled = true; });
+      cleanup();
+
+      await lifecycle.initialize();
+
+      expect(mountCalled).toBe(false);
+    });
+
+    test('instance unmount callback cleanup removes from array', () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let unmountCalled = false;
+      const cleanup = lifecycle.onUnmount(() => { unmountCalled = true; });
+      cleanup();
+
+      lifecycle.destroy();
+
+      expect(unmountCalled).toBe(false);
+    });
+
+    test('instance attribute change callback cleanup removes from array', () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let attrCalled = false;
+      const cleanup = lifecycle.onAttributesChange(() => { attrCalled = true; });
+      cleanup();
+
+      lifecycle.handleAttributeChange({ test: 'value' });
+
+      expect(attrCalled).toBe(false);
+    });
+
+    test('handleAttributeChange executes actions', async () => {
+      let actionCalled = false;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onAttributeChange: {
+          actions: [{ type: 'SetVariable', name: 'test' }],
+        },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCalled = true;
+        },
+      });
+
+      await lifecycle.initialize();
+      lifecycle.handleAttributeChange({ foo: 'bar' });
+
+      expect(actionCalled).toBe(true);
+    });
+
+    test('handleAttributeChange fires instance callbacks', async () => {
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onAttributeChange: {
+          actions: [],
+        },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {},
+      });
+
+      let receivedAttrs: Record<string, unknown> | undefined;
+      lifecycle.onAttributesChange((attrs) => {
+        receivedAttrs = attrs;
+      });
+
+      await lifecycle.initialize();
+      lifecycle.handleAttributeChange({ test: 'value' });
+
+      expect(receivedAttrs).toEqual({ test: 'value' });
+    });
+
+    test('handleAttributeChange does nothing when destroyed', async () => {
+      let actionCalled = false;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onAttributeChange: {
+          actions: [{ type: 'SetVariable', name: 'test' }],
+        },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCalled = true;
+        },
+      });
+
+      // Don't initialize - just test handleAttributeChange directly
+      lifecycle.destroy();
+      lifecycle.handleAttributeChange({ foo: 'bar' });
+
+      expect(actionCalled).toBe(false);
+    });
+
+    test('handleAttributeChange does nothing without actions', async () => {
+      let actionCalled = false;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCalled = true;
+        },
+      });
+
+      await lifecycle.initialize();
+      lifecycle.handleAttributeChange({ foo: 'bar' });
+
+      expect(actionCalled).toBe(false);
+    });
+
+    test('subscribe to dataSignal for attribute changes', async () => {
+      let actionCalled = false;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onAttributeChange: {
+          actions: [{ type: 'SetVariable', name: 'test' }],
+        },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCalled = true;
+        },
+      });
+
+      await lifecycle.initialize();
+
+      // Trigger attribute change via signal update
+      dataSignal.set({ Variables: {}, Attributes: { changed: true } });
+
+      expect(actionCalled).toBe(true);
+    });
+
+    test('destroy unsubscribes from signal', async () => {
+      let actionCount = 0;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onAttributeChange: {
+          actions: [{ type: 'SetVariable', name: 'test' }],
+        },
+      };
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCount++;
+        },
+      });
+
+      await lifecycle.initialize();
+      const initialCount = actionCount;
+      lifecycle.destroy();
+
+      // This should not trigger additional actions after destroy
+      dataSignal.set({ Variables: {}, Attributes: { changed: true } });
+
+      expect(actionCount).toBe(initialCount);
+    });
+
+    test('onAttributesChange global cleanup removes callback', () => {
+      let called = false;
+      const cleanup = onAttributesChange(() => { called = true; });
+      cleanup();
+
+      triggerAttributeChange({ test: 'value' });
+
+      expect(called).toBe(false);
+    });
+
+    test('initialize breaks early if aborted', async () => {
+      let actionCalled = false;
+      const component: Component = {
+        name: 'Test',
+        nodes: { root: { id: 'root', type: 'element', tag: 'div', children: [] } },
+        onLoad: {
+          actions: [{ type: 'SetVariable', name: 'test' }],
+        },
+      };
+
+      abortController.abort(); // Pre-abort
+
+      const lifecycle = createComponentLifecycle({
+        component,
+        dataSignal,
+        abortController,
+        handleAction: async () => {
+          actionCalled = true;
+        },
+      });
+
+      await lifecycle.initialize();
+
+      expect(actionCalled).toBe(false);
+    });
+  });
+
+  describe('logState', () => {
+    test('logs nothing when toddle global not found', () => {
+      // Remove __toddle if present
+      delete (globalThis as any).__toddle;
+
+      // Should not throw
+      logState();
+    });
+
+    test('logs state when toddle global exists', () => {
+      initToddleGlobal({
+        project: 'test',
+        branch: 'main',
+        commit: 'abc',
+        env: {
+          isServer: false,
+          runtime: 'page',
+          logErrors: true,
+        },
+      });
+
+      // Should not throw
+      logState();
+    });
+
+    test('logs errors when present', () => {
+      const toddle = initToddleGlobal({
+        project: 'test',
+        branch: 'main',
+        commit: 'abc',
+        env: {
+          isServer: false,
+          runtime: 'page',
+          logErrors: false, // Disable error logging
+        },
+      });
+
+      toddle.errors.push(new Error('Test error'));
+
+      // Should not throw
+      logState();
     });
   });
 });

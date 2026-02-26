@@ -1,9 +1,10 @@
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import {
   BREAKPOINTS,
   renderMediaQuery,
   renderBreakpointQuery,
   variantSelector,
+  CustomPropertyStyleSheet,
   SYNTAX_FALLBACKS,
   renderPropertyDefinition,
   styleToCss,
@@ -178,6 +179,238 @@ describe('Responsive Styling System', () => {
     test('returns a breakpoint name', () => {
       const breakpoint = getCurrentBreakpoint();
       expect(['small', 'medium', 'large']).toContain(breakpoint);
+    });
+  });
+
+  describe('CustomPropertyStyleSheet', () => {
+    // Set up global CSS API mocks
+    class MockCSSStyleRule {
+      selectorText: string;
+      style: { setProperty: ReturnType<typeof mock>; removeProperty: ReturnType<typeof mock>; length: number };
+
+      constructor(selector: string) {
+        this.selectorText = selector;
+        this.style = {
+          setProperty: mock(() => {}),
+          removeProperty: mock(() => ''),
+          length: 0,
+        };
+      }
+    }
+
+    class MockCSSMediaRule {
+      cssRules: MockCSSStyleRule[];
+
+      constructor() {
+        this.cssRules = [];
+      }
+    }
+
+    let mockStyleSheet: {
+      cssRules: (MockCSSStyleRule | MockCSSMediaRule)[];
+      insertRule: ReturnType<typeof mock>;
+      deleteRule: ReturnType<typeof mock>;
+    };
+    let mockRoot: { adoptedStyleSheets: unknown[] };
+
+    beforeEach(() => {
+      // Set up global classes
+      Object.defineProperty(globalThis, 'CSSStyleRule', {
+        value: MockCSSStyleRule,
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(globalThis, 'CSSMediaRule', {
+        value: MockCSSMediaRule,
+        writable: true,
+        configurable: true,
+      });
+
+      mockStyleSheet = {
+        cssRules: [],
+        insertRule: mock((rule: string, index: number) => {
+          // Parse the rule and add appropriate mock
+          if (rule.startsWith('@media')) {
+            const mediaRule = new MockCSSMediaRule();
+            const styleRule = new MockCSSStyleRule(rule.match(/\{ ([^{]+) \{/)?.[1]?.trim() || '.unknown');
+            mediaRule.cssRules.push(styleRule);
+            mockStyleSheet.cssRules.push(mediaRule);
+          } else {
+            const selector = rule.replace(/\s*\{\s*\}\s*$/, '');
+            mockStyleSheet.cssRules.push(new MockCSSStyleRule(selector));
+          }
+          return index;
+        }),
+        deleteRule: mock((index: number) => {
+          mockStyleSheet.cssRules.splice(index, 1);
+        }),
+      };
+
+      mockRoot = {
+        adoptedStyleSheets: [],
+      };
+    });
+
+    test('creates new stylesheet when not provided', () => {
+      Object.defineProperty(globalThis, 'CSSStyleSheet', {
+        value: mock(() => mockStyleSheet),
+        writable: true,
+        configurable: true,
+      });
+
+      new CustomPropertyStyleSheet(mockRoot as unknown as Document);
+
+      expect(mockRoot.adoptedStyleSheets.length).toBe(1);
+    });
+
+    test('uses provided stylesheet', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      expect(mockRoot.adoptedStyleSheets.length).toBe(0);
+    });
+
+    test('registerProperty returns setter function', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      const setter = sheet.registerProperty('.my-element', '--my-color');
+
+      expect(typeof setter).toBe('function');
+      expect(mockStyleSheet.insertRule).toHaveBeenCalled();
+    });
+
+    test('registerProperty inserts media query rule when mediaQuery provided', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      sheet.registerProperty('.element', '--color', {
+        mediaQuery: { 'min-width': '768px' },
+      });
+
+      expect(mockStyleSheet.insertRule).toHaveBeenCalledWith(
+        expect.stringContaining('@media'),
+        expect.any(Number)
+      );
+    });
+
+    test('setter function sets property value', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      const setter = sheet.registerProperty('.element', '--color');
+      setter('red');
+
+      const rule = mockStyleSheet.cssRules[0] as MockCSSStyleRule;
+      expect(rule.style.setProperty).toHaveBeenCalledWith('--color', 'red');
+    });
+
+    test('unregisterProperty removes property', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      // Register first
+      sheet.registerProperty('.element', '--color');
+      // Then unregister
+      sheet.unregisterProperty('.element', '--color');
+
+      const rule = mockStyleSheet.cssRules[0] as MockCSSStyleRule;
+      expect(rule.style.removeProperty).toHaveBeenCalledWith('--color');
+    });
+
+    test('unregisterProperty with deepClean removes empty rule', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      // Register first
+      sheet.registerProperty('.element', '--color');
+      expect(mockStyleSheet.cssRules.length).toBe(1);
+
+      // Then unregister with deepClean
+      sheet.unregisterProperty('.element', '--color', { deepClean: true });
+
+      expect(mockStyleSheet.deleteRule).toHaveBeenCalled();
+    });
+
+    test('unregisterProperty keeps rule when not empty with deepClean', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      // Register first
+      sheet.registerProperty('.element', '--color');
+
+      // Set style length > 0 to simulate non-empty rule
+      const rule = mockStyleSheet.cssRules[0] as MockCSSStyleRule;
+      (rule.style as { length: number }).length = 2;
+
+      // Then unregister with deepClean
+      sheet.unregisterProperty('.element', '--color', { deepClean: true });
+
+      expect(mockStyleSheet.deleteRule).not.toHaveBeenCalled();
+    });
+
+    test('hydrateFromBase indexes existing rules', () => {
+      // Pre-populate with a rule
+      const existingRule = new MockCSSStyleRule('.existing');
+      mockStyleSheet.cssRules = [existingRule as unknown as MockCSSStyleRule];
+
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      // Register should use existing rule, not create new one
+      const setter = sheet.registerProperty('.existing', '--test');
+
+      // Should NOT have inserted a new rule (found existing)
+      expect(mockStyleSheet.insertRule).not.toHaveBeenCalled();
+    });
+
+    test('startingStyle wrapper in buildFullSelector', () => {
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      sheet.registerProperty('.element', '--opacity', { startingStyle: true });
+
+      expect(mockStyleSheet.insertRule).toHaveBeenCalledWith(
+        expect.stringContaining('@starting-style'),
+        expect.any(Number)
+      );
+    });
+
+    test('hydrateFromBase handles media rules', () => {
+      // Pre-populate with a media rule
+      const mediaRule = new MockCSSMediaRule();
+      const styleRule = new MockCSSStyleRule('.inside-media');
+      mediaRule.cssRules.push(styleRule);
+      mockStyleSheet.cssRules = [mediaRule as unknown as MockCSSMediaRule];
+
+      const sheet = new CustomPropertyStyleSheet(
+        mockRoot as unknown as Document,
+        mockStyleSheet as unknown as CSSStyleSheet
+      );
+
+      // Register should find the rule inside media
+      const setter = sheet.registerProperty('.inside-media', '--test');
+
+      // Should NOT have inserted a new rule
+      expect(mockStyleSheet.insertRule).not.toHaveBeenCalled();
     });
   });
 });
