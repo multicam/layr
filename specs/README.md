@@ -20,7 +20,14 @@ This directory contains technical specifications for the Layr visual development
 | Styleguide | 1 | 0 | 0 | 1 |
 | Standard Library | 0 | 2 | 0 | 2 |
 | Search | 0 | 2 | 0 | 2 |
-| **Total** | **51** | **6** | **0** | **57** |
+| Product | 1 | 0 | 0 | 1 |
+| **Total** | **52** | **6** | **0** | **58** |
+
+### Product Reference
+
+| Spec | Status | Description |
+|------|--------|-------------|
+| [00-product-reference.md](00-product-reference.md) | ✅ | Vision, users, features, success metrics |
 
 ### Partially Implemented
 
