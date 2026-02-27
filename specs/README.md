@@ -22,8 +22,8 @@ Technical specifications for the Layr visual web development platform — a clea
 | Phase | Count | Description |
 |-------|-------|-------------|
 | **MVP** | 22 specs | Fully implemented, tests passing |
-| **Partial** | 3 specs | Core features built, gaps tagged |
-| **Phase 2** | 1 spec | Spec ready, implementation not started |
+| **Partial** | 6 specs | Core features built, Phase 2 items remaining |
+| **Phase 2** | 0 specs | All core specs implemented |
 | **Deferred** | 1 spec (parked) | Custom elements |
 
 ---
@@ -46,8 +46,8 @@ Technical specifications for the Layr visual web development platform — a clea
 | 09 | [09-route-matching.md](09-route-matching.md) | `@layr/backend` | Backend route matching, dynamic params, catch-all |
 | 10 | [10-api-system.md](10-api-system.md) | `@layr/runtime`, `@layr/backend` | API definitions, fetch, request construction. Proxy routes [Phase 2] |
 | 11 | [11-page-lifecycle.md](11-page-lifecycle.md) | `@layr/runtime` | Mount/unmount, hydration, entry points. Custom element entry [Deferred] |
-| 12 | [12-standard-library.md](12-standard-library.md) | `@layr/lib` | 76 formulas + 17 actions. ~13 formulas [Phase 2] |
-| 13 | [13-search-and-linting.md](13-search-and-linting.md) | `@layr/search` | Project walker, 9/58 rules implemented. 49 rules [Phase 2] |
+| 12 | [12-standard-library.md](12-standard-library.md) | `@layr/lib` | 125 formulas + 18 actions — COMPLETE! |
+| 13 | [13-search-and-linting.md](13-search-and-linting.md) | `@layr/search` | Project walker, 57 rules — COMPLETE! |
 | 14 | [14-error-handling.md](14-error-handling.md) | `@layr/core`, `@layr/runtime` | Error collection, boundaries, debug. Editor overlays [Phase 2] |
 
 ### 20–26: Design & Presentation
@@ -89,8 +89,8 @@ Technical specifications for the Layr visual web development platform — a clea
   ┌──┼──────────────────────────┐
   │  │                          │
 @layr/lib    @layr/themes    @layr/search
-(76 formulas  (5 themes)     (9/58 lint rules)
- 17 actions)
+(125 formulas (5 themes)     (57 lint rules)
+ 18 actions)                 COMPLETE!
   │
   ├── @layr/ssr      ← Server-side rendering, head, fonts, SEO
   │
@@ -120,7 +120,7 @@ Each spec includes a phase summary table at the top.
 ```bash
 bun install
 bun run dev          # Backend (3000) + Editor (5173)
-bun test             # 1325+ tests, ~95% coverage
+bun test             # 1491+ tests, ~95% coverage
 ```
 
 Demo project: `http://localhost:3000/demo/`

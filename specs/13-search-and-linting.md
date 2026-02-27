@@ -15,8 +15,7 @@ Project-wide issue detection and auto-fix system. Walks all components, formulas
 | Problem streaming (`findProblems`) | [MVP] Implemented | Callback-based batching |
 | Fix application (`fixProblems`, `fixProject`) | [MVP] Implemented | JSON patch diffs |
 | Contextless evaluation | [MVP] Implemented | Static formula analysis |
-| Linting rules — 9 implemented | [MVP] Implemented | See rule table below |
-| Linting rules — 49 unbuilt | [Phase 2] | See rule table below |
+| Linting rules — 57 implemented | [MVP] Implemented | All rules complete! |
 | Search worker | [Phase 2] | Not yet implemented |
 
 ---
@@ -233,7 +232,7 @@ Used by: static condition rules (detect always-true/always-false node conditions
 
 ---
 
-## All Linting Rules (58 total)
+## All Linting Rules (57 total)
 
 ### Severity Guide
 
@@ -250,69 +249,64 @@ Used by: static condition rules (detect always-true/always-false node conditions
 | Rule Code | Category | Severity | Auto-fix | Phase | Description |
 |-----------|----------|----------|----------|-------|-------------|
 | `unknown action` | actions | error | No | [MVP] | Custom action name not found in registry or project |
-| `unknown trigger event` | actions | error | No | [Phase 2] | Event trigger references non-existent event |
-| `no reference component workflow` | actions | warning | No | [Phase 2] | Workflow is defined but never triggered |
-| `no reference api` | apis | warning | No | [Phase 2] | API is defined but never fetched |
-| `unknown api` | apis | error | No | [Phase 2] | Fetch action targets non-existent API |
-| `unknown api input` | apis | error | No | [Phase 2] | API input key does not match API definition |
+| `no reference api` | apis | warning | No | [MVP] | API is defined but never fetched |
+| `unknown api` | apis | error | No | [MVP] | Fetch action targets non-existent API |
+| `unknown api input` | apis | error | No | [MVP] | API input key does not match API definition |
 | `no reference attribute` | attributes | warning | No | [MVP] | Attribute defined on component but never read in formulas |
-| `unknown attribute` | attributes | error | No | [Phase 2] | Path formula reads `Attributes.X` but X is not defined |
-| `unknown component attribute` | attributes | error | No | [Phase 2] | Component instance passes attribute not declared by target component |
+| `unknown attribute` | attributes | error | No | [MVP] | Path formula reads `Attributes.X` but X is not defined |
+| `unknown component attribute` | attributes | error | No | [MVP] | Component instance passes attribute not declared by target component |
 | `unknown component` | components | error | No | [MVP] | Component node references component name not in project |
-| `no reference component` | components | warning | Yes | [Phase 2] | Component exists but is not used anywhere (excludes pages, exports) |
-| `no context consumers` | contexts | warning | No | [Phase 2] | Context provider has no consumers |
-| `unknown context formula` | contexts | error | No | [Phase 2] | Formula references context that is not available |
-| `unknown context provider formula` | contexts | error | No | [Phase 2] | Context provider formula reference is invalid |
-| `unknown context provider` | contexts | error | No | [Phase 2] | Context consumer has no matching provider |
-| `unknown context provider workflow` | contexts | error | No | [Phase 2] | Provider workflow reference is invalid |
-| `unknown context workflow` | contexts | error | No | [Phase 2] | Context workflow reference is invalid |
-| `non empty void element` | dom | error | No | [Phase 2] | Void element (e.g. `<img>`, `<br>`) has child nodes |
-| `missing alt attribute` | dom | warning | No | [Phase 2] | `<img>` element missing `alt` attribute |
-| `missing meta description` | dom | warning | No | [Phase 2] | Page is missing `<meta name="description">` |
-| `invalid list children` | dom | error | No | [Phase 2] | `<ul>`/`<ol>` direct children are not `<li>` |
-| `element without interactive content` | dom | warning | No | [Phase 2] | Non-interactive content issues (click handler on non-interactive element) |
-| `image without dimension` | dom | warning | No | [Phase 2] | `<img>` missing width/height/aspect-ratio (causes CLS) |
-| `dom rule 7` | dom | warning | No | [Phase 2] | Reserved DOM rule |
-| `dom rule 8` | dom | warning | No | [Phase 2] | Reserved DOM rule |
-| `dom rule 9` | dom | warning | No | [Phase 2] | Reserved DOM rule |
-| `duplicate event trigger` | events | warning | No | [Phase 2] | Multiple handlers registered for same event trigger |
-| `no reference event` | events | warning | No | [Phase 2] | Event is defined but never triggered |
+| `no reference component` | components | warning | Yes | [MVP] | Component exists but is not used anywhere (excludes pages, exports) |
+| `no context consumers` | contexts | warning | No | [MVP] | Context provider has no consumers |
+| `unknown context formula` | contexts | error | No | [MVP] | Formula references context that is not available |
+| `unknown context provider formula` | contexts | error | No | [MVP] | Context provider formula reference is invalid |
+| `unknown context provider` | contexts | error | No | [MVP] | Context consumer has no matching provider |
+| `unknown context provider workflow` | contexts | error | No | [MVP] | Provider workflow reference is invalid |
+| `unknown context workflow` | contexts | error | No | [MVP] | Context workflow reference is invalid |
+| `non empty void element` | dom | error | No | [MVP] | Void element (e.g. `<img>`, `<br>`) has child nodes |
+| `missing alt attribute` | dom | warning | No | [MVP] | `<img>` element missing `alt` attribute |
+| `missing meta description` | dom | warning | No | [MVP] | Page is missing `<meta name="description">` |
+| `invalid list children` | dom | error | No | [MVP] | `<ul>`/`<ol>` direct children are not `<li>` |
+| `element without interactive content` | dom | warning | No | [MVP] | Non-interactive content issues (click handler on non-interactive element) |
+| `image without dimension` | dom | warning | No | [MVP] | `<img>` missing width/height/aspect-ratio (causes CLS) |
+| `duplicate event trigger` | events | warning | No | [MVP] | Multiple handlers registered for same event trigger |
+| `no reference event` | events | warning | No | [MVP] | Event is defined but never triggered |
 | `unknown event` | events | error | No | [MVP] | `TriggerEvent` action references event not defined on component |
-| `unknown trigger event` | events | error | No | [Phase 2] | Event trigger references non-existent event |
-| `duplicate formula argument name` | formulas | error | No | [Phase 2] | Formula has two arguments with the same name |
-| `no reference component formula` | formulas | warning | No | [Phase 2] | Component formula is defined but never called |
-| `no reference project formula` | formulas | warning | No | [Phase 2] | Project-level formula is defined but never called |
+| `unknown trigger event` | events | error | No | [MVP] | Event trigger references non-existent event |
+| `duplicate formula argument name` | formulas | error | No | [MVP] | Formula has two arguments with the same name |
+| `no reference component formula` | formulas | warning | No | [MVP] | Component formula is defined but never called |
+| `no reference project formula` | formulas | warning | No | [MVP] | Project-level formula is defined but never called |
 | `unknown formula` | formulas | error | No | [MVP] | Path formula references `Formulas.X` but X is not defined |
 | `no static node condition` | logic | warning | Yes | [MVP] | Node condition formula is statically always truthy or falsy |
 | `no unnecessary condition truthy` | logic | warning | Yes | [MVP] | Node condition formula statically evaluates to `true` — remove it |
 | `no unnecessary condition falsy` | logic | warning | Yes | [MVP] | Node condition formula statically evaluates to `false` — remove node |
-| `unknown project formula` | logic | error | No | [Phase 2] | Formula references project formula that does not exist |
-| `unknown repeat index formula` | logic | error | No | [Phase 2] | Repeat index formula references invalid path |
-| `unknown repeat item formula` | logic | error | No | [Phase 2] | Repeat item formula references invalid path |
-| `switch unreachable case` | logic | warning | No | [Phase 2] | Switch case is unreachable (prior case always matches) |
-| `no reference node` | misc | warning | No | [Phase 2] | Node exists in nodes map but is not reachable from root |
-| `require extension` | misc | info | No | [Phase 2] | Required extension is not installed |
-| `unknown cookie` | misc | error | No | [Phase 2] | Formula reads cookie that is not declared |
-| `duplicate url parameter` | routing | error | No | [Phase 2] | Same URL parameter name appears twice in a route |
-| `duplicate route` | routing | error | No | [Phase 2] | Two pages resolve to the same route pattern |
-| `unknown set url parameter` | routing | error | No | [Phase 2] | `SetURLParameter` targets parameter not defined in route |
-| `unknown url parameter` | routing | error | No | [Phase 2] | Formula reads URL parameter that is not defined |
-| `unknown component slot` | slots | error | No | [Phase 2] | Slot node references slot not declared by target component |
-| `invalid style syntax` | styles | error | Yes | [Phase 2] | CSS value fails PostCSS parsing |
-| `unknown classname` | styles | error | No | [Phase 2] | `className` references a class name not defined in project |
-| `unknown css variable` | styles | error | No | [Phase 2] | CSS `var(--x)` references undefined CSS custom property |
-| `no reference global css variable` | styles | warning | No | [Phase 2] | Global CSS variable defined but never referenced |
+| `unknown project formula` | logic | error | No | [MVP] | Formula references project formula that does not exist |
+| `unknown repeat index formula` | logic | error | No | [MVP] | Repeat index formula references invalid path |
+| `unknown repeat item formula` | logic | error | No | [MVP] | Repeat item formula references invalid path |
+| `switch unreachable case` | logic | warning | No | [MVP] | Switch case is unreachable (prior case always matches) |
+| `no reference node` | misc | warning | No | [MVP] | Node exists in nodes map but is not reachable from root |
+| `require extension` | misc | info | No | [MVP] | Required extension is not installed |
+| `unknown cookie` | misc | error | No | [MVP] | Formula reads cookie that is not declared |
+| `duplicate url parameter` | routing | error | No | [MVP] | Same URL parameter name appears twice in a route |
+| `duplicate route` | routing | error | No | [MVP] | Two pages resolve to the same route pattern |
+| `unknown set url parameter` | routing | error | No | [MVP] | `SetURLParameter` targets parameter not defined in route |
+| `unknown url parameter` | routing | error | No | [MVP] | Formula reads URL parameter that is not defined |
+| `unknown component slot` | slots | error | No | [MVP] | Slot node references slot not declared by target component |
+| `invalid style syntax` | styles | error | Yes | [MVP] | CSS value fails PostCSS parsing |
+| `unknown classname` | styles | error | No | [MVP] | `className` references a class name not defined in project |
+| `unknown css variable` | styles | error | No | [MVP] | CSS `var(--x)` references undefined CSS custom property |
+| `no reference global css variable` | styles | warning | No | [MVP] | Global CSS variable defined but never referenced |
 | `no reference variable` | variables | warning | No | [MVP] | Component variable is defined but never read in any formula |
 | `unknown variable` | variables | error | No | [MVP] | Path formula reads `Variables.X` but X is not defined on component |
-| `unknown variable setter` | variables | error | No | [Phase 2] | `SetVariable` action targets variable that does not exist |
-| `duplicate workflow parameter` | workflows | error | No | [Phase 2] | Workflow has two parameters with the same name |
-| `no post navigate action` | workflows | warning | Yes | [Phase 2] | Actions placed after `goToURL` are unreachable |
-| `no reference component workflow` | workflows | warning | No | [Phase 2] | Workflow is defined but never called |
-| `unknown trigger workflow parameter` | workflows | error | No | [Phase 2] | Workflow trigger passes parameter not declared |
-| `unknown trigger workflow` | workflows | error | No | [Phase 2] | `TriggerWorkflow` action targets workflow that does not exist |
-| `unknown workflow parameter` | workflows | error | No | [Phase 2] | Formula reads `Parameters.X` but X is not a workflow parameter |
+| `unknown variable setter` | variables | error | No | [MVP] | `SetVariable` action targets variable that does not exist |
+| `duplicate workflow parameter` | workflows | error | No | [MVP] | Workflow has two parameters with the same name |
+| `no post navigate action` | workflows | warning | Yes | [MVP] | Actions placed after `goToURL` are unreachable |
+| `no reference component workflow` | workflows | warning | No | [MVP] | Workflow is defined but never called |
+| `unknown trigger workflow parameter` | workflows | error | No | [MVP] | Workflow trigger passes parameter not declared |
+| `unknown trigger workflow` | workflows | error | No | [MVP] | `TriggerWorkflow` action targets workflow that does not exist |
+| `unknown workflow parameter` | workflows | error | No | [MVP] | Formula reads `Parameters.X` but X is not a workflow parameter |
 
-**Totals:** 9 implemented [MVP], 49 unbuilt [Phase 2]
+**Totals:** 57 rules implemented [MVP] — ALL COMPLETE!
 
 ---
 

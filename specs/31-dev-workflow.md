@@ -15,7 +15,7 @@ Development loop, hot reload behavior, test runner configuration, and the `@layr
 | Vite HMR for editor | MVP |
 | `bun test` across all packages | MVP |
 | `@layr/test-harness` preview/mock API | MVP |
-| 1325+ tests, ~95% coverage | MVP |
+| 1491+ tests, ~95% coverage | MVP |
 | `happy-dom` as DOM environment | MVP |
 | VS Code launch configs | MVP |
 | `bun run precommit` gate | Phase 2 |
