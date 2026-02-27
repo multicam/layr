@@ -19,6 +19,7 @@ import {
   unknownAttributeRule,
   // Components
   unknownComponentRule,
+  noReferenceComponentRule,
   // Contexts
   unknownContextProviderRule,
   unknownContextProviderFormulaRule,
@@ -31,8 +32,13 @@ import {
   missingAltAttributeRule,
   // Events
   unknownEventRule,
+  duplicateEventTriggerRule,
+  noReferenceEventRule,
   // Formulas
   unknownFormulaRule,
+  duplicateFormulaArgumentNameRule,
+  noReferenceComponentFormulaRule,
+  noReferenceProjectFormulaRule,
   // Logic
   noStaticNodeConditionRule,
   noUnnecessaryConditionTruthyRule,
@@ -40,6 +46,8 @@ import {
   // Routing
   duplicateRouteRule,
   duplicateUrlParameterRule,
+  unknownUrlParameterRule,
+  unknownSetUrlParameterRule,
   // Variables
   unknownVariableRule,
   noReferenceVariableRule,
@@ -47,6 +55,8 @@ import {
   // Workflows
   unknownTriggerWorkflowRule,
   unknownWorkflowParameterRule,
+  duplicateWorkflowParameterRule,
+  noPostNavigateAction,
 } from './rules';
 
 // ============================================================================
@@ -224,6 +234,7 @@ function getAllRules(): Rule[] {
 
     // Components
     unknownComponentRule,
+    noReferenceComponentRule,
 
     // Contexts
     unknownContextProviderRule,
@@ -239,9 +250,14 @@ function getAllRules(): Rule[] {
 
     // Events
     unknownEventRule,
+    duplicateEventTriggerRule,
+    noReferenceEventRule,
 
     // Formulas
     unknownFormulaRule,
+    duplicateFormulaArgumentNameRule,
+    noReferenceComponentFormulaRule,
+    noReferenceProjectFormulaRule,
 
     // Logic
     noStaticNodeConditionRule,
@@ -251,6 +267,8 @@ function getAllRules(): Rule[] {
     // Routing
     duplicateRouteRule,
     duplicateUrlParameterRule,
+    unknownUrlParameterRule,
+    unknownSetUrlParameterRule,
 
     // Variables
     unknownVariableRule,
@@ -260,6 +278,8 @@ function getAllRules(): Rule[] {
     // Workflows
     unknownTriggerWorkflowRule,
     unknownWorkflowParameterRule,
+    duplicateWorkflowParameterRule,
+    noPostNavigateAction,
   ];
 }
 
