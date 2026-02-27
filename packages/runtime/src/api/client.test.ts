@@ -208,12 +208,334 @@ describe('API Client credentials', () => {
       baseUrl: 'https://httpbin.org',
       credentials: 'include',
     });
-    
+
     const result = await client.fetch('creds', {
       method: 'GET',
       url: '/cookies',
     });
-    
+
     expect(result.error).toBeNull();
+  });
+});
+
+describe('API Client HTTP errors', () => {
+  test('handles HTTP 404 error', async () => {
+    const signal = createTestSignal();
+
+    // Mock fetch to return 404
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      return new Response('Not Found', {
+        status: 404,
+        statusText: 'Not Found',
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal);
+
+      const result = await client.fetch('notfound', {
+        method: 'GET',
+        url: 'https://example.com/notfound',
+      });
+
+      expect(result.error).toBeDefined();
+      expect((result.error as Error).message).toBe('HTTP 404: Not Found');
+      expect(result.isLoading).toBe(false);
+      expect(result.data).toBeNull();
+      expect(result.response?.status).toBe(404);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('handles HTTP 500 error', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      return new Response('Internal Server Error', {
+        status: 500,
+        statusText: 'Internal Server Error',
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal);
+
+      const result = await client.fetch('server-error', {
+        method: 'POST',
+        url: 'https://example.com/api/error',
+      });
+
+      expect(result.error).toBeDefined();
+      expect((result.error as Error).message).toBe('HTTP 500: Internal Server Error');
+      expect(result.response?.status).toBe(500);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('handles HTTP 401 unauthorized', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      return new Response('Unauthorized', {
+        status: 401,
+        statusText: 'Unauthorized',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal);
+
+      const result = await client.fetch('unauthorized', {
+        method: 'GET',
+        url: 'https://example.com/protected',
+      });
+
+      expect(result.error).toBeDefined();
+      expect((result.error as Error).message).toBe('HTTP 401: Unauthorized');
+      expect(result.response?.status).toBe(401);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('includes response headers in error status', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      return new Response('Bad Request', {
+        status: 400,
+        statusText: 'Bad Request',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Error-Code': 'INVALID_INPUT',
+        },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal);
+
+      const result = await client.fetch('bad-request', {
+        method: 'POST',
+        url: 'https://example.com/api',
+        body: { test: 'data' },
+      });
+
+      expect(result.response?.headers).toBeDefined();
+      expect(result.response?.headers['x-error-code']).toBe('INVALID_INPUT');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+describe('API Client abort behavior', () => {
+  test('aborts existing request when new request starts with same name', async () => {
+    const signal = createTestSignal();
+    const abortEvents: string[] = [];
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async (url: string | URL | Request, init?: RequestInit) => {
+      // Listen for abort
+      init?.signal?.addEventListener('abort', () => {
+        abortEvents.push('aborted');
+      });
+
+      // Simulate slow request
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal);
+
+      // Start first request (don't await)
+      const firstPromise = client.fetch('duplicate', {
+        method: 'GET',
+        url: 'https://example.com/slow',
+      });
+
+      // Small delay to ensure first request started
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Start second request with same name
+      const secondPromise = client.fetch('duplicate', {
+        method: 'GET',
+        url: 'https://example.com/fast',
+      });
+
+      // Wait for both
+      await Promise.all([firstPromise, secondPromise]);
+
+      // First request should have been aborted
+      expect(abortEvents).toContain('aborted');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+describe('API Client buildUrl', () => {
+  test('handles absolute URLs without baseUrl', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    let fetchedUrl: string = '';
+    globalThis.fetch = async (url: string | URL | Request) => {
+      fetchedUrl = url.toString();
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal, { baseUrl: 'https://default.com' });
+
+      await client.fetch('absolute', {
+        method: 'GET',
+        url: 'https://custom.com/path',
+      });
+
+      // Should use absolute URL, not baseUrl
+      expect(fetchedUrl).toBe('https://custom.com/path');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('handles http:// absolute URLs', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    let fetchedUrl: string = '';
+    globalThis.fetch = async (url: string | URL | Request) => {
+      fetchedUrl = url.toString();
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal, { baseUrl: 'https://default.com' });
+
+      await client.fetch('http-url', {
+        method: 'GET',
+        url: 'http://insecure.com/path',
+      });
+
+      expect(fetchedUrl).toBe('http://insecure.com/path');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('appends path without leading slash to baseUrl', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    let fetchedUrl: string = '';
+    globalThis.fetch = async (url: string | URL | Request) => {
+      fetchedUrl = url.toString();
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal, { baseUrl: 'https://api.example.com' });
+
+      await client.fetch('no-slash', {
+        method: 'GET',
+        url: 'users/list',
+      });
+
+      expect(fetchedUrl).toBe('https://api.example.com/users/list');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('handles path without baseUrl', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    let fetchedUrl: string = '';
+    globalThis.fetch = async (url: string | URL | Request) => {
+      fetchedUrl = url.toString();
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal); // No baseUrl
+
+      await client.fetch('no-base', {
+        method: 'GET',
+        url: '/api/users',
+      });
+
+      expect(fetchedUrl).toBe('/api/users');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('removes trailing slash from baseUrl', async () => {
+    const signal = createTestSignal();
+
+    const originalFetch = globalThis.fetch;
+    let fetchedUrl: string = '';
+    globalThis.fetch = async (url: string | URL | Request) => {
+      fetchedUrl = url.toString();
+      return new Response(JSON.stringify({}), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    };
+
+    try {
+      const client = createApiClient(signal, { baseUrl: 'https://api.example.com/' });
+
+      await client.fetch('trailing', {
+        method: 'GET',
+        url: '/users',
+      });
+
+      expect(fetchedUrl).toBe('https://api.example.com/users');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+describe('createApiSignal', () => {
+  test('creates signal with initial status', () => {
+    const signal = createTestSignal();
+    const client = createApiClient(signal);
+    const apiSignal = createApiSignal(client, 'test');
+
+    expect(apiSignal.get()).toEqual({
+      data: null,
+      isLoading: false,
+      error: null,
+    });
   });
 });

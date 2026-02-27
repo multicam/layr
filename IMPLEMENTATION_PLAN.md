@@ -4,11 +4,29 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1945
+**Total Tests:** 1965
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Test Coverage Improvements - Phase 7)
+- **Improved test coverage with 20 new tests for packages/runtime:**
+  - **packages/runtime/src/api/client.ts** - Coverage improved from 90.91% to 100% (functions), 82.71% to 99.24% (lines)
+    - Added tests for HTTP error handling (404, 500, 401 errors)
+    - Added tests for abort behavior when duplicate requests
+    - Added tests for buildUrl edge cases (absolute URLs, path without baseUrl, trailing slashes)
+    - Added tests for createApiSignal function
+    - Added tests for response headers in error status
+  - **packages/runtime/src/events/index.ts** - Coverage improved from 84.62% to 92.31% (functions), 80.34% to 99.15% (lines)
+    - Added tests for SubmitEvent handling (form data extraction)
+    - Added tests for FocusEvent handling (relatedTarget)
+    - Added tests for extractElementData (href, src, disabled)
+    - Added tests for handleEvent action execution
+    - Added tests for currentTarget extraction
+- **All 1965 tests pass** (up from 1945)
+- **Overall coverage: 96.31% functions, 94.82% lines**
+- **Created git tag 0.0.24** for test coverage improvements
 
 ### 2026-02-27 (Test Coverage Improvements - Phase 6)
 - **Improved test coverage with 73 new tests for packages/types:**
