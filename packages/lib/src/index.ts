@@ -24,6 +24,9 @@ import { registerObjectFormulas } from './formulas/object';
 import { registerLogicFormulas } from './formulas/logic';
 import { registerComparisonFormulas } from './formulas/comparison';
 import { registerUtilityFormulas } from './formulas/utility';
+import { registerDatetimeFormulas } from './formulas/datetime';
+import { registerEnvironmentFormulas } from './formulas/environment';
+import { registerStorageFormulas } from './formulas/storage';
 
 registerArrayFormulas();
 registerStringFormulas();
@@ -32,6 +35,9 @@ registerObjectFormulas();
 registerLogicFormulas();
 registerComparisonFormulas();
 registerUtilityFormulas();
+registerDatetimeFormulas();
+registerEnvironmentFormulas();
+registerStorageFormulas();
 
 // Actions
 export { actions, registerAction, getAction, registerActions } from './actions';

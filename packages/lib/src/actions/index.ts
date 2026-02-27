@@ -76,18 +76,43 @@ const setCookie: ActionHandler = (args) => {
   if (typeof document === 'undefined') return;
   const { name, value, expiresIn, sameSite = 'Lax', path = '/' } = args;
   if (typeof name !== 'string') return;
-  
+
   let cookie = `${encodeURIComponent(name)}=${encodeURIComponent(String(value))}`;
-  
+
   if (typeof expiresIn === 'number') {
     const expires = new Date(Date.now() + expiresIn * 1000);
     cookie += `; Expires=${expires.toUTCString()}`;
   }
-  
+
   cookie += `; Path=${path}`;
   cookie += `; SameSite=${sameSite}`;
-  
+
   document.cookie = cookie;
+};
+
+const setHttpOnlyCookie: ActionHandler = async (args, ctx) => {
+  const { name, value, expiresIn, sameSite = 'Lax', path = '/' } = args;
+  if (typeof name !== 'string') return;
+
+  // Build URL for cookie endpoint
+  const params = new URLSearchParams({
+    name,
+    value: String(value ?? ''),
+    sameSite: String(sameSite),
+    path: String(path),
+  });
+
+  if (typeof expiresIn === 'number') {
+    params.set('ttl', String(expiresIn));
+  }
+
+  // Make request to cookie endpoint
+  // The backend provides a /__cookie endpoint for setting HttpOnly cookies
+  try {
+    await fetch(`/__cookie?${params.toString()}`, { method: 'POST' });
+  } catch {
+    // Silently fail - HttpOnly cookies may not be supported in all environments
+  }
 };
 
 // ============================================================================
@@ -237,6 +262,7 @@ export function registerActions(): void {
   
   // Cookies
   registerAction('@toddle/setCookie', setCookie);
+  registerAction('@toddle/setHttpOnlyCookie', setHttpOnlyCookie);
   
   // Navigation
   registerAction('@toddle/goToURL', goToURL);
