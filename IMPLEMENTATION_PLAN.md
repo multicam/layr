@@ -29,6 +29,7 @@
     - Tests cover: hex color validation, calc() syntax, non-string values
     - Tests cover: null breakpoint styles/declarations, auto-fix functionality
 - **All 1762 tests pass** (up from 1701)
+- **Created git tag 0.0.20** for test coverage improvements
 
 ### 2026-02-27 (Additional Linting Rule Test Coverage Improvements)
 - **Improved linting rule test coverage with 86 new tests:**
