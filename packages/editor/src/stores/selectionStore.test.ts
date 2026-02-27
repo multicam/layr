@@ -38,6 +38,25 @@ describe('selectionStore', () => {
     });
   });
 
+  describe('deselect', () => {
+    test('deselects a single item', () => {
+      useSelectionStore.getState().selectMultiple(['a', 'b', 'c']);
+      useSelectionStore.getState().deselect('b');
+      expect(useSelectionStore.getState().selectedIds).toEqual(['a', 'c']);
+    });
+
+    test('handles deselecting non-existent item', () => {
+      useSelectionStore.getState().selectMultiple(['a', 'b']);
+      useSelectionStore.getState().deselect('x');
+      expect(useSelectionStore.getState().selectedIds).toEqual(['a', 'b']);
+    });
+
+    test('deselecting from empty selection', () => {
+      useSelectionStore.getState().deselect('a');
+      expect(useSelectionStore.getState().selectedIds).toEqual([]);
+    });
+  });
+
   describe('clearSelection', () => {
     test('clears all selection', () => {
       useSelectionStore.getState().select('item1');

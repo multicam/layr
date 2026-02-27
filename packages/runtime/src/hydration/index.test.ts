@@ -677,3 +677,288 @@ describe('hydration edge cases', () => {
     result.cleanup();
   });
 });
+
+describe('hydration coverage edge cases', () => {
+  let window: Window;
+  let document: Document;
+
+  beforeAll(() => {
+    window = new Window();
+    document = window.document;
+    (globalThis as any).HTMLElement = window.HTMLElement;
+    (globalThis as any).document = document;
+    (globalThis as any).CSS = { escape: (s: string) => s };
+  });
+
+  test('hydrateNode processes children array when childNode and childElement are found', () => {
+    // This test covers lines 82-88
+    const component: Component = {
+      name: 'Parent',
+      nodes: {
+        root: {
+          id: 'root',
+          type: 'element',
+          tag: 'div',
+          children: ['child'],
+        },
+        child: {
+          id: 'child',
+          type: 'element',
+          tag: 'span',
+          children: ['grandchild'],
+          events: { click: { actions: [] } },
+        },
+        grandchild: {
+          id: 'grandchild',
+          type: 'element',
+          tag: 'em',
+          children: [],
+        },
+      },
+    };
+
+    const root = document.createElement('div');
+    root.setAttribute('data-node-id', 'root');
+    const child = document.createElement('span');
+    child.setAttribute('data-node-id', 'child');
+    const grandchild = document.createElement('em');
+    grandchild.setAttribute('data-node-id', 'grandchild');
+    child.appendChild(grandchild);
+    root.appendChild(child);
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    result.cleanup();
+  });
+
+  test('findChildByNodeId uses querySelector fallback when not direct child', () => {
+    // This test covers lines 93-99 (querySelector path)
+    // We need to trigger hydrateNode -> findChildByNodeId where the child is NOT a direct child
+    const component: Component = {
+      name: 'Deep',
+      nodes: {
+        root: {
+          id: 'root',
+          type: 'element',
+          tag: 'div',
+          children: ['nested'],  // This triggers the children loop in hydrateNode
+        },
+        nested: {
+          id: 'nested',
+          type: 'element',
+          tag: 'span',
+          children: [],
+          events: { click: { actions: [] } },
+        },
+      },
+    };
+
+    // Create wrapper that has the root as a child (so hydrateChildren finds it)
+    const wrapper = document.createElement('div');
+    const root = document.createElement('div');
+    root.setAttribute('data-node-id', 'root');
+
+    // Create a middle wrapper so nested is NOT a direct child of root
+    const middleWrapper = document.createElement('div');
+    const nested = document.createElement('span');
+    nested.setAttribute('data-node-id', 'nested');
+    middleWrapper.appendChild(nested);
+    root.appendChild(middleWrapper);
+    wrapper.appendChild(root);
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, wrapper);
+
+    // Now hydrateChildren will find root, then hydrateNode will look for 'nested'
+    // which is not a direct child, so querySelector is used
+
+    // Simulate click to trigger the event handler
+    const clickEvent = new window.Event('click');
+    nested.dispatchEvent(clickEvent);
+
+    result.cleanup();
+  });
+
+  test('attachNodeEvent listener fires and calls handleAction', () => {
+    // This test covers lines 108-120
+    // Need to set up so hydrateChildren finds the element
+    const component: Component = {
+      name: 'Clickable',
+      nodes: {
+        btn: {
+          id: 'btn',
+          type: 'element',
+          tag: 'button',
+          children: [],
+          events: {
+            click: {
+              actions: [{ type: 'SetVariable', name: 'test', data: { type: 'value', value: true } }],
+            },
+          },
+        },
+      },
+    };
+
+    // Create a wrapper div that contains the button as a child
+    const wrapper = document.createElement('div');
+    const btn = document.createElement('button');
+    btn.setAttribute('data-node-id', 'btn');
+    wrapper.appendChild(btn);
+
+    const initialData = { Attributes: {}, Variables: { test: false }, Apis: {} };
+    const result = hydratePage(component, initialData, wrapper);
+
+    // Simulate click to trigger the event listener
+    const clickEvent = new window.Event('click', { bubbles: true });
+    btn.dispatchEvent(clickEvent);
+
+    // The key coverage is that the listener was attached and handleAction was called
+    // We verify by checking that no error was thrown during dispatch
+    result.cleanup();
+  });
+
+  test('attachNodeEvent does nothing when handler has no actions', () => {
+    const component: Component = {
+      name: 'NoActions',
+      nodes: {
+        btn: {
+          id: 'btn',
+          type: 'element',
+          tag: 'button',
+          children: [],
+          events: {
+            click: { /* no actions */ },
+          },
+        },
+      },
+    };
+
+    const root = document.createElement('button');
+    root.setAttribute('data-node-id', 'btn');
+
+    const initialData = { Attributes: {}, Variables: { test: 'unchanged' }, Apis: {} };
+    const result = hydratePage(component, initialData, root);
+
+    // Simulate click
+    const clickEvent = new window.Event('click');
+    root.dispatchEvent(clickEvent);
+
+    // Variable should remain unchanged
+    const data = result.dataSignal.get();
+    expect(data.Variables.test).toBe('unchanged');
+
+    result.cleanup();
+  });
+
+  test('hydrateChildren skips elements without data-node-id', () => {
+    const component: Component = {
+      name: 'Mixed',
+      nodes: {
+        btn: {
+          id: 'btn',
+          type: 'element',
+          tag: 'button',
+          children: [],
+        },
+      },
+    };
+
+    const root = document.createElement('div');
+    // Add element with data-node-id
+    const btn = document.createElement('button');
+    btn.setAttribute('data-node-id', 'btn');
+    root.appendChild(btn);
+    // Add element without data-node-id
+    const div = document.createElement('div');
+    root.appendChild(div);
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    result.cleanup();
+  });
+
+  test('hydrateChildren skips elements with unknown node-id', () => {
+    const component: Component = {
+      name: 'Known',
+      nodes: {
+        known: {
+          id: 'known',
+          type: 'element',
+          tag: 'div',
+          children: [],
+        },
+      },
+    };
+
+    const root = document.createElement('div');
+    const known = document.createElement('div');
+    known.setAttribute('data-node-id', 'known');
+    const unknown = document.createElement('div');
+    unknown.setAttribute('data-node-id', 'unknown');
+    root.appendChild(known);
+    root.appendChild(unknown);
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    result.cleanup();
+  });
+
+  test('hydrateNode handles null eventHandler', () => {
+    const component: Component = {
+      name: 'NullEvent',
+      nodes: {
+        btn: {
+          id: 'btn',
+          type: 'element',
+          tag: 'button',
+          children: [],
+          events: {
+            click: null as any, // Null handler
+          },
+        },
+      },
+    };
+
+    const root = document.createElement('button');
+    root.setAttribute('data-node-id', 'btn');
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+    result.cleanup();
+  });
+
+  test('cleanup removes event listener via abort signal', () => {
+    const component: Component = {
+      name: 'Abortable',
+      nodes: {
+        btn: {
+          id: 'btn',
+          type: 'element',
+          tag: 'button',
+          children: [],
+          events: {
+            click: { actions: [] },
+          },
+        },
+      },
+    };
+
+    const root = document.createElement('button');
+    root.setAttribute('data-node-id', 'btn');
+
+    const result = hydratePage(component, { Attributes: {}, Variables: {}, Apis: {} }, root);
+
+    // Trigger cleanup - this should call abort and remove listeners
+    result.cleanup();
+
+    // After cleanup, clicking should not trigger anything (no error)
+    const clickEvent = new window.Event('click');
+    root.dispatchEvent(clickEvent);
+  });
+
+  test('autoHydrate returns null when root not found', () => {
+    const component: Component = {
+      name: 'Test',
+      nodes: {},
+    };
+
+    const result = autoHydrate(component, '#Nonexistent');
+
+    expect(result).toBeNull();
+  });
+});

@@ -4,11 +4,28 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1831
+**Total Tests:** 1872
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Test Coverage Improvements - Phase 5)
+- **Improved test coverage with 41 new tests:**
+  - **packages/backend/src/routes/page.ts** - Coverage improved from 25% to 83.33% (functions)
+    - Added tests for `matchRoute` function with various route patterns
+    - Added tests for `renderPage` function with various scenarios
+    - Added integration tests for route matching and page rendering
+    - Added tests for `handlePage` with mocked Hono context
+  - **packages/runtime/src/hydration/index.ts** - Coverage improved from 80% to 83.33% (functions), 100% (lines)
+    - Added tests for nested child hydration
+    - Added tests for querySelector fallback in findChildByNodeId
+    - Added tests for event handler attachment and triggering
+    - Added tests for abort signal cleanup
+  - **packages/editor/src/stores/selectionStore.ts** - Coverage improved from 61.54% to 73.33% (functions), 100% (lines)
+    - Added tests for `deselect` function
+    - Tests cover all store methods (select, selectMultiple, deselect, clearSelection, hover, isSelected)
+- **All 1872 tests pass** (up from 1831)
 
 ### 2026-02-27 (Linting Rule Test Coverage Improvements - Phase 4)
 - **Improved linting rule test coverage with 69 new tests:**

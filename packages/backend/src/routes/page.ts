@@ -10,7 +10,7 @@ interface PageRouteParams {
 /**
  * Match a route to a page in the project
  */
-function matchRoute(project: Project, pathname: string): { page: string; params: Record<string, string | null> } | null {
+export function matchRoute(project: Project, pathname: string): { page: string; params: Record<string, string | null> } | null {
   const components = project.files?.components || {};
   const pages = Object.values(components).filter((c): c is Component & { route: NonNullable<Component['route']> } =>
     c != null && c.route != null
@@ -101,7 +101,7 @@ export async function handlePage(c: Context, projectId: string): Promise<Respons
 /**
  * Render a page to HTML using SSR
  */
-function renderPage(project: Project, pageName: string, params: Record<string, string | null>): string {
+export function renderPage(project: Project, pageName: string, params: Record<string, string | null>): string {
   const page = project.files?.components?.[pageName];
 
   if (!page) {
