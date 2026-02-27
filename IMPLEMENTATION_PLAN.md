@@ -26,6 +26,7 @@
     - Added tests for `deselect` function
     - Tests cover all store methods (select, selectMultiple, deselect, clearSelection, hover, isSelected)
 - **All 1872 tests pass** (up from 1831)
+- **Created git tag 0.0.22** for test coverage improvements
 
 ### 2026-02-27 (Linting Rule Test Coverage Improvements - Phase 4)
 - **Improved linting rule test coverage with 69 new tests:**
