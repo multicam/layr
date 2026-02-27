@@ -39,6 +39,7 @@
     - Tests cover: headers and queryParams with enabled formulas, route formulas
     - Tests cover: project formulas referencing each other
 - **All 1701 tests pass** (up from 1615)
+- **Created git tag 0.0.19** for test coverage improvements
 
 ### 2026-02-27 (Linting Rule Test Coverage Improvements)
 - **Improved linting rule test coverage with 35 new tests:**
