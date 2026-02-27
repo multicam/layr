@@ -9,6 +9,13 @@
 
 ## Recent Progress
 
+### 2026-02-27 (Storage Formula Test Coverage)
+- **Improved storage formula test coverage from 57.14% to 100%:**
+  - Added 4 new tests for client-side localStorage/sessionStorage paths
+  - Tests now cover: successful value retrieval, JSON parsing, null returns for missing keys, JSON parse errors
+  - Mock storage implementations for testing client-side behavior
+- **All 1541 tests pass** (up from 1537)
+
 ### 2026-02-27 (Test Coverage Improvements - Phase 2 Formulas)
 - **Added 45 new tests for Phase 2 formulas:**
   - **Datetime formulas (21 tests):** dateFromString, dateFromTimestamp, formatDate, now, timestamp

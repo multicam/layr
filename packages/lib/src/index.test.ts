@@ -1146,6 +1146,63 @@ describe('storage formulas', () => {
     expect(fn({ key: 'test' }, ctxWithoutServerFlag)).toBeNull();
   });
 
+  test('@toddle/getFromLocalStorage returns parsed value from localStorage', () => {
+    const fn = getFormula('@toddle/getFromLocalStorage')!;
+
+    // Mock localStorage
+    const storage: Record<string, string> = {
+      'test-key': '"test-value"',
+      'json-key': JSON.stringify({ foo: 'bar', num: 42 }),
+      'array-key': JSON.stringify([1, 2, 3]),
+    };
+
+    const originalLocalStorage = globalThis.localStorage;
+    // @ts-ignore - mocking for test
+    globalThis.localStorage = {
+      getItem: (key: string) => storage[key] ?? null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      length: Object.keys(storage).length,
+      key: (i: number) => Object.keys(storage)[i] ?? null,
+    };
+
+    try {
+      expect(fn({ key: 'test-key' }, clientCtx)).toBe('test-value');
+      expect(fn({ key: 'json-key' }, clientCtx)).toEqual({ foo: 'bar', num: 42 });
+      expect(fn({ key: 'array-key' }, clientCtx)).toEqual([1, 2, 3]);
+      expect(fn({ key: 'nonexistent' }, clientCtx)).toBeNull();
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+    }
+  });
+
+  test('@toddle/getFromLocalStorage returns null on JSON parse error', () => {
+    const fn = getFormula('@toddle/getFromLocalStorage')!;
+
+    // Mock localStorage with invalid JSON
+    const storage: Record<string, string> = {
+      'invalid-json': 'not valid json {',
+    };
+
+    const originalLocalStorage = globalThis.localStorage;
+    // @ts-ignore - mocking for test
+    globalThis.localStorage = {
+      getItem: (key: string) => storage[key] ?? null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      length: Object.keys(storage).length,
+      key: (i: number) => Object.keys(storage)[i] ?? null,
+    };
+
+    try {
+      expect(fn({ key: 'invalid-json' }, clientCtx)).toBeNull();
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+    }
+  });
+
   test('@toddle/getFromSessionStorage returns null on server', () => {
     const fn = getFormula('@toddle/getFromSessionStorage')!;
     expect(fn({ key: 'test' }, serverCtx)).toBeNull();
@@ -1163,5 +1220,62 @@ describe('storage formulas', () => {
     // When isServer is not set and sessionStorage is undefined, should return null
     const ctxWithoutServerFlag = { ...ctx } as any;
     expect(fn({ key: 'test' }, ctxWithoutServerFlag)).toBeNull();
+  });
+
+  test('@toddle/getFromSessionStorage returns parsed value from sessionStorage', () => {
+    const fn = getFormula('@toddle/getFromSessionStorage')!;
+
+    // Mock sessionStorage
+    const storage: Record<string, string> = {
+      'session-key': '"session-value"',
+      'session-json': JSON.stringify({ session: true, count: 5 }),
+      'session-array': JSON.stringify(['a', 'b', 'c']),
+    };
+
+    const originalSessionStorage = globalThis.sessionStorage;
+    // @ts-ignore - mocking for test
+    globalThis.sessionStorage = {
+      getItem: (key: string) => storage[key] ?? null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      length: Object.keys(storage).length,
+      key: (i: number) => Object.keys(storage)[i] ?? null,
+    };
+
+    try {
+      expect(fn({ key: 'session-key' }, clientCtx)).toBe('session-value');
+      expect(fn({ key: 'session-json' }, clientCtx)).toEqual({ session: true, count: 5 });
+      expect(fn({ key: 'session-array' }, clientCtx)).toEqual(['a', 'b', 'c']);
+      expect(fn({ key: 'nonexistent' }, clientCtx)).toBeNull();
+    } finally {
+      globalThis.sessionStorage = originalSessionStorage;
+    }
+  });
+
+  test('@toddle/getFromSessionStorage returns null on JSON parse error', () => {
+    const fn = getFormula('@toddle/getFromSessionStorage')!;
+
+    // Mock sessionStorage with invalid JSON
+    const storage: Record<string, string> = {
+      'invalid-session': '{broken json',
+    };
+
+    const originalSessionStorage = globalThis.sessionStorage;
+    // @ts-ignore - mocking for test
+    globalThis.sessionStorage = {
+      getItem: (key: string) => storage[key] ?? null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      length: Object.keys(storage).length,
+      key: (i: number) => Object.keys(storage)[i] ?? null,
+    };
+
+    try {
+      expect(fn({ key: 'invalid-session' }, clientCtx)).toBeNull();
+    } finally {
+      globalThis.sessionStorage = originalSessionStorage;
+    }
   });
 });
