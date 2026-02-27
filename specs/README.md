@@ -1,279 +1,126 @@
 # Layr Specifications
 
-## Overview
+Technical specifications for the Layr visual web development platform — a clean-room reimplementation of Toddle's component model, self-hosted first.
 
-This directory contains technical specifications for the Layr visual development platform.
+## Tech Stack
 
----
+| Layer | Technology |
+|-------|-----------|
+| Language | TypeScript (strict) |
+| Runtime | Bun |
+| Monorepo | Bun workspaces (10 packages) |
+| Backend | Hono.js |
+| Editor | React + Zustand + Vite |
+| Styling | Tailwind (editor), CSS custom properties (runtime) |
+| Validation | Zod |
+| Reactivity | SolidJS-inspired signals |
+| Testing | Bun test + happy-dom |
+| Persistence | JSON files on disk |
 
-## Quick Status
+## Implementation Status
 
-| Category | Implemented | In Progress | Not Started | Total |
-|----------|-------------|-------------|-------------|-------|
-| Core | 18 | 0 | 0 | 18 |
-| Backend | 6 | 0 | 0 | 6 |
-| Build & Deployment | 2 | 0 | 0 | 2 |
-| SSR | 5 | 0 | 0 | 5 |
-| Runtime | 9 | 0 | 0 | 9 |
-| Editor | 6 | 0 | 0 | 6 |
-| Infrastructure | 9 | 0 | 0 | 9 |
-| Styleguide | 1 | 0 | 0 | 1 |
-| Standard Library | 0 | 2 | 0 | 2 |
-| Search | 0 | 2 | 0 | 2 |
-| Product | 1 | 0 | 0 | 1 |
-| **Total** | **52** | **6** | **0** | **58** |
-
-### Product Reference
-
-| Spec | Status | Description |
-|------|--------|-------------|
-| [00-product-reference.md](00-product-reference.md) | ✅ | Vision, users, features, success metrics |
-
-### Partially Implemented
-
-| Spec | Missing Components |
-|------|-------------------|
-| standard-library.md | 13 formulas (datetime, env/DOM, storage) |
-| standard-library-architecture.md | Actions architecture |
-| search-and-linting.md | 48 linting rules (10 implemented) |
+| Phase | Count | Description |
+|-------|-------|-------------|
+| **MVP** | 22 specs | Fully implemented, tests passing |
+| **Partial** | 3 specs | Core features built, gaps tagged |
+| **Phase 2** | 1 spec | Spec ready, implementation not started |
+| **Deferred** | 1 spec (parked) | Custom elements |
 
 ---
 
-## Active Specifications
+## Spec Index
 
-### Infrastructure (9 specs)
-| Spec | Status | Description |
-|------|--------|-------------|
-| [monorepo-structure.md](monorepo-structure.md) | ✅ | Bun workspaces, package layout |
-| [development-workflow.md](development-workflow.md) | ✅ | Dev commands, testing |
-| [test-harness.md](test-harness.md) | ✅ | Testing utilities |
-| [package-architecture.md](package-architecture.md) | ✅ | Package internals |
-| [development-state.md](development-state.md) | ✅ | **Current status summary** |
-| [api-request-construction.md](api-request-construction.md) | ✅ | URL building, query params, hashing |
-| [api-service-management.md](api-service-management.md) | ✅ | Reusable API services |
-| [plugin-system.md](plugin-system.md) | ✅ | Custom formulas/actions |
-| [error-handling-debug.md](error-handling-debug.md) | ✅ | Panic screen, toasts, logging |
+### 00–14: Product & Core Technical
 
-### Styleguide (1 spec)
-| Spec | Status | Description |
-|------|--------|-------------|
-| [default-styleguide.md](default-styleguide.md) | ✅ | Default themes inspired by Writizzy |
+| # | Spec | Packages | Status |
+|---|------|----------|--------|
+| 00 | [00-product-reference.md](00-product-reference.md) | — | Product vision, personas, MVP scope, user journey |
+| 01 | [01-data-model.md](01-data-model.md) | `@layr/types` | Project, Component, Node, Formula, Action types with Zod schemas |
+| 02 | [02-component-system.md](02-component-system.md) | `@layr/core`, `@layr/runtime` | Components, slots, context providers, traversal |
+| 03 | [03-formula-system.md](03-formula-system.md) | `@layr/types`, `@layr/core` | Formula types + evaluation engine |
+| 04 | [04-action-system.md](04-action-system.md) | `@layr/types`, `@layr/core` | Action types + execution engine + workflows |
+| 05 | [05-signal-system.md](05-signal-system.md) | `@layr/core` | Reactive signal system |
+| 06 | [06-rendering.md](06-rendering.md) | `@layr/ssr`, `@layr/runtime` | SSR + runtime DOM rendering |
+| 07 | [07-event-system.md](07-event-system.md) | `@layr/runtime` | Event delegation, handlers, custom events |
+| 08 | [08-navigation.md](08-navigation.md) | `@layr/runtime` | Client navigation, URL parsing, History API, View Transitions |
+| 09 | [09-route-matching.md](09-route-matching.md) | `@layr/backend` | Backend route matching, dynamic params, catch-all |
+| 10 | [10-api-system.md](10-api-system.md) | `@layr/runtime`, `@layr/backend` | API definitions, fetch, request construction. Proxy routes [Phase 2] |
+| 11 | [11-page-lifecycle.md](11-page-lifecycle.md) | `@layr/runtime` | Mount/unmount, hydration, entry points. Custom element entry [Deferred] |
+| 12 | [12-standard-library.md](12-standard-library.md) | `@layr/lib` | 76 formulas + 17 actions. ~13 formulas [Phase 2] |
+| 13 | [13-search-and-linting.md](13-search-and-linting.md) | `@layr/search` | Project walker, 9/58 rules implemented. 49 rules [Phase 2] |
+| 14 | [14-error-handling.md](14-error-handling.md) | `@layr/core`, `@layr/runtime` | Error collection, boundaries, debug. Editor overlays [Phase 2] |
 
-### Standard Library (2 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [standard-library.md](standard-library.md) | ⚠️ | @layr/lib (formulas ✅, actions pending) |
-| [standard-library-architecture.md](standard-library-architecture.md) | ⚠️ | @layr/lib |
+### 20–26: Design & Presentation
 
-### Search (2 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [search-and-linting.md](search-and-linting.md) | ⚠️ | @layr/search (8/58 rules) |
-| [search-and-linting-engine.md](search-and-linting-engine.md) | ✅ | @layr/search |
+| # | Spec | Packages | Status |
+|---|------|----------|--------|
+| 20 | [20-styling-engine.md](20-styling-engine.md) | `@layr/runtime`, `@layr/ssr` | CSS, responsive, media queries, fonts, custom properties |
+| 21 | [21-themes.md](21-themes.md) | `@layr/themes` | 5 built-in themes with light/dark variants |
+| 22 | [22-design-system.md](22-design-system.md) | — | Design tokens, component catalog, motion. **Next build target** [Phase 2] |
+| 23 | [23-seo-and-head.md](23-seo-and-head.md) | `@layr/ssr` | Meta tags, OG, head generation, sitemap, robots. Routes [Phase 2] |
+| 24 | [24-editor.md](24-editor.md) | `@layr/editor` | Editor architecture: Zustand stores, canvas, inspector, formula editor |
+| 25 | [25-preview-system.md](25-preview-system.md) | `@layr/editor` | Editor↔preview PostMessage protocol (28+15 message types) |
+| 26 | [26-drag-drop.md](26-drag-drop.md) | `@layr/editor` | Drag lifecycle, insert areas, visual feedback |
 
-### Core Types (5 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [project-data-model.md](project-data-model.md) | ✅ | @layr/types |
-| [component-system.md](component-system.md) | ✅ | @layr/types |
-| [formula-system.md](formula-system.md) | ✅ | @layr/types |
-| [action-system.md](action-system.md) | ✅ | @layr/types |
-| [element-definitions.md](element-definitions.md) | ✅ | @layr/editor |
+### 30–33: Infrastructure & Config
 
-### Core Logic (8 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [reactive-signal-system.md](reactive-signal-system.md) | ✅ | @layr/core |
-| [formula-evaluation-engine.md](formula-evaluation-engine.md) | ✅ | @layr/core |
-| [action-execution-engine.md](action-execution-engine.md) | ✅ | @layr/core |
-| [context-providers.md](context-providers.md) | ✅ | @layr/core |
-| [introspection-and-traversal.md](introspection-and-traversal.md) | ✅ | @layr/core |
-| [data-validation-schemas.md](data-validation-schemas.md) | ✅ | @layr/core |
-| [workflow-system.md](workflow-system.md) | ✅ | @layr/core |
-| [package-management.md](package-management.md) | ✅ | @layr/core |
+| # | Spec | Packages | Status |
+|---|------|----------|--------|
+| 30 | [30-monorepo-and-build.md](30-monorepo-and-build.md) | all | Monorepo structure, 10 packages, build, dependency graph. Deploy [Phase 2] |
+| 31 | [31-dev-workflow.md](31-dev-workflow.md) | all | Dev server, hot reload, Bun test, test harness. 1325+ tests |
+| 32 | [32-backend-server.md](32-backend-server.md) | `@layr/backend` | Hono server, middleware, cookies, caching, image CDN |
+| 33 | [33-packages-and-plugins.md](33-packages-and-plugins.md) | `@layr/runtime`, `@layr/core` | Custom code (MVP), package registry + plugins [Phase 2] |
 
-### Standard Library (2 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [standard-library.md](standard-library.md) | ✅ | @layr/lib |
-| [standard-library-architecture.md](standard-library-architecture.md) | ✅ | @layr/lib |
+### Parked
 
-### Backend (6 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [backend-server.md](backend-server.md) | ✅ | @layr/backend |
-| [routing.md](routing.md) | ✅ | @layr/backend |
-| [route-matching-system.md](route-matching-system.md) | ✅ | @layr/backend |
-| [cookie-management.md](cookie-management.md) | ✅ | @layr/backend |
-| [image-cdn-management.md](image-cdn-management.md) | ✅ | @layr/backend |
-| [performance-and-caching.md](performance-and-caching.md) | ✅ | @layr/backend |
-
-### Build & Deployment (2 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [build-and-deployment.md](build-and-deployment.md) | ✅ | Build system |
-| [dynamic-asset-generation.md](dynamic-asset-generation.md) | ✅ | Asset bundling |
-
-### SSR (5 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [ssr-pipeline.md](ssr-pipeline.md) | ✅ | @layr/ssr |
-| [html-document-head-generation.md](html-document-head-generation.md) | ✅ | @layr/ssr |
-| [font-system.md](font-system.md) | ✅ | @layr/ssr |
-| [security-and-sanitization.md](security-and-sanitization.md) | ✅ | @layr/ssr |
-| [seo-web-standards.md](seo-web-standards.md) | ✅ | @layr/ssr |
-
-### Runtime (9 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [rendering-engine.md](rendering-engine.md) | ✅ | @layr/runtime |
-| [slot-system.md](slot-system.md) | ✅ | @layr/runtime |
-| [event-system.md](event-system.md) | ✅ | @layr/runtime |
-| [custom-code-system.md](custom-code-system.md) | ✅ | @layr/runtime |
-| [styling-and-theming.md](styling-and-theming.md) | ✅ | @layr/runtime |
-| [navigation-system.md](navigation-system.md) | ✅ | @layr/runtime |
-| [page-lifecycle.md](page-lifecycle.md) | ✅ | @layr/runtime |
-| [responsive-styling-system.md](responsive-styling-system.md) | ✅ | @layr/runtime |
-| [runtime-entry-points.md](runtime-entry-points.md) | ✅ | @layr/runtime |
-
-### Editor (6 specs)
-| Spec | Status | Package |
-|------|--------|---------|
-| [editor-architecture.md](editor-architecture.md) | ✅ | @layr/editor |
-| [editor-implementation.md](editor-implementation.md) | ✅ | @layr/editor |
-| [editor-preview-system.md](editor-preview-system.md) | ✅ | @layr/editor |
-| [drag-drop-system.md](drag-drop-system.md) | ✅ | @layr/editor |
-
----
-
-## Parked Specifications
-
-1 spec in `parked/` directory — lower priority:
-
-- **Custom Elements**: Web components export
-
-See [parked/README.md](parked/README.md) for details.
-
----
-
-## Work Items
-
-See [thoughts/work-items/](../thoughts/work-items/) for pending implementation tasks:
-
-- **[v1-legacy-code-removal.md](../thoughts/work-items/v1-legacy-code-removal.md)** - ✅ COMPLETED: All v1/legacy code removed (V2 is now baseline)
-
-## Implementation Notes
-
-### Status Legend Clarification
-
-| Icon | Meaning |
-|------|---------|
-| ✅ | Fully implemented - all spec features in code, tests passing |
-| ⚠️ | Partially implemented - core features exist, may need additional work |
-| 📝 | Spec complete, implementation not started |
-| ❌ | Not implemented |
-
-### Recently Completed (2026-02-15)
-
-- `default-styleguide.md` - @layr/themes package with 5 themes (minimal, brutalism, neobrutalism, terminal, notion)
-- Theme selector in editor sidebar
-- Standard library actions (19 actions: storage, cookies, navigation, events, timers, sharing, theme)
-- Additional linting rules (unknownComponent, unknownFormula, unknownEvent, noReferenceAttribute, noReferenceVariable)
-
-### Previously Completed (2026-02-14)
-
-The following specs were fully implemented:
-- `introspection-and-traversal.md` - Core traversal system with generators
-- `data-validation-schemas.md` - Zod schemas in @layr/types
-- `cookie-management.md` - Backend cookie handling
-- `custom-code-system.md` - Runtime code bundling
-- `plugin-system.md` - Formula/action registration
-- `api-request-construction.md` - URL building utilities
-- `api-service-management.md` - Service configuration
-- `context-providers.md` - Preview mode context resolution
-- `workflow-system.md` - Full callback support
-- `package-management.md` - Version conflict handling
-- `element-definitions.md` - Generated HTML/SVG JSON files (102 HTML + 61 SVG)
-- `drag-drop-system.md` - View Transition animations
-- `search-and-linting-engine.md` - Project walker, contextless evaluation
-
----
-
-## Running Tests
-
-```bash
-# Run all tests
-bun test
-
-# Run with coverage
-bun test --coverage
-
-# Run specific package
-bun test packages/core/
-```
+| Spec | Reason |
+|------|--------|
+| [parked/custom-elements.md](parked/custom-elements.md) | Web components export — deferred until core platform stabilizes |
 
 ---
 
 ## Architecture
 
 ```
-@layr/types     ← All type definitions
+@layr/types        ← Zod schemas, TypeScript interfaces
      │
-@layr/core     ← Signal, formula, action engines
+@layr/core         ← Signals, formula eval, action exec, context, traversal
      │
-├── @layr/lib  ← 78 built-in formulas + 17 actions
-│
-├── @layr/themes ← Default theme definitions
-│
-├── @layr/ssr  ← Server-side rendering
-│
-├── @layr/runtime ← Client-side rendering
-│
-├── @layr/backend ← Hono HTTP server
-│
-├── @layr/editor  ← Visual editor UI + theme selector
-│
-└── @layr/search  ← Linting rules (10/58), issue detection
+  ┌──┼──────────────────────────┐
+  │  │                          │
+@layr/lib    @layr/themes    @layr/search
+(76 formulas  (5 themes)     (9/58 lint rules)
+ 17 actions)
+  │
+  ├── @layr/ssr      ← Server-side rendering, head, fonts, SEO
+  │
+  ├── @layr/runtime  ← Client-side rendering, events, navigation, hydration
+  │
+  ├── @layr/backend  ← Hono HTTP server, routing, cookies, caching
+  │
+  └── @layr/editor   ← React + Zustand visual editor
 ```
 
+## Phase Tags
+
+Specs use inline tags to mark implementation status:
+
+| Tag | Meaning |
+|-----|---------|
+| `[MVP]` | Implemented and tested |
+| `[Phase 2]` | Designed but not yet built |
+| `[Deferred]` | Deprioritized, may not be built |
+
+Each spec includes a phase summary table at the top.
+
 ---
 
-## Demo Project
+## Quick Start
 
-`projects/demo/` contains a minimal test project:
+```bash
+bun install
+bun run dev          # Backend (3000) + Editor (5173)
+bun test             # 1325+ tests, ~95% coverage
+```
 
-- Home page: `/demo/`
-- About page: `/demo/about`
-
-Start server: `bun run dev`
-
----
-
-## Changelog
-
-### 2026-02-15
-- Added @layr/themes package with 5 theme variants
-- Added theme selector to editor sidebar
-- Implemented 19 standard library actions
-- Added 5 more linting rules (8 total)
-- Updated spec statuses for accuracy
-- Accurate reporting: 51 complete, 6 partial specs
-
-### 2026-02-14 (Final Update)
-- All 55 active specs fully implemented
-- Updated README with complete spec list
-- Updated development-state.md to reflect completion
-
-### 2026-02-14 (Evening)
-- Completed editor implementation: AdvancedTab with condition/repeat/slot editing
-- Enhanced EventsTab with full action editing UI (add/remove/configure actions)
-- Implemented clipboard functionality with copy/paste/duplicate keyboard shortcuts
-- All editor specs now fully implemented (6/6)
-
-### 2026-02-14
-- Created @layr/search package with search/linting system
-- Built element definitions generator (102 HTML + 61 SVG elements)
-- Completed drag-drop system with View Transitions API
-- Added context provider preview mode resolution
-- Enhanced workflow callback support with proper scoping
-- Updated all spec statuses to reflect current implementation
+Demo project: `http://localhost:3000/demo/`

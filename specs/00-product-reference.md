@@ -1,155 +1,234 @@
 # Layr Product Reference
 
-## Status: Active
+Covers the product vision, user personas, MVP scope, user journey, and feature prioritization for Layr — a self-hosted visual web development platform. No specific package implements this; it guides all packages.
+
+---
+
+## Phase Summary
+
+| Feature | Phase |
+|---------|-------|
+| Visual component editor (drag-drop, property panel) | MVP |
+| Formula system (path/value/function/switch) | MVP |
+| Action system (SetVariable, TriggerEvent, Fetch, Switch) | MVP |
+| Signal-based reactive state | MVP |
+| JSON file persistence (no database) | MVP |
+| Basic routing (static + dynamic path params) | MVP |
+| SSR rendering | MVP |
+| CSR hydration | MVP |
+| Built-in themes (5 presets) | MVP |
+| CSS-in-JS styling with variants | MVP |
+| Slot system (default + named slots) | MVP |
+| Context providers | MVP |
+| API integration (v2 requests) | MVP |
+| No-auth self-hosted server | MVP |
+| Linting / issue detection | MVP |
+| Undo/redo | Phase 2 |
+| Collaborative editing | Phase 2 |
+| Custom elements (Web Components export) | Phase 2 |
+| Package marketplace | Phase 2 |
+| Auth / multi-user | Deferred |
+| Database persistence | Deferred |
+| Team workspaces | Deferred |
 
 ---
 
 ## Vision
 
-Layr is a **visual development platform** that enables users to build web applications without writing code. It provides a drag-and-drop interface for creating UI components, defining data flows, and managing application state through a visual formula system.
+Layr is a **self-hosted visual web development platform**. Users build full web applications through a drag-and-drop editor backed by a structured, Turing-complete data model — no hand-written code required for the common case.
+
+Layr is a clean-room reimplementation of [Toddle](https://toddle.dev), built as an open-source, self-hostable alternative. The canonical persistence format is a single JSON file per project.
+
+**MVP constraint:** No authentication. Single user, local-first, self-hosted.
 
 ---
 
-## Target Users
+## User Personas
 
-### Primary Users
-- **No-code developers** - Users who want to build web apps without programming knowledge
-- **Low-code developers** - Developers who want to accelerate prototyping with visual tools
-- **Designers** - UI/UX professionals who want to bring designs to life interactively
+### Primary
 
-### Secondary Users
-- **Development teams** - Teams collaborating on web application projects
-- **Agencies** - Digital agencies building client websites rapidly
-- **Educators** - Teachers introducing web development concepts visually
+| Persona | Description | Core Pain |
+|---------|-------------|-----------|
+| **Solo builder** | Developer or technical designer building apps for themselves or small clients | Wants full control without managing a SaaS subscription; needs to self-host |
+| **Low-code developer** | Developer who wants to prototype faster or hand off UI work | Tired of writing boilerplate; wants visual tooling that produces structured output |
+| **Technical designer** | Designer comfortable with logic but not code | Wants to add interactivity and data without leaving the visual layer |
 
----
+### Secondary [Phase 2]
 
-## Core Product Features
-
-### 1. Visual Component Editor
-- Drag-and-drop component creation
-- Real-time preview with hot reloading
-- Component hierarchy visualization
-- Property panels for configuration
-
-### 2. Formula System
-- Visual formula builder for data transformations
-- 78+ built-in formulas (array, string, number, object, logic, comparison)
-- Higher-order formulas with closure support (map, filter, reduce)
-- Static analysis for compile-time optimization
-
-### 3. Action System
-- Event-driven workflows with visual action chains
-- 17+ built-in actions (storage, navigation, events, timers, sharing)
-- Callback support with proper scoping
-- Side effect management
-
-### 4. Styling & Theming
-- CSS-in-JS style declarations
-- 5 built-in themes (minimal, brutalism, neobrutalism, terminal, notion)
-- Responsive breakpoints
-- CSS variable system
-
-### 5. Routing & Navigation
-- File-based routing
-- Dynamic route parameters
-- Client-side navigation with history management
-
-### 6. API Integration
-- Visual API service configuration
-- Request construction with query params
-- Response handling and error management
-
-### 7. Search & Linting
-- Real-time issue detection (58 rules planned)
-- Auto-fix capabilities
-- Project-wide search
-
-### 8. SSR/CSR Rendering
-- Server-side rendering for SEO
-- Client-side hydration
-- Environment-aware execution
+| Persona | Description |
+|---------|-------------|
+| **Agency** | Small team building client sites with shared components |
+| **Educator** | Teaching visual web concepts with a working runtime |
 
 ---
 
-## Success Metrics
+## MVP Scope
 
-### User Engagement
-- **Time to first publish** - Users should be able to publish a page within 5 minutes of signup
-- **Feature adoption** - >70% of users should use formulas within their first project
-- **Retention** - >60% monthly active user retention
+The MVP delivers a working, self-hosted visual editor capable of producing and serving real web applications from a single JSON project file.
 
-### Technical Quality
-- **Preview latency** - <100ms preview updates
-- **Build time** - <5 seconds for typical projects
-- **Lighthouse score** - All demo projects score >90 on performance
-- **Test coverage** - >80% coverage across all packages
+### In Scope (MVP)
 
-### Platform Health
-- **Issue detection accuracy** - >95% of linting issues are actionable
-- **Auto-fix reliability** - >99% of auto-fixes apply correctly without breaking changes
-- **SSR performance** - TTFP <200ms for typical pages
+| Area | Included |
+|------|----------|
+| **Editor** | Component tree panel, drag-drop canvas, property panel, formula builder, action builder |
+| **Persistence** | Save/load project as JSON file; no database |
+| **Auth** | None — single user, open access |
+| **Rendering** | SSR for initial page load; CSR hydration; preview iframe |
+| **Components** | Create, edit, delete components; slot composition; context providers |
+| **Formulas** | All formula types (value, path, function, object, array, switch, or, and, apply) |
+| **Actions** | SetVariable, TriggerEvent, Switch, Fetch, AbortFetch, SetURLParameters, TriggerWorkflow |
+| **Styling** | CSS-in-JS inline styles; style variants (hover, media query, pseudo-class); 5 built-in themes |
+| **Routing** | Static + dynamic path segments; query params; page-level SEO metadata |
+| **APIs** | v2 HTTP requests; autoFetch; onCompleted/onFailed/onMessage callbacks |
+| **Linting** | Real-time issue detection for broken references and structural violations |
+| **Preview** | In-editor live preview with test data fallback |
+
+### Out of Scope (MVP)
+
+| Area | Phase |
+|------|-------|
+| User authentication | Deferred |
+| Multi-user / teams | Deferred |
+| Database persistence | Deferred |
+| Real-time collaboration | Phase 2 |
+| Package marketplace / publishing | Phase 2 |
+| Custom elements (Web Component export) | Phase 2 |
+| Advanced undo/redo history | Phase 2 |
+| Plugin API for custom formula/action packages | Phase 2 |
+
+---
+
+## User Journey (MVP)
+
+```
+1. Install & Run
+   └─ Clone repo → bun install → bun dev
+   └─ Open http://localhost:3000 in browser
+
+2. Create Project
+   └─ New project → enter name → creates empty project.json
+   └─ Project has one blank page at route "/"
+
+3. Build a Page
+   └─ Drag elements onto canvas (div, button, text, img, etc.)
+   └─ Set attributes and styles via property panel
+   └─ Create component variables for state
+   └─ Wire events to actions (click → SetVariable, form submit → Fetch)
+   └─ Add formulas to make UI reactive
+
+4. Add Data
+   └─ Define an API (URL, method, headers, body)
+   └─ Enable autoFetch or trigger via action
+   └─ Use Apis.myApi.data in formula path expressions
+
+5. Create Reusable Components
+   └─ Extract repeated UI into a named component
+   └─ Define attributes (inputs) and events (outputs)
+   └─ Use slots to allow content injection
+
+6. Preview & Iterate
+   └─ Live preview updates on every change (<100ms target)
+   └─ Test data fills in for attributes and context formulas
+
+7. Serve the App
+   └─ Backend server reads project.json
+   └─ Matches URL → finds page component → SSR renders HTML
+   └─ Client hydrates for interactivity
+```
+
+---
+
+## Feature Prioritization
+
+### P0 — Required for MVP Launch
+
+| Feature | Rationale |
+|---------|-----------|
+| Element node rendering (CSR + SSR) | Core output |
+| Formula evaluation engine | Powers all dynamic behavior |
+| Signal system for reactivity | State management foundation |
+| Variable + attribute system | Component inputs/outputs |
+| JSON save/load | Persistence |
+| Basic routing (path params) | Multi-page apps |
+| In-editor preview iframe | Usability requirement |
+| Drag-drop element placement | Core editor UX |
+
+### P1 — Required for Useful Apps
+
+| Feature | Rationale |
+|---------|-----------|
+| API fetch actions | Most apps need data |
+| Style variants (hover, media query) | Basic responsive design |
+| Slot system | Component composition |
+| Context providers | Cross-component state |
+| Linting (broken refs) | Data integrity |
+| Built-in themes | Faster UI styling |
+
+### P2 — Quality of Life
+
+| Feature | Rationale |
+|---------|-----------|
+| Undo/redo | Editor usability |
+| Component search | Navigation at scale |
+| Auto-fix linting | Developer efficiency |
+| Web Component export | Distribution outside editor |
 
 ---
 
 ## Architecture Principles
 
-### 1. Monorepo Structure
-- Clear package boundaries with `@layr/*` namespacing
-- Shared types in `@layr/types`
-- Core engines in `@layr/core`
-- Platform-specific implementations separated
-
-### 2. Type Safety
-- TypeScript throughout
-- Zod schemas for runtime validation
-- Comprehensive type exports
-
-### 3. Performance First
-- Generator-based traversal for memory efficiency
-- Web workers for CPU-intensive operations
-- Streaming results for responsive UI
-- Memoization for expensive computations
-
-### 4. Developer Experience
-- Bun for fast package management
-- Hot reloading in development
-- Comprehensive test utilities
-- Clear spec-to-implementation mapping
+| Principle | Decision |
+|-----------|----------|
+| **Monorepo** | Bun monorepo with `@layr/*` packages — see `30-monorepo-and-build.md` |
+| **Type safety** | TypeScript throughout; Zod schemas as runtime source of truth — see `01-data-model.md` |
+| **Single JSON file** | One `project.json` per project; no database for MVP |
+| **No auth (MVP)** | Self-hosted, single-user — auth deferred to a later phase |
+| **Clean-room** | Reimplementation of Toddle's data model; no original code |
+| **Generator-based traversal** | Memory-efficient formula/action/component walking — see `02-component-system.md` |
+| **Signal-based reactivity** | Fine-grained reactive state; deep equality checks prevent unnecessary updates |
+| **SSR + CSR** | Pages server-rendered for SEO; client hydrates for interactivity — see `06-rendering.md` |
 
 ---
 
-## Key Differentiators
+## Package Map
 
-1. **Visual Formula System** - Unlike other no-code tools, Layr provides a Turing-complete formula system that can express any data transformation
-2. **Hybrid Rendering** - Seamless SSR/CSR with environment-aware execution
-3. **Extensibility** - Plugin system for custom formulas and actions
-4. **Open Architecture** - Clear package boundaries enable community contributions
-
----
-
-## Roadmap Priorities
-
-### Phase 1: Core Completion (Current)
-- Complete remaining linting rules (48 rules)
-- Implement missing formulas (19 formulas)
-- Add missing actions (2 actions)
-
-### Phase 2: Enhanced Editor
-- Improved component library
-- Better undo/redo support
-- Collaborative editing
-
-### Phase 3: Platform Features
-- Custom elements (Web Components export)
-- Package marketplace
-- Team collaboration features
+| Package | Role |
+|---------|------|
+| `@layr/types` | Shared TypeScript types and Zod schemas |
+| `@layr/core` | Signal system, formula evaluation, traversal, context |
+| `@layr/runtime` | CSR rendering (DOM) and Web Component support |
+| `@layr/ssr` | Server-side rendering pipeline |
+| `@layr/backend` | Hono HTTP server; project file I/O |
+| `@layr/editor` | Visual editor UI (React) |
+| `@layr/std-lib` | 78+ built-in formulas and 17+ built-in actions |
+| `@layr/search` | Linting engine; project traversal rules |
 
 ---
 
-## Changelog
+## Success Metrics (MVP)
 
-### 2026-02-27
-- Initial product reference document created
-- Defined vision, users, features, and success metrics
-- Documented architecture principles and roadmap
+| Metric | Target |
+|--------|--------|
+| Preview update latency | < 100ms |
+| First page SSR | < 200ms TTFB |
+| Linting issue accuracy | > 95% actionable |
+| Auto-fix reliability | > 99% safe applies |
+| Test coverage | > 80% across packages |
+
+---
+
+## Cross-References
+
+| Spec | Relationship |
+|------|-------------|
+| `01-data-model.md` | Project JSON envelope and all entity types |
+| `02-component-system.md` | Core composition abstraction |
+| `03-formula-system.md` | Data transformation language |
+| `04-action-system.md` | Event-driven side effects |
+| `06-rendering.md` | SSR + CSR rendering pipeline |
+| `20-styling-engine.md` | CSS output and style variants |
+| `21-themes.md` | Design token system |
+| `24-editor.md` | Visual editor implementation |
+| `30-monorepo-and-build.md` | Package structure and build tooling |
+| `32-backend-server.md` | HTTP server and file persistence |
+
