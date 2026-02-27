@@ -16,6 +16,10 @@ export { unknownAttributeRule } from './attributes/unknownAttributeRule';
 // Components
 export { unknownComponentRule } from './components/unknownComponentRule';
 
+// DOM
+export { nonEmptyVoidElementRule } from './dom/nonEmptyVoidElementRule';
+export { missingAltAttributeRule } from './dom/missingAltAttributeRule';
+
 // Events
 export { unknownEventRule } from './events/unknownEventRule';
 
@@ -24,6 +28,10 @@ export { unknownFormulaRule } from './formulas/unknownFormulaRule';
 
 // Logic
 export { noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule } from './logic/staticConditionRule';
+
+// Routing
+export { duplicateRouteRule } from './routing/duplicateRouteRule';
+export { duplicateUrlParameterRule } from './routing/duplicateUrlParameterRule';
 
 // Variables
 export { unknownVariableRule } from './variables/unknownVariableRule';

@@ -28,7 +28,7 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (16/58), issue detection
+└── @layr/search  ← Linting rules (20/58), issue detection
 ```
 
 ---
@@ -74,11 +74,13 @@ Layr is a visual development platform with the following architecture:
 - Sharing: copyToClipboard, share (2)
 - Theme: setTheme (1)
 
-**Linting Rules (16 implemented):**
+**Linting Rules (20 implemented):**
 - unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
 - noReferenceAttributeRule, noReferenceVariableRule (2 noReference* rules)
 - noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule (3 logic rules)
-- unknownAttributeRule, unknownVariableSetterRule, unknownTriggerWorkflowRule, unknownWorkflowParameterRule, unknownApiRule, unknownApiInputRule (6 NEW - 2026-02-27)
+- unknownAttributeRule, unknownVariableSetterRule, unknownTriggerWorkflowRule, unknownWorkflowParameterRule, unknownApiRule, unknownApiInputRule (6 error-level - 2026-02-27)
+- nonEmptyVoidElementRule, missingAltAttributeRule (2 DOM rules - 2026-02-27)
+- duplicateRouteRule, duplicateUrlParameterRule (2 routing rules - 2026-02-27)
 
 ---
 
@@ -87,10 +89,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY)
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 16/58 rules implemented (28%)
+**Status:** 20/58 rules implemented (34%)
 **Package:** `@layr/search`
 
-**Implemented Rules (16):**
+**Implemented Rules (20):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `unknownEventRule` - Events
@@ -101,12 +103,16 @@ Layr is a visual development platform with the following architecture:
 - `noStaticNodeConditionRule` - Logic (auto-fix)
 - `noUnnecessaryConditionTruthyRule` - Logic
 - `noUnnecessaryConditionFalsyRule` - Logic
-- `unknownAttributeRule` - Attributes (NEW 2026-02-27)
-- `unknownVariableSetterRule` - Variables (NEW 2026-02-27)
-- `unknownTriggerWorkflowRule` - Workflows (NEW 2026-02-27)
-- `unknownWorkflowParameterRule` - Workflows (NEW 2026-02-27)
-- `unknownApiRule` - APIs (NEW 2026-02-27)
-- `unknownApiInputRule` - APIs (NEW 2026-02-27)
+- `unknownAttributeRule` - Attributes (2026-02-27)
+- `unknownVariableSetterRule` - Variables (2026-02-27)
+- `unknownTriggerWorkflowRule` - Workflows (2026-02-27)
+- `unknownWorkflowParameterRule` - Workflows (2026-02-27)
+- `unknownApiRule` - APIs (2026-02-27)
+- `unknownApiInputRule` - APIs (2026-02-27)
+- `nonEmptyVoidElementRule` - DOM (2026-02-27)
+- `missingAltAttributeRule` - DOM/accessibility (2026-02-27)
+- `duplicateRouteRule` - Routing (2026-02-27)
+- `duplicateUrlParameterRule` - Routing (2026-02-27)
 
 **Missing Rules by Category (50+ rules):**
 
@@ -134,9 +140,9 @@ Layr is a visual development platform with the following architecture:
 - [ ] `unknownContextProviderWorkflowRule` - Unknown provider workflow references
 - [ ] `unknownContextWorkflowRule` - Unknown context workflow references
 
-#### DOM Rules (9 rules)
-- [ ] `nonEmptyVoidElementRule` - Void elements with children
-- [ ] `createRequiredElementAttributeRule('img', 'alt')` - Missing alt on images
+#### DOM Rules (2 implemented, 4 remaining)
+- [x] `nonEmptyVoidElementRule` - Void elements with children (IMPLEMENTED 2026-02-27)
+- [x] `missingAltAttributeRule` - Missing alt on images (IMPLEMENTED 2026-02-27)
 - [ ] `createRequiredMetaTagRule('description')` - Missing meta description
 - [ ] `createRequiredDirectChildRule` - Invalid list children
 - [ ] `elementWithoutInteractiveContentRule` - Non-interactive content issues
@@ -163,9 +169,9 @@ Layr is a visual development platform with the following architecture:
 - [ ] `requireExtensionRule` - Missing required extensions
 - [ ] `unknownCookieRule` - Unknown cookie references
 
-#### Routing Rules (4 rules)
-- [ ] `duplicateUrlParameterRule` - Duplicate URL parameter names
-- [ ] `duplicateRouteRule` - Multiple pages with same route pattern
+#### Routing Rules (2 implemented, 2 remaining)
+- [x] `duplicateUrlParameterRule` - Duplicate URL parameter names (IMPLEMENTED 2026-02-27)
+- [x] `duplicateRouteRule` - Multiple pages with same route pattern (IMPLEMENTED 2026-02-27)
 - [ ] `unknownSetUrlParameterRule` - Setting unknown URL parameters
 - [ ] `unknownUrlParameterRule` - References to unknown URL parameters
 
@@ -394,6 +400,24 @@ bun run build               # Build all packages
 ---
 
 ## Changelog
+
+### 2026-02-27 (Phase 1 Linting Rules - DOM and Routing)
+- **Implemented 4 new linting rules:**
+  - `nonEmptyVoidElementRule` (error) - Detects void HTML elements (img, br, etc.) with children
+  - `missingAltAttributeRule` (warning) - Detects img elements without alt attribute
+  - `duplicateRouteRule` (error) - Detects multiple pages with the same route pattern
+  - `duplicateUrlParameterRule` (error) - Detects duplicate URL parameter names in routes
+- **Linting rules status:** 20/58 implemented (34%, up from 28%)
+- **All 1327 tests pass**
+- Updated `packages/search/src/problems.ts` to import and use actual rule implementations
+- New rule files created in `packages/search/src/rules/`:
+  - `dom/nonEmptyVoidElementRule.ts`
+  - `dom/missingAltAttributeRule.ts`
+  - `routing/duplicateRouteRule.ts`
+  - `routing/duplicateUrlParameterRule.ts`
+- New test files:
+  - `dom/dom.test.ts` - 5 tests for DOM rules
+  - `routing/routing.test.ts` - 12 tests for routing rules
 
 ### 2026-02-27 (Linting Rules Implementation - 6 New Rules)
 - **Implemented 6 new error-level linting rules:**
