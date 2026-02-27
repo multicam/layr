@@ -4,6 +4,8 @@
 
 import { describe, test, expect } from 'bun:test';
 import { unknownProjectFormulaRule } from './unknownProjectFormulaRule';
+import { unknownRepeatIndexFormulaRule, unknownRepeatItemFormulaRule } from './unknownRepeatFormulaRule';
+import { switchUnreachableCaseRule } from './switchUnreachableCaseRule';
 import type { ProjectFiles, Component } from '@layr/types';
 
 // Helper to create a minimal project files structure
@@ -115,6 +117,185 @@ describe('unknownProjectFormulaRule', () => {
     const files = createProjectFiles({});
 
     unknownProjectFormulaRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('unknownRepeatIndexFormulaRule', () => {
+  test('reports repeat index formula without repeat config', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            condition: { type: 'path', path: ['Index'] },
+            // no repeat config
+          },
+        },
+      },
+    });
+
+    unknownRepeatIndexFormulaRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('does not report when no repeat index references', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+          },
+        },
+      },
+    });
+
+    unknownRepeatIndexFormulaRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('unknownRepeatItemFormulaRule', () => {
+  test('reports repeat item formula without repeat config', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'text',
+            value: { type: 'path', path: ['Item', 'name'] },
+            // no repeat config
+          },
+        },
+      },
+    });
+
+    unknownRepeatItemFormulaRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('does not report when no repeat item references', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+          },
+        },
+      },
+    });
+
+    unknownRepeatItemFormulaRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('switchUnreachableCaseRule', () => {
+  test('reports unreachable cases after always-true condition', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              {
+                type: 'switch',
+                cases: [
+                  { condition: { type: 'value', value: true }, actions: [] },
+                  { condition: { type: 'value', value: false }, actions: [] }, // unreachable
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    switchUnreachableCaseRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.reason).toBe('prior-always-true');
+  });
+
+  test('does not report reachable cases', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              {
+                type: 'switch',
+                cases: [
+                  { condition: { type: 'path', path: ['Variables', 'x'] }, actions: [] },
+                  { condition: { type: 'path', path: ['Variables', 'y'] }, actions: [] },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    switchUnreachableCaseRule.visit(
       (data, path, fixes) => issues.push({ data, path, fixes }),
       {
         files,

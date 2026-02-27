@@ -32,6 +32,10 @@ import {
   // DOM
   nonEmptyVoidElementRule,
   missingAltAttributeRule,
+  missingMetaDescriptionRule,
+  invalidListChildrenRule,
+  elementWithoutInteractiveContentRule,
+  imageWithoutDimensionRule,
   // Events
   unknownEventRule,
   duplicateEventTriggerRule,
@@ -47,6 +51,13 @@ import {
   noUnnecessaryConditionTruthyRule,
   noUnnecessaryConditionFalsyRule,
   unknownProjectFormulaRule,
+  unknownRepeatIndexFormulaRule,
+  unknownRepeatItemFormulaRule,
+  switchUnreachableCaseRule,
+  // Misc
+  noReferenceNodeRule,
+  requireExtensionRule,
+  unknownCookieRule,
   // Routing
   duplicateRouteRule,
   duplicateUrlParameterRule,
@@ -54,6 +65,11 @@ import {
   unknownSetUrlParameterRule,
   // Slots
   unknownComponentSlotRule,
+  // Styles
+  invalidStyleSyntaxRule,
+  unknownClassnameRule,
+  unknownCSSVariableRule,
+  noReferenceGlobalCSSVariableRule,
   // Variables
   unknownVariableRule,
   noReferenceVariableRule,
@@ -257,6 +273,10 @@ function getAllRules(): Rule[] {
     // DOM
     nonEmptyVoidElementRule,
     missingAltAttributeRule,
+    missingMetaDescriptionRule,
+    invalidListChildrenRule,
+    elementWithoutInteractiveContentRule,
+    imageWithoutDimensionRule,
 
     // Events
     unknownEventRule,
@@ -275,6 +295,14 @@ function getAllRules(): Rule[] {
     noUnnecessaryConditionTruthyRule,
     noUnnecessaryConditionFalsyRule,
     unknownProjectFormulaRule,
+    unknownRepeatIndexFormulaRule,
+    unknownRepeatItemFormulaRule,
+    switchUnreachableCaseRule,
+
+    // Misc
+    noReferenceNodeRule,
+    requireExtensionRule,
+    unknownCookieRule,
 
     // Routing
     duplicateRouteRule,
@@ -284,6 +312,12 @@ function getAllRules(): Rule[] {
 
     // Slots
     unknownComponentSlotRule,
+
+    // Styles
+    invalidStyleSyntaxRule,
+    unknownClassnameRule,
+    unknownCSSVariableRule,
+    noReferenceGlobalCSSVariableRule,
 
     // Variables
     unknownVariableRule,

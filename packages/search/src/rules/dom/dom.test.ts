@@ -5,6 +5,10 @@
 import { describe, test, expect } from 'bun:test';
 import { nonEmptyVoidElementRule } from './nonEmptyVoidElementRule';
 import { missingAltAttributeRule } from './missingAltAttributeRule';
+import { missingMetaDescriptionRule } from './missingMetaDescriptionRule';
+import { invalidListChildrenRule } from './invalidListChildrenRule';
+import { elementWithoutInteractiveContentRule } from './elementWithoutInteractiveContentRule';
+import { imageWithoutDimensionRule } from './imageWithoutDimensionRule';
 import type { ProjectFiles, Component } from '@layr/types';
 
 // Helper to create a minimal project files structure
@@ -226,6 +230,307 @@ describe('missingAltAttributeRule', () => {
     });
 
     missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('missingMetaDescriptionRule', () => {
+  test('reports page components without meta description', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page: {
+        name: 'Page',
+        route: { path: '/' },
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+          },
+        },
+      },
+    });
+
+    missingMetaDescriptionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('does not report components without routes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component: {
+        name: 'Component',
+        // no route
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+          },
+        },
+      },
+    });
+
+    missingMetaDescriptionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('invalidListChildrenRule', () => {
+  test('reports ul with non-li children', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          ul1: {
+            type: 'element',
+            tag: 'ul',
+            children: ['div1'],
+          },
+          div1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+          },
+        },
+      },
+    });
+
+    invalidListChildrenRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.tag).toBe('ul');
+    expect(issues[0].data.invalidChildren).toContain('div');
+  });
+
+  test('does not report ul with li children', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          ul1: {
+            type: 'element',
+            tag: 'ul',
+            children: ['li1'],
+          },
+          li1: {
+            type: 'element',
+            tag: 'li',
+            children: [],
+          },
+        },
+      },
+    });
+
+    invalidListChildrenRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('elementWithoutInteractiveContentRule', () => {
+  test('reports div with click handler but no interactive role', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          div1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: { actions: [] },
+            },
+          },
+        },
+      },
+    });
+
+    elementWithoutInteractiveContentRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.tag).toBe('div');
+  });
+
+  test('does not report button with click handler', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          btn1: {
+            type: 'element',
+            tag: 'button',
+            children: [],
+            events: {
+              click: { actions: [] },
+            },
+          },
+        },
+      },
+    });
+
+    elementWithoutInteractiveContentRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report div with role=button', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          div1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: { actions: [] },
+            },
+            attrs: {
+              role: { type: 'value', value: 'button' },
+            },
+          },
+        },
+      },
+    });
+
+    elementWithoutInteractiveContentRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('imageWithoutDimensionRule', () => {
+  test('reports img without dimensions', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            // no width, height, or styles
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.tag).toBe('img');
+  });
+
+  test('does not report img with width attribute', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              width: { type: 'value', value: 100 },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report non-img elements', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          div1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            // no dimensions
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
       (data, path, fixes) => issues.push({ data, path, fixes }),
       {
         files,

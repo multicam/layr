@@ -30,6 +30,10 @@ export { unknownContextWorkflowRule } from './contexts/unknownContextWorkflowRul
 // DOM
 export { nonEmptyVoidElementRule } from './dom/nonEmptyVoidElementRule';
 export { missingAltAttributeRule } from './dom/missingAltAttributeRule';
+export { missingMetaDescriptionRule } from './dom/missingMetaDescriptionRule';
+export { invalidListChildrenRule } from './dom/invalidListChildrenRule';
+export { elementWithoutInteractiveContentRule } from './dom/elementWithoutInteractiveContentRule';
+export { imageWithoutDimensionRule } from './dom/imageWithoutDimensionRule';
 
 // Events
 export { unknownEventRule } from './events/unknownEventRule';
@@ -46,6 +50,13 @@ export { noReferenceProjectFormulaRule } from './formulas/noReferenceProjectForm
 // Logic
 export { noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule } from './logic/staticConditionRule';
 export { unknownProjectFormulaRule } from './logic/unknownProjectFormulaRule';
+export { unknownRepeatIndexFormulaRule, unknownRepeatItemFormulaRule } from './logic/unknownRepeatFormulaRule';
+export { switchUnreachableCaseRule } from './logic/switchUnreachableCaseRule';
+
+// Misc
+export { noReferenceNodeRule } from './misc/noReferenceNodeRule';
+export { requireExtensionRule } from './misc/requireExtensionRule';
+export { unknownCookieRule } from './misc/unknownCookieRule';
 
 // Routing
 export { duplicateRouteRule } from './routing/duplicateRouteRule';
@@ -55,6 +66,12 @@ export { unknownSetUrlParameterRule } from './routing/unknownSetUrlParameterRule
 
 // Slots
 export { unknownComponentSlotRule } from './slots/unknownComponentSlotRule';
+
+// Styles
+export { invalidStyleSyntaxRule } from './styles/invalidStyleSyntaxRule';
+export { unknownClassnameRule } from './styles/unknownClassnameRule';
+export { unknownCSSVariableRule } from './styles/unknownCSSVariableRule';
+export { noReferenceGlobalCSSVariableRule } from './styles/noReferenceGlobalCSSVariableRule';
 
 // Variables
 export { unknownVariableRule } from './variables/unknownVariableRule';
