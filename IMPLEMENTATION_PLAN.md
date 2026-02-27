@@ -9,6 +9,14 @@
 
 ## Recent Progress
 
+### 2026-02-27 (Documentation Sync)
+- **Updated specs to reflect actual implementation state:**
+  - `specs/13-search-and-linting.md` - Marked all 57 linting rules as [MVP] (was showing 9/58)
+  - `specs/README.md` - Updated counts: 125 formulas, 57 lint rules, 1491+ tests
+  - `specs/31-dev-workflow.md` - Updated test count to 1491+
+- **Linting rules corrected:** 57 unique rules (spec had duplicate "no reference component workflow")
+- **All 1491 tests pass**
+
 ### 2026-02-27 (Phase 2 Standard Library - 31 New Formulas)
 - **Implemented 31 new standard library formulas (ALL PHASE 2 FORMULAS COMPLETE!):**
   - **String (9 new):** `capitalize`, `encodeJSON`, `parseJSON`, `encodeURIComponent`, `decodeURIComponent`, `encodeBase64`, `decodeBase64`, `parseURL`, `matches`
@@ -53,7 +61,7 @@
 
 ## Recent Progress
 
-### 2026-02-27 (15 New Linting Rules - 58 Total - COMPLETE!)
+### 2026-02-27 (15 New Linting Rules - 57 Total - COMPLETE!)
 - **Implemented 15 new linting rules (ALL LINTING RULES NOW COMPLETE!):**
   - **DOM Rules (4 new):**
     - `missingMetaDescriptionRule` (warning) - Page components missing `<meta name="description">`
@@ -73,7 +81,7 @@
     - `unknownClassnameRule` (error) - Classname references not defined in project
     - `unknownCSSVariableRule` (error) - CSS `var()` referencing undefined variables
     - `noReferenceGlobalCSSVariableRule` (warning) - Global CSS variables never used
-- **Linting rules status:** 58/58 implemented (100% COMPLETE!)
+- **Linting rules status:** 57/57 implemented (100% COMPLETE!)
 - **All 1458 tests pass**
 - New rule files created in `packages/search/src/rules/`:
   - `dom/missingMetaDescriptionRule.ts`
@@ -177,7 +185,7 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (58/58 COMPLETE!), issue detection
+└── @layr/search  ← Linting rules (57/57 COMPLETE!), issue detection
 ```
 
 ---
@@ -219,7 +227,7 @@ Layr is a visual development platform with the following architecture:
 - Sharing: copyToClipboard, share (2)
 - Theme: setTheme (1)
 
-**Linting Rules (58 implemented - COMPLETE!):**
+**Linting Rules (57 implemented - COMPLETE!):**
 - unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
 - noReferenceAttributeRule, noReferenceVariableRule, noReferenceEventRule, noReferenceComponentRule, noReferenceComponentWorkflowRule, noReferenceApiRule, noReferenceNodeRule, noReferenceGlobalCSSVariableRule (8 noReference* rules)
 - noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule, unknownRepeatIndexFormulaRule, unknownRepeatItemFormulaRule, switchUnreachableCaseRule (6 logic rules)
@@ -244,10 +252,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY) - COMPLETE!
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 58/58 rules implemented (100% COMPLETE!)
+**Status:** 57/57 rules implemented (100% COMPLETE!)
 **Package:** `@layr/search`
 
-**Implemented Rules (58 - ALL COMPLETE!):**
+**Implemented Rules (57 - ALL COMPLETE!):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `noReferenceComponentRule` - Components (2026-02-27)
@@ -306,7 +314,7 @@ Layr is a visual development platform with the following architecture:
 - `unknownCSSVariableRule` - Styles (2026-02-27)
 - `noReferenceGlobalCSSVariableRule` - Styles (2026-02-27)
 
-**All Rules Complete! (58/58)**
+**All Rules Complete! (57/57)**
 
 No remaining rules to implement.
 
