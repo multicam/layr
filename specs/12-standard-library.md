@@ -10,20 +10,20 @@ Built-in formulas and actions provided by `@layr/lib`. All items registered unde
 
 | Area | Status | Count |
 |------|--------|-------|
-| Array formulas | [MVP] Implemented | 15 |
-| String formulas | [MVP] Implemented | 17 |
-| Number formulas | [MVP] Implemented | 15 |
-| Object formulas | [MVP] Implemented | 9 |
-| Logic formulas | [MVP] Implemented | 8 |
-| Comparison formulas | [MVP] Implemented | 5 |
-| Utility formulas | [MVP] Implemented | 9 |
-| Datetime formulas | [Phase 2] Implemented | 5 |
-| Environment/DOM formulas | [Phase 2] Implemented | 9 |
-| Storage formulas | [Phase 2] Implemented | 2 |
-| Actions | [MVP] Implemented | 18 |
+| Array formulas | [COMPLETE] Implemented | 26 |
+| String formulas | [COMPLETE] Implemented | 26 |
+| Number formulas | [COMPLETE] Implemented | 17 |
+| Object formulas | [COMPLETE] Implemented | 14 |
+| Logic formulas | [COMPLETE] Implemented | 8 |
+| Comparison formulas | [COMPLETE] Implemented | 5 |
+| Utility formulas | [COMPLETE] Implemented | 13 |
+| Datetime formulas | [COMPLETE] Implemented | 5 |
+| Environment/DOM formulas | [COMPLETE] Implemented | 9 |
+| Storage formulas | [COMPLETE] Implemented | 2 |
+| Actions | [COMPLETE] Implemented | 18 |
 | `setSessionCookies` action | [Deferred] Deprecated | 1 |
 
-**Total built-in formulas: 94 implemented**
+**Total built-in formulas: 125 implemented (100% COMPLETE!)**
 **Total built-in actions: 18 implemented**
 
 ---
@@ -86,7 +86,21 @@ All standard library items: `@toddle/<name>` (e.g., `@toddle/map`, `@toddle/go-t
 
 **Higher-order callback context:** `{ item, index }` — passed as `Args` to the inner formula.
 
-**Unbuilt array formulas from old spec:** `append`, `prepend`, `drop`, `dropLast`, `take`, `takeLast`, `findIndex`, `findLast`, `first`, `flatten`, `shuffle`, `sort_by`, `unique` — [Phase 2]
+**Phase 2 Array formulas (11 new - COMPLETE):**
+
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `unique` | `@toddle/unique` | `(items: Array) → Array` | Remove duplicates using Set |
+| `append` | `@toddle/append` | `(items: Array, value) → Array` | Add element to end |
+| `prepend` | `@toddle/prepend` | `(items: Array, value) → Array` | Add element to start |
+| `findIndex` | `@toddle/findIndex` | `(items: Array, condition: Fn(item, index)) → number` | Index of first match, `-1` if not found |
+| `findLast` | `@toddle/findLast` | `(items: Array, condition: Fn(item, index)) → T?` | Last matching element |
+| `drop` | `@toddle/drop` | `(items: Array, count: number) → Array` | Remove first N elements |
+| `dropLast` | `@toddle/dropLast` | `(items: Array, count: number) → Array` | Remove last N elements |
+| `take` | `@toddle/take` | `(items: Array, count: number) → Array` | Keep first N elements |
+| `takeLast` | `@toddle/takeLast` | `(items: Array, count: number) → Array` | Keep last N elements |
+| `shuffle` | `@toddle/shuffle` | `(items: Array) → Array` | Randomize order (Fisher-Yates) |
+| `sortBy` | `@toddle/sortBy` | `(items: Array, key?: Fn(item), ascending?: boolean) → Array` | Sort by derived value |
 
 ---
 
@@ -112,7 +126,19 @@ All standard library items: `@toddle/<name>` (e.g., `@toddle/map`, `@toddle/go-t
 | `pad-end` | `@toddle/pad-end` | `(text: string, length: number, pad?: string) → string` | Pad end to target length |
 | `repeat` | `@toddle/repeat` | `(text: string, count: number) → string` | Repeat string N times |
 
-**Unbuilt string formulas from old spec:** `capitalize`, `decodeBase64`, `encodeBase64`, `decodeURIComponent`, `encodeURIComponent`, `encodeJSON`, `parseJSON`, `parseURL`, `matches` — [Phase 2]
+**Phase 2 String formulas (9 new - COMPLETE):**
+
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `capitalize` | `@toddle/capitalize` | `(text: string) → string` | Capitalize first letter |
+| `encodeJSON` | `@toddle/encodeJSON` | `(value) → string` | `JSON.stringify()` |
+| `parseJSON` | `@toddle/parseJSON` | `(text: string) → unknown` | `JSON.parse()`, `null` on error |
+| `encodeURIComponent` | `@toddle/encodeURIComponent` | `(text: string) → string` | Encode URI component |
+| `decodeURIComponent` | `@toddle/decodeURIComponent` | `(text: string) → string` | Decode URI component |
+| `encodeBase64` | `@toddle/encodeBase64` | `(text: string) → string` | Encode to Base64 (browser/Node) |
+| `decodeBase64` | `@toddle/decodeBase64` | `(text: string) → string` | Decode from Base64 (browser/Node) |
+| `parseURL` | `@toddle/parseURL` | `(text: string) → Object?` | Parse URL into components |
+| `matches` | `@toddle/matches` | `(text: string, pattern: string, flags?: string) → boolean` | Regex match test |
 
 ---
 
@@ -138,7 +164,12 @@ All standard library items: `@toddle/<name>` (e.g., `@toddle/map`, `@toddle/go-t
 
 Note: `min`/`max` here take an array, unlike old spec which described two-argument versions.
 
-**Unbuilt number formulas from old spec:** `logarithm`, `number` (type cast), `randomNumber` (integer), `squareRoot` (alias) — [Phase 2]
+**Phase 2 Number formulas (2 new - COMPLETE):**
+
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `logarithm` | `@toddle/logarithm` | `(value: number, base?: number) → number?` | Natural or base-N logarithm, `null` if invalid |
+| `randomNumber` | `@toddle/randomNumber` | `(min?: number, max?: number) → number` | Random integer in range (inclusive) |
 
 ---
 
@@ -156,7 +187,15 @@ Note: `min`/`max` here take an array, unlike old spec which described two-argume
 | `has-key` | `@toddle/has-key` | `(object: Object, key: string) → boolean` | Own-property check |
 | `get` | `@toddle/get` | `(object: Object, key: string, fallback?) → unknown` | Safe key lookup with optional fallback |
 
-**Unbuilt object formulas from old spec:** `deleteKey`, `set`, `size`, `groupBy`, `keyBy` — [Phase 2]
+**Phase 2 Object formulas (5 new - COMPLETE):**
+
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `deleteKey` | `@toddle/deleteKey` | `(object: Object, key: string) → Object` | Remove key (immutable) |
+| `set` | `@toddle/set` | `(object: Object, key: string, value) → Object` | Set key (immutable) |
+| `size` | `@toddle/size` | `(object: Object) → number` | Count of keys |
+| `groupBy` | `@toddle/groupBy` | `(items: Array, key: Fn(item)) → Object` | Group array elements by key |
+| `keyBy` | `@toddle/keyBy` | `(items: Array, key: Fn(item)) → Object` | Index array by key |
 
 ---
 
@@ -201,7 +240,14 @@ Note: `min`/`max` here take an array, unlike old spec which described two-argume
 | `last` | `@toddle/last` | `(items: Array) → unknown?` | Last element, `null` if empty or non-array |
 | `nth` | `@toddle/nth` | `(items: Array, index: number) → unknown?` | Element at index, `null` if out of bounds |
 
-Note: `first`, `last`, `nth` are implemented in utility.ts (9 formulas total but listed as 7 in spec — 9 actual).
+**Phase 2 Utility formulas (4 new - COMPLETE):**
+
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `lastIndexOf` | `@toddle/lastIndexOf` | `(items: Array, value) → number` | Last index of value, `-1` if not found |
+| `range` | `@toddle/range` | `(start: number, end: number, step?: number) → number[]` | Generate number sequence |
+| `json` | `@toddle/json` | `(value) → unknown` | Deep clone via JSON round-trip |
+| `formatNumber` | `@toddle/formatNumber` | `(value: number, locale?: string, options?) → string` | Format with Intl.NumberFormat |
 
 ---
 
@@ -385,16 +431,16 @@ See spec `14-error-handling.md` for the full error collection and reporting syst
 
 ## Formula Count Summary
 
-| Category | Implemented | Future |
+| Category | Implemented | Status |
 |----------|-------------|--------|
-| Array | 15 | ~13 (append, prepend, drop, etc.) |
-| String | 17 | ~9 (base64, URI encode, regex, etc.) |
-| Number | 15 | ~4 (log, integer-random, etc.) |
-| Object | 9 | ~5 (set, size, groupBy, etc.) |
-| Logic | 8 | 0 |
-| Comparison | 5 | 0 |
-| Utility | 9 | 0 |
-| Datetime | 5 | 0 |
-| Environment/DOM | 9 | 0 |
-| Storage | 2 | 0 |
-| **Total** | **94** | **~31** |
+| Array | 26 | COMPLETE |
+| String | 26 | COMPLETE |
+| Number | 17 | COMPLETE |
+| Object | 14 | COMPLETE |
+| Logic | 8 | COMPLETE |
+| Comparison | 5 | COMPLETE |
+| Utility | 13 | COMPLETE |
+| Datetime | 5 | COMPLETE |
+| Environment/DOM | 9 | COMPLETE |
+| Storage | 2 | COMPLETE |
+| **Total** | **125** | **100% COMPLETE!** |
