@@ -19,6 +19,13 @@ import {
   unknownAttributeRule,
   // Components
   unknownComponentRule,
+  // Contexts
+  unknownContextProviderRule,
+  unknownContextProviderFormulaRule,
+  unknownContextProviderWorkflowRule,
+  noContextConsumersRule,
+  unknownContextFormulaRule,
+  unknownContextWorkflowRule,
   // DOM
   nonEmptyVoidElementRule,
   missingAltAttributeRule,
@@ -217,6 +224,14 @@ function getAllRules(): Rule[] {
 
     // Components
     unknownComponentRule,
+
+    // Contexts
+    unknownContextProviderRule,
+    unknownContextProviderFormulaRule,
+    unknownContextProviderWorkflowRule,
+    noContextConsumersRule,
+    unknownContextFormulaRule,
+    unknownContextWorkflowRule,
 
     // DOM
     nonEmptyVoidElementRule,

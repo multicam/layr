@@ -28,7 +28,7 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (20/58), issue detection
+└── @layr/search  ← Linting rules (26/58), issue detection
 ```
 
 ---
@@ -74,13 +74,14 @@ Layr is a visual development platform with the following architecture:
 - Sharing: copyToClipboard, share (2)
 - Theme: setTheme (1)
 
-**Linting Rules (20 implemented):**
+**Linting Rules (26 implemented):**
 - unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
 - noReferenceAttributeRule, noReferenceVariableRule (2 noReference* rules)
 - noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule (3 logic rules)
 - unknownAttributeRule, unknownVariableSetterRule, unknownTriggerWorkflowRule, unknownWorkflowParameterRule, unknownApiRule, unknownApiInputRule (6 error-level - 2026-02-27)
 - nonEmptyVoidElementRule, missingAltAttributeRule (2 DOM rules - 2026-02-27)
 - duplicateRouteRule, duplicateUrlParameterRule (2 routing rules - 2026-02-27)
+- unknownContextProviderRule, unknownContextProviderFormulaRule, unknownContextProviderWorkflowRule, noContextConsumersRule, unknownContextFormulaRule, unknownContextWorkflowRule (6 context rules - 2026-02-27)
 
 ---
 
@@ -89,10 +90,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY)
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 20/58 rules implemented (34%)
+**Status:** 26/58 rules implemented (45%)
 **Package:** `@layr/search`
 
-**Implemented Rules (20):**
+**Implemented Rules (26):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `unknownEventRule` - Events
@@ -113,8 +114,14 @@ Layr is a visual development platform with the following architecture:
 - `missingAltAttributeRule` - DOM/accessibility (2026-02-27)
 - `duplicateRouteRule` - Routing (2026-02-27)
 - `duplicateUrlParameterRule` - Routing (2026-02-27)
+- `unknownContextProviderRule` - Contexts (2026-02-27)
+- `unknownContextProviderFormulaRule` - Contexts (2026-02-27)
+- `unknownContextProviderWorkflowRule` - Contexts (2026-02-27)
+- `noContextConsumersRule` - Contexts (2026-02-27)
+- `unknownContextFormulaRule` - Contexts (2026-02-27)
+- `unknownContextWorkflowRule` - Contexts (2026-02-27)
 
-**Missing Rules by Category (50+ rules):**
+**Missing Rules by Category (32 remaining rules):**
 
 #### Action Rules (2 remaining)
 - [ ] `unknownTriggerEventRule` - Unknown event triggers
@@ -132,13 +139,13 @@ Layr is a visual development platform with the following architecture:
 #### Component Rules (1 remaining)
 - [ ] `noReferenceComponentRule` - Components not used anywhere
 
-#### Context Rules (6 rules)
-- [ ] `noContextConsumersRule` - Context providers without consumers
-- [ ] `unknownContextFormulaRule` - Unknown context formula references
-- [ ] `unknownContextProviderFormulaRule` - Unknown provider formula references
-- [ ] `unknownContextProviderRule` - References to non-existent providers
-- [ ] `unknownContextProviderWorkflowRule` - Unknown provider workflow references
-- [ ] `unknownContextWorkflowRule` - Unknown context workflow references
+#### Context Rules (6 implemented, 0 remaining)
+- [x] `noContextConsumersRule` - Context providers without consumers (IMPLEMENTED 2026-02-27)
+- [x] `unknownContextFormulaRule` - Unknown context formula references (IMPLEMENTED 2026-02-27)
+- [x] `unknownContextProviderFormulaRule` - Unknown provider formula references (IMPLEMENTED 2026-02-27)
+- [x] `unknownContextProviderRule` - References to non-existent providers (IMPLEMENTED 2026-02-27)
+- [x] `unknownContextProviderWorkflowRule` - Unknown provider workflow references (IMPLEMENTED 2026-02-27)
+- [x] `unknownContextWorkflowRule` - Unknown context workflow references (IMPLEMENTED 2026-02-27)
 
 #### DOM Rules (2 implemented, 4 remaining)
 - [x] `nonEmptyVoidElementRule` - Void elements with children (IMPLEMENTED 2026-02-27)
@@ -400,6 +407,27 @@ bun run build               # Build all packages
 ---
 
 ## Changelog
+
+### 2026-02-27 (Context Linting Rules - 6 New Rules)
+- **Implemented 6 new context linting rules:**
+  - `unknownContextProviderRule` (error) - Detects context subscriptions referencing non-existent providers
+  - `unknownContextProviderFormulaRule` (error) - Detects context subscriptions referencing formulas not exposed by provider
+  - `unknownContextProviderWorkflowRule` (error) - Detects context subscriptions referencing workflows not exposed by provider
+  - `noContextConsumersRule` (warning) - Detects context providers with no consumers
+  - `unknownContextFormulaRule` (error) - Detects formula references to undeclared context formulas
+  - `unknownContextWorkflowRule` (error) - Detects TriggerWorkflow with undeclared context workflows
+- **Linting rules status:** 26/58 implemented (45%, up from 34%)
+- **All 1357 tests pass**
+- New rule files created in `packages/search/src/rules/contexts/`:
+  - `unknownContextProviderRule.ts`
+  - `unknownContextProviderFormulaRule.ts`
+  - `unknownContextProviderWorkflowRule.ts`
+  - `noContextConsumersRule.ts`
+  - `unknownContextFormulaRule.ts`
+  - `unknownContextWorkflowRule.ts`
+- New test file: `contexts/contexts.test.ts` - 15 tests for context rules
+- Updated `packages/search/src/rules/index.ts` to export new rules
+- Updated `packages/search/src/problems.ts` to include new rules in getAllRules()
 
 ### 2026-02-27 (Phase 1 Linting Rules - DOM and Routing)
 - **Implemented 4 new linting rules:**

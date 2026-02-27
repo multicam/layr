@@ -16,6 +16,14 @@ export { unknownAttributeRule } from './attributes/unknownAttributeRule';
 // Components
 export { unknownComponentRule } from './components/unknownComponentRule';
 
+// Contexts
+export { unknownContextProviderRule } from './contexts/unknownContextProviderRule';
+export { unknownContextProviderFormulaRule } from './contexts/unknownContextProviderFormulaRule';
+export { unknownContextProviderWorkflowRule } from './contexts/unknownContextProviderWorkflowRule';
+export { noContextConsumersRule } from './contexts/noContextConsumersRule';
+export { unknownContextFormulaRule } from './contexts/unknownContextFormulaRule';
+export { unknownContextWorkflowRule } from './contexts/unknownContextWorkflowRule';
+
 // DOM
 export { nonEmptyVoidElementRule } from './dom/nonEmptyVoidElementRule';
 export { missingAltAttributeRule } from './dom/missingAltAttributeRule';
