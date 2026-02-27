@@ -25,6 +25,7 @@
   - Tests cover: sharing actions (copyToClipboard, share), theme actions
   - All tests mock browser APIs appropriately for test environment
 - **All 1580 tests pass** (up from 1541)
+- **Created git tag 0.0.17** for test coverage improvements
 
 ### 2026-02-27 (Test Coverage Improvements - Phase 2 Formulas)
 - **Added 45 new tests for Phase 2 formulas:**
