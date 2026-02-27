@@ -4,11 +4,26 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1872
+**Total Tests:** 1945
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Test Coverage Improvements - Phase 6)
+- **Improved test coverage with 73 new tests for packages/types:**
+  - **packages/types/src/element.ts** - Coverage improved from 0% to 100% (functions)
+    - Added tests for `isVoidElement` function (all 13 void elements + non-void elements)
+    - Added tests for `isPopularElement` function (all 14 popular elements + non-popular elements)
+    - Added tests for `isElementDefinition` type guard (valid/invalid cases, edge cases)
+    - Added tests for `VOID_ELEMENTS` and `POPULAR_ELEMENTS` arrays
+  - **packages/types/src/schemas.ts** - Coverage improved from 0% to 100% (lines)
+    - Added tests for `validateComponent` function (valid/invalid components, missing fields)
+    - Added tests for `validatePage` function (route validation, page structure)
+    - Added tests for `validateFormula` function (all 10 formula types: value, path, function, apply, array, object, record, or, and, switch)
+    - Added tests for `validateAction` function (all 10 action types)
+    - Added tests for `validateNode` function (all 4 node types: text, slot, element, component)
+- **All 1945 tests pass** (up from 1872)
 
 ### 2026-02-27 (Test Coverage Improvements - Phase 5)
 - **Improved test coverage with 41 new tests:**
