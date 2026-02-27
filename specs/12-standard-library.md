@@ -16,16 +16,15 @@ Built-in formulas and actions provided by `@layr/lib`. All items registered unde
 | Object formulas | [MVP] Implemented | 9 |
 | Logic formulas | [MVP] Implemented | 8 |
 | Comparison formulas | [MVP] Implemented | 5 |
-| Utility formulas | [MVP] Implemented | 7 |
-| Datetime formulas | [Phase 2] Not built | 5 |
-| Environment/DOM formulas | [Phase 2] Not built | 9 |
-| Storage formulas | [Phase 2] Not built | 2 |
-| Actions | [MVP] Implemented | 17 |
-| `setHttpOnlyCookie` action | [Phase 2] Not built | 1 |
+| Utility formulas | [MVP] Implemented | 9 |
+| Datetime formulas | [Phase 2] Implemented | 5 |
+| Environment/DOM formulas | [Phase 2] Implemented | 9 |
+| Storage formulas | [Phase 2] Implemented | 2 |
+| Actions | [MVP] Implemented | 18 |
 | `setSessionCookies` action | [Deferred] Deprecated | 1 |
 
-**Total built-in formulas: 76 implemented, ~16 Phase 2**
-**Total built-in actions: 17 implemented, 2 unbuilt**
+**Total built-in formulas: 94 implemented**
+**Total built-in actions: 18 implemented**
 
 ---
 
@@ -206,44 +205,42 @@ Note: `first`, `last`, `nth` are implemented in utility.ts (9 formulas total but
 
 ---
 
-### Datetime (5 formulas) [Phase 2]
+### Datetime (5 formulas) [Phase 2 - Implemented]
 
-These formulas are documented in the old spec but not implemented in source.
-
-| Name | Signature | Description |
-|------|-----------|-------------|
-| `dateFromString` | `(string) → Date` | Parse date string |
-| `dateFromTimestamp` | `(number) → Date` | Create date from Unix timestamp |
-| `formatDate` | `(Date, format: string, locale?) → string` | Format date using `Intl.DateTimeFormat` |
-| `now` | `() → Date` | Current date/time |
-| `timestamp` | `(Date) → number` | Date to Unix timestamp |
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `dateFromString` | `@toddle/dateFromString` | `(string) → Date` | Parse date string |
+| `dateFromTimestamp` | `@toddle/dateFromTimestamp` | `(number) → Date` | Create date from Unix timestamp |
+| `formatDate` | `@toddle/formatDate` | `(Date, format: string, locale?) → string` | Format date using `Intl.DateTimeFormat` |
+| `now` | `@toddle/now` | `() → Date` | Current date/time |
+| `timestamp` | `@toddle/timestamp` | `(Date) → number` | Date to Unix timestamp |
 
 ---
 
-### Environment & DOM (9 formulas) [Phase 2]
+### Environment & DOM (9 formulas) [Phase 2 - Implemented]
 
-Server/client-aware formulas. Not implemented in current source.
+Server/client-aware formulas for SSR-safe environment access.
 
-| Name | Server Behavior | Client Behavior |
-|------|----------------|-----------------|
-| `branchName` | Returns `env.branchName` | Returns `env.branchName` |
-| `canShare` | Returns `false` | Returns `navigator.canShare()` |
-| `currentURL` | Returns `env.request.url` | Returns `window.location.href` |
-| `getElementById` | Returns `null` | Returns `document.getElementById()` |
-| `getCookie` | Reads `env.request.cookies[name]` | Reads `document.cookie` |
-| `getHttpOnlyCookie` | Reads `env.request.cookies[name]` | Returns `null` |
-| `isServer` | Returns `true` | Returns `false` |
-| `languages` | Returns `['en']` | Returns `navigator.languages` |
-| `userAgent` | Returns request User-Agent | Returns `navigator.userAgent` |
+| Name | Registry Key | Server Behavior | Client Behavior |
+|------|-------------|----------------|-----------------|
+| `branchName` | `@toddle/branchName` | Returns `env.branchName` | Returns `env.branchName` |
+| `canShare` | `@toddle/canShare` | Returns `false` | Returns `navigator.canShare()` |
+| `currentURL` | `@toddle/currentURL` | Returns `env.request.url` | Returns `window.location.href` |
+| `getElementById` | `@toddle/getElementById` | Returns `null` | Returns `document.getElementById()` |
+| `getCookie` | `@toddle/getCookie` | Reads `env.request.cookies[name]` | Reads `document.cookie` |
+| `getHttpOnlyCookie` | `@toddle/getHttpOnlyCookie` | Reads `env.request.cookies[name]` | Returns `null` |
+| `isServer` | `@toddle/isServer` | Returns `true` | Returns `false` |
+| `languages` | `@toddle/languages` | Returns `['en']` | Returns `navigator.languages` |
+| `userAgent` | `@toddle/userAgent` | Returns request User-Agent | Returns `navigator.userAgent` |
 
 ---
 
-### Storage (2 formulas) [Phase 2]
+### Storage (2 formulas) [Phase 2 - Implemented]
 
-| Name | Signature | Description |
-|------|-----------|-------------|
-| `getFromLocalStorage` | `(key: string) → unknown` | JSON-parse from `localStorage` |
-| `getFromSessionStorage` | `(key: string) → unknown` | JSON-parse from `sessionStorage` |
+| Name | Registry Key | Signature | Description |
+|------|-------------|-----------|-------------|
+| `getFromLocalStorage` | `@toddle/getFromLocalStorage` | `(key: string) → unknown` | JSON-parse from `localStorage` |
+| `getFromSessionStorage` | `@toddle/getFromSessionStorage` | `(key: string) → unknown` | JSON-parse from `sessionStorage` |
 
 ---
 
@@ -271,15 +268,17 @@ All three are no-ops if `typeof window === 'undefined'` (SSR safety).
 
 ---
 
-### Cookies (1 action implemented, 2 unbuilt) [MVP / Phase 2 / Deferred]
+### Cookies (2 actions) [MVP / Phase 2]
 
 | Name | Registry Key | Status | Arguments |
 |------|-------------|--------|-----------|
 | `setCookie` | `@toddle/setCookie` | [MVP] | `name, value, expiresIn (seconds), sameSite, path` |
-| `setHttpOnlyCookie` | — | [Phase 2] | Same as setCookie |
+| `setHttpOnlyCookie` | `@toddle/setHttpOnlyCookie` | [Phase 2] | Same as setCookie |
 | `setSessionCookies` | — | [Deferred] | Access token, expires in (deprecated) |
 
 `setCookie` implementation: builds cookie string with `Expires`, `Path`, `SameSite` then assigns to `document.cookie`. No-op if `typeof document === 'undefined'`.
+
+`setHttpOnlyCookie` implementation: Sets HttpOnly cookies via backend endpoint. Only works on server-side rendering.
 
 ---
 
@@ -386,8 +385,8 @@ See spec `14-error-handling.md` for the full error collection and reporting syst
 
 ## Formula Count Summary
 
-| Category | Implemented | Phase 2 |
-|----------|-------------|---------|
+| Category | Implemented | Future |
+|----------|-------------|--------|
 | Array | 15 | ~13 (append, prepend, drop, etc.) |
 | String | 17 | ~9 (base64, URI encode, regex, etc.) |
 | Number | 15 | ~4 (log, integer-random, etc.) |
@@ -395,7 +394,7 @@ See spec `14-error-handling.md` for the full error collection and reporting syst
 | Logic | 8 | 0 |
 | Comparison | 5 | 0 |
 | Utility | 9 | 0 |
-| Datetime | 0 | 5 |
-| Environment/DOM | 0 | 9 |
-| Storage | 0 | 2 |
-| **Total** | **78** | **~47** |
+| Datetime | 5 | 0 |
+| Environment/DOM | 9 | 0 |
+| Storage | 2 | 0 |
+| **Total** | **94** | **~31** |

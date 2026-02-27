@@ -118,21 +118,40 @@ describe('API Client', () => {
   });
 
   describe('config', () => {
-    test.skip('merges headers', async () => {
-      // This test requires network access to httpbin.org which can be unreliable
-      const signal = createTestSignal();
-      const client = createApiClient(signal, {
-        baseUrl: 'https://httpbin.org',
-        headers: { 'X-Custom': 'custom-value' },
-      });
-      
-      const result = await client.fetch('headers-test', {
-        method: 'GET',
-        url: '/headers',
-        headers: { 'X-Another': 'another-value' },
-      });
-      
-      expect(result.error).toBeNull();
+    test('merges headers', async () => {
+      // Mock fetch to capture headers without network dependency
+      const originalFetch = globalThis.fetch;
+      let capturedHeaders: Record<string, string> | undefined;
+
+      globalThis.fetch = async (url: string | URL | Request, init?: RequestInit) => {
+        capturedHeaders = init?.headers as Record<string, string> | undefined;
+        return new Response(JSON.stringify({ headers: capturedHeaders }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      };
+
+      try {
+        const signal = createTestSignal();
+        const client = createApiClient(signal, {
+          baseUrl: 'https://example.com',
+          headers: { 'X-Custom': 'custom-value' },
+        });
+
+        const result = await client.fetch('headers-test', {
+          method: 'GET',
+          url: '/test',
+          headers: { 'X-Another': 'another-value' },
+        });
+
+        expect(result.error).toBeNull();
+        expect(capturedHeaders).toEqual({
+          'X-Custom': 'custom-value',
+          'X-Another': 'another-value',
+        });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 });

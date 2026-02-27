@@ -9,6 +9,13 @@
 
 ## Recent Progress
 
+### 2026-02-27 (Skipped Tests Fixed)
+- **Fixed 2 skipped tests in runtime package:**
+  - `packages/runtime/src/api/client.test.ts` - "merges headers" test now uses mocked fetch instead of network-dependent httpbin.org
+  - `packages/runtime/src/custom-code/index.test.ts` - "returns false for empty package" test was incorrectly skipped
+- **All 1460 tests pass** (up from 1458)
+- **No skipped tests remain in the codebase**
+
 ### 2026-02-27 (Standard Library Phase 2 - 16 New Formulas, 1 New Action)
 - **Implemented 16 new standard library formulas:**
   - **Date/Time (5 new):** `dateFromString`, `dateFromTimestamp`, `formatDate`, `now`, `timestamp`
@@ -164,19 +171,12 @@ Layr is a visual development platform with the following architecture:
 
 | Category | Found | Details |
 |----------|-------|---------|
-| Skipped Tests | 2 | In runtime package |
+| Skipped Tests | 0 | All fixed |
 | TODO/FIXME | 0 | None found in codebase |
 | Placeholder implementations | 0 | None found |
 | Partial specs | 6 | Standard library, search/linting |
 | Stale references | 0 | None detected |
 | Missing specs | 0 | All specs now created |
-
-### Skipped Tests
-
-| File | Line | Test | Action |
-|------|------|------|--------|
-| `packages/runtime/src/api/client.test.ts` | 121 | `test.skip('merges headers')` | Implement or remove |
-| `packages/runtime/src/custom-code/index.test.ts` | 282 | `test.skip('returns false for empty package')` | Implement or remove |
 
 ### Code Inventory (Verified 2026-02-27)
 
@@ -396,12 +396,11 @@ No remaining rules to implement.
 
 ## Priority 2: Test Coverage Improvements
 
-### 2.1 Fix Skipped Tests
+### 2.1 Fix Skipped Tests (COMPLETE)
 
-| Test | File | Action |
-|------|------|--------|
-| `merges headers` | `packages/runtime/src/api/client.test.ts:121` | Implement test |
-| `returns false for empty package` | `packages/runtime/src/custom-code/index.test.ts:282` | Implement test |
+All skipped tests have been fixed:
+- `packages/runtime/src/api/client.test.ts:121` - Fixed with mocked fetch
+- `packages/runtime/src/custom-code/index.test.ts:282` - Fixed (was incorrectly skipped)
 
 ### 2.2 Coverage Gaps by Package
 

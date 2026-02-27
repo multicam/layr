@@ -279,10 +279,9 @@ describe('Custom Code System', () => {
       expect(hasCustomCode(registry, 'mypackage')).toBe(true);
     });
 
-    test.skip('returns false for empty package', () => {
-      // This test depends on internal state
+    test('returns false for empty package', () => {
       const registry = createCustomCodeRegistry();
-      // Empty registry should return false
+      // Empty registry should return false for any package
       expect(hasCustomCode(registry, 'empty')).toBe(false);
     });
   });
