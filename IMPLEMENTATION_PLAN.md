@@ -4,10 +4,27 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
+**Total Tests:** 1615
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Linting Rule Test Coverage Improvements)
+- **Improved linting rule test coverage with 35 new tests:**
+  - **requireExtensionRule.ts** - Coverage improved from 31.58% to 97.26%
+    - Added 11 new tests covering: extension references in formulas, customCode, project formulas
+    - Tests cover: missing extension detection, available extension checks via name/packageName
+    - Tests cover: extension requirements, plugin checks, null handling
+  - **unknownCookieRule.ts** - Coverage improved from 42.68% to 99.34%
+    - Added 13 new tests covering: condition formulas, attribute formulas, style formulas
+    - Tests cover: event handler actions, workflow actions, nested actions (then/else/cases)
+    - Tests cover: alternative cookie naming, function formula arguments, component-level cookies
+  - **unknownClassnameRule.ts** - Coverage improved from 41.75% to 100%
+    - Added 14 new tests covering: undefined classes, utility classes, global styles, themes
+    - Tests cover: component styles, node styles, class attribute alternative, array class names
+    - Tests cover: concatenate function, dynamic class names, multiple classes, null handling
+- **All 1615 tests pass** (up from 1580)
 
 ### 2026-02-27 (Storage Formula Test Coverage)
 - **Improved storage formula test coverage from 57.14% to 100%:**
