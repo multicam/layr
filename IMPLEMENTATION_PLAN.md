@@ -3,6 +3,7 @@
 **Generated:** 2026-02-27
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
+**Last Updated:** 2026-02-27
 
 ---
 
@@ -27,7 +28,7 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (10/58), issue detection
+└── @layr/search  ← Linting rules (16/58), issue detection
 ```
 
 ---
@@ -73,10 +74,11 @@ Layr is a visual development platform with the following architecture:
 - Sharing: copyToClipboard, share (2)
 - Theme: setTheme (1)
 
-**Linting Rules (10 implemented):**
+**Linting Rules (16 implemented):**
 - unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
 - noReferenceAttributeRule, noReferenceVariableRule (2 noReference* rules)
 - noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule (3 logic rules)
+- unknownAttributeRule, unknownVariableSetterRule, unknownTriggerWorkflowRule, unknownWorkflowParameterRule, unknownApiRule, unknownApiInputRule (6 NEW - 2026-02-27)
 
 ---
 
@@ -85,10 +87,10 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY)
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 10/58 rules implemented (17%)
+**Status:** 16/58 rules implemented (28%)
 **Package:** `@layr/search`
 
-**Implemented Rules (10):**
+**Implemented Rules (16):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `unknownEventRule` - Events
@@ -99,6 +101,12 @@ Layr is a visual development platform with the following architecture:
 - `noStaticNodeConditionRule` - Logic (auto-fix)
 - `noUnnecessaryConditionTruthyRule` - Logic
 - `noUnnecessaryConditionFalsyRule` - Logic
+- `unknownAttributeRule` - Attributes (NEW 2026-02-27)
+- `unknownVariableSetterRule` - Variables (NEW 2026-02-27)
+- `unknownTriggerWorkflowRule` - Workflows (NEW 2026-02-27)
+- `unknownWorkflowParameterRule` - Workflows (NEW 2026-02-27)
+- `unknownApiRule` - APIs (NEW 2026-02-27)
+- `unknownApiInputRule` - APIs (NEW 2026-02-27)
 
 **Missing Rules by Category (50+ rules):**
 
@@ -106,13 +114,13 @@ Layr is a visual development platform with the following architecture:
 - [ ] `unknownTriggerEventRule` - Unknown event triggers
 - [ ] `noReferenceComponentWorkflowRule` - Unused workflows
 
-#### API Rules (3 rules)
+#### API Rules (1 remaining)
 - [ ] `noReferenceApiRule` - Unused APIs
-- [ ] `unknownApiRule` - References to non-existent APIs
-- [ ] `unknownApiInputRule` - Unknown API input references
+- [x] `unknownApiRule` - References to non-existent APIs (IMPLEMENTED 2026-02-27)
+- [x] `unknownApiInputRule` - Unknown API input references (IMPLEMENTED 2026-02-27)
 
-#### Attribute Rules (2 remaining)
-- [ ] `unknownAttributeRule` - References to non-existent attributes
+#### Attribute Rules (1 remaining)
+- [x] `unknownAttributeRule` - References to non-existent attributes (IMPLEMENTED 2026-02-27)
 - [ ] `unknownComponentAttributeRule` - Unknown attributes on component instances
 
 #### Component Rules (1 remaining)
@@ -170,16 +178,16 @@ Layr is a visual development platform with the following architecture:
 - [ ] `unknownCSSVariableRule` - CSS `var()` referencing undefined variables
 - [ ] `noReferenceGlobalCSSVariableRule` - Unused global CSS variables
 
-#### Variable Rules (1 remaining)
-- [ ] `unknownVariableSetterRule` - Setting non-existent variables
+#### Variable Rules (0 remaining)
+- [x] `unknownVariableSetterRule` - Setting non-existent variables (IMPLEMENTED 2026-02-27)
 
-#### Workflow Rules (5 remaining)
+#### Workflow Rules (3 remaining)
 - [ ] `duplicateWorkflowParameterRule` - Duplicate parameter names
 - [ ] `noPostNavigateAction` - Actions after navigation (unreachable code, with auto-fix)
 - [ ] `noReferenceComponentWorkflowRule` - Unused workflows (duplicate from Action)
 - [ ] `unknownTriggerWorkflowParameterRule` - Unknown workflow parameter references
-- [ ] `unknownTriggerWorkflowRule` - References to non-existent workflows
-- [ ] `unknownWorkflowParameterRule` - Unknown parameter references
+- [x] `unknownTriggerWorkflowRule` - References to non-existent workflows (IMPLEMENTED 2026-02-27)
+- [x] `unknownWorkflowParameterRule` - Unknown parameter references (IMPLEMENTED 2026-02-27)
 
 ---
 
@@ -386,6 +394,24 @@ bun run build               # Build all packages
 ---
 
 ## Changelog
+
+### 2026-02-27 (Linting Rules Implementation - 6 New Rules)
+- **Implemented 6 new error-level linting rules:**
+  - `unknownAttributeRule` - Detects Attributes.X references to non-existent attributes
+  - `unknownVariableSetterRule` - Detects SetVariable actions targeting non-existent variables
+  - `unknownTriggerWorkflowRule` - Detects TriggerWorkflow actions targeting non-existent workflows
+  - `unknownWorkflowParameterRule` - Detects Parameters.X formulas referencing non-existent workflow parameters
+  - `unknownApiRule` - Detects Fetch actions targeting non-existent APIs
+  - `unknownApiInputRule` - Detects Fetch actions with invalid input keys
+- **Linting rules status:** 16/58 implemented (28%, up from 17%)
+- **All 1325 tests pass**
+- New rule files created in `packages/search/src/rules/`:
+  - `attributes/unknownAttributeRule.ts`
+  - `variables/unknownVariableSetterRule.ts`
+  - `workflows/unknownTriggerWorkflowRule.ts`
+  - `workflows/unknownWorkflowParameterRule.ts`
+  - `apis/unknownApiRule.ts`
+  - `apis/unknownApiInputRule.ts`
 
 ### 2026-02-27 (Product Reference Spec Created)
 - Created `specs/00-product-reference.md` with vision, users, features, metrics

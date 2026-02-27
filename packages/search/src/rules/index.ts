@@ -5,8 +5,13 @@
 // Actions
 export { unknownActionRule } from './actions/unknownActionRule';
 
+// APIs
+export { unknownApiRule } from './apis/unknownApiRule';
+export { unknownApiInputRule } from './apis/unknownApiInputRule';
+
 // Attributes
 export { noReferenceAttributeRule } from './attributes/noReferenceAttributeRule';
+export { unknownAttributeRule } from './attributes/unknownAttributeRule';
 
 // Components
 export { unknownComponentRule } from './components/unknownComponentRule';
@@ -23,3 +28,8 @@ export { noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecess
 // Variables
 export { unknownVariableRule } from './variables/unknownVariableRule';
 export { noReferenceVariableRule } from './variables/noReferenceVariableRule';
+export { unknownVariableSetterRule } from './variables/unknownVariableSetterRule';
+
+// Workflows
+export { unknownTriggerWorkflowRule } from './workflows/unknownTriggerWorkflowRule';
+export { unknownWorkflowParameterRule } from './workflows/unknownWorkflowParameterRule';
