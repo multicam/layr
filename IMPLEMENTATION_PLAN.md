@@ -24,6 +24,7 @@
     - Added tests for `validateAction` function (all 10 action types)
     - Added tests for `validateNode` function (all 4 node types: text, slot, element, component)
 - **All 1945 tests pass** (up from 1872)
+- **Created git tag 0.0.23** for test coverage improvements
 
 ### 2026-02-27 (Test Coverage Improvements - Phase 5)
 - **Improved test coverage with 41 new tests:**
