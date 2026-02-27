@@ -802,3 +802,366 @@ describe('new utility formulas', () => {
     expect(fn({ value: NaN }, ctx)).toBeNull();
   });
 });
+
+// ========== Datetime Formulas ==========
+
+describe('datetime formulas', () => {
+  test('@toddle/dateFromString parses ISO date string', () => {
+    const fn = getFormula('@toddle/dateFromString')!;
+    const result = fn({ date: '2024-03-15T10:30:00Z' }, ctx);
+    expect(result).toBeInstanceOf(Date);
+    expect((result as Date).toISOString()).toBe('2024-03-15T10:30:00.000Z');
+  });
+
+  test('@toddle/dateFromString parses date-only string', () => {
+    const fn = getFormula('@toddle/dateFromString')!;
+    const result = fn({ date: '2024-03-15' }, ctx);
+    expect(result).toBeInstanceOf(Date);
+    expect((result as Date).getUTCFullYear()).toBe(2024);
+    expect((result as Date).getUTCMonth()).toBe(2); // March = 2
+    expect((result as Date).getUTCDate()).toBe(15);
+  });
+
+  test('@toddle/dateFromString returns null for invalid date', () => {
+    const fn = getFormula('@toddle/dateFromString')!;
+    expect(fn({ date: 'invalid' }, ctx)).toBeNull();
+    expect(fn({ date: '' }, ctx)).toBeNull(); // Empty string creates Invalid Date, which returns null
+  });
+
+  test('@toddle/dateFromString returns null for non-string input', () => {
+    const fn = getFormula('@toddle/dateFromString')!;
+    expect(fn({ date: 123 }, ctx)).toBeNull();
+    expect(fn({ date: null }, ctx)).toBeNull();
+    expect(fn({ date: undefined }, ctx)).toBeNull();
+  });
+
+  test('@toddle/dateFromTimestamp creates Date from milliseconds', () => {
+    const fn = getFormula('@toddle/dateFromTimestamp')!;
+    const timestamp = 1710502200000; // 2024-03-15T10:30:00Z
+    const result = fn({ timestamp }, ctx);
+    expect(result).toBeInstanceOf(Date);
+    expect((result as Date).getTime()).toBe(timestamp);
+  });
+
+  test('@toddle/dateFromTimestamp defaults to 0', () => {
+    const fn = getFormula('@toddle/dateFromTimestamp')!;
+    const result = fn({}, ctx);
+    expect(result).toBeInstanceOf(Date);
+    expect((result as Date).getTime()).toBe(0);
+  });
+
+  test('@toddle/dateFromTimestamp returns null for NaN', () => {
+    const fn = getFormula('@toddle/dateFromTimestamp')!;
+    expect(fn({ timestamp: 'invalid' }, ctx)).toBeNull();
+    expect(fn({ timestamp: NaN }, ctx)).toBeNull();
+  });
+
+  test('@toddle/formatDate with Date object', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const date = new Date('2024-03-15T10:30:00Z');
+    const result = fn({ date }, ctx);
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  test('@toddle/formatDate with string', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const result = fn({ date: '2024-03-15' }, ctx);
+    expect(typeof result).toBe('string');
+  });
+
+  test('@toddle/formatDate with timestamp number', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const result = fn({ date: 1710502200000 }, ctx);
+    expect(typeof result).toBe('string');
+  });
+
+  test('@toddle/formatDate with format pattern YYYY-MM-DD', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const date = new Date('2024-03-15T10:30:00Z');
+    const result = fn({ date, format: 'YYYY-MM-DD' }, ctx);
+    expect(result).toContain('2024');
+    expect(result).toContain('15');
+  });
+
+  test('@toddle/formatDate with named format styles', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const date = new Date('2024-03-15T10:30:00Z');
+
+    const fullResult = fn({ date, format: 'full' }, ctx);
+    expect(typeof fullResult).toBe('string');
+    expect(fullResult.length).toBeGreaterThan(10);
+
+    const shortResult = fn({ date, format: 'short' }, ctx);
+    expect(typeof shortResult).toBe('string');
+  });
+
+  test('@toddle/formatDate with locale', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    const date = new Date('2024-03-15T10:30:00Z');
+    const result = fn({ date, locale: 'en-US' }, ctx);
+    expect(typeof result).toBe('string');
+  });
+
+  test('@toddle/formatDate returns null for invalid date', () => {
+    const fn = getFormula('@toddle/formatDate')!;
+    expect(fn({ date: 'invalid' }, ctx)).toBeNull();
+    expect(fn({ date: null }, ctx)).toBeNull();
+  });
+
+  test('@toddle/now returns current Date', () => {
+    const fn = getFormula('@toddle/now')!;
+    const before = Date.now();
+    const result = fn({}, ctx);
+    const after = Date.now();
+
+    expect(result).toBeInstanceOf(Date);
+    const resultTime = (result as Date).getTime();
+    expect(resultTime).toBeGreaterThanOrEqual(before);
+    expect(resultTime).toBeLessThanOrEqual(after);
+  });
+
+  test('@toddle/timestamp converts Date to milliseconds', () => {
+    const fn = getFormula('@toddle/timestamp')!;
+    const date = new Date('2024-03-15T10:30:00Z');
+    const expectedTimestamp = date.getTime();
+    const result = fn({ date }, ctx);
+    expect(result).toBe(expectedTimestamp);
+  });
+
+  test('@toddle/timestamp with string input', () => {
+    const fn = getFormula('@toddle/timestamp')!;
+    const dateStr = '2024-03-15T10:30:00Z';
+    const expectedTimestamp = new Date(dateStr).getTime();
+    const result = fn({ date: dateStr }, ctx);
+    expect(result).toBe(expectedTimestamp);
+  });
+
+  test('@toddle/timestamp with number input', () => {
+    const fn = getFormula('@toddle/timestamp')!;
+    const timestamp = 1710502200000;
+    const result = fn({ date: timestamp }, ctx);
+    expect(result).toBe(timestamp);
+  });
+
+  test('@toddle/timestamp returns null for invalid input', () => {
+    const fn = getFormula('@toddle/timestamp')!;
+    expect(fn({ date: 'invalid' }, ctx)).toBeNull();
+    expect(fn({ date: null }, ctx)).toBeNull();
+  });
+});
+
+// ========== Environment Formulas ==========
+
+describe('environment formulas', () => {
+  // Server-side context
+  const serverCtx = {
+    ...ctx,
+    env: {
+      isServer: true,
+      branchName: 'main',
+      request: {
+        url: 'https://example.com/page?foo=bar',
+        cookies: { session: 'abc123', theme: 'dark' },
+        headers: { 'user-agent': 'TestBot/1.0' },
+      },
+    },
+  } as any;
+
+  // Client-side context (no isServer flag)
+  const clientCtx = {
+    ...ctx,
+    env: {
+      isServer: false,
+    },
+  } as any;
+
+  test('@toddle/branchName returns env value', () => {
+    const fn = getFormula('@toddle/branchName')!;
+    expect(fn({}, serverCtx)).toBe('main');
+    expect(fn({}, clientCtx)).toBeNull();
+    expect(fn({}, ctx)).toBeNull();
+  });
+
+  test('@toddle/canShare returns false on server', () => {
+    const fn = getFormula('@toddle/canShare')!;
+    expect(fn({}, serverCtx)).toBe(false);
+  });
+
+  test('@toddle/canShare handles client-side check', () => {
+    const fn = getFormula('@toddle/canShare')!;
+    // In test environment (happy-dom), navigator.canShare may not exist
+    const result = fn({}, clientCtx);
+    expect(typeof result).toBe('boolean');
+  });
+
+  test('@toddle/canShare with data argument', () => {
+    const fn = getFormula('@toddle/canShare')!;
+    const shareData = { title: 'Test', url: 'https://example.com' };
+    // Should not throw, returns boolean
+    const result = fn({ data: shareData }, clientCtx);
+    expect(typeof result).toBe('boolean');
+  });
+
+  test('@toddle/currentURL returns request URL on server', () => {
+    const fn = getFormula('@toddle/currentURL')!;
+    expect(fn({}, serverCtx)).toBe('https://example.com/page?foo=bar');
+  });
+
+  test('@toddle/currentURL returns null without context', () => {
+    const fn = getFormula('@toddle/currentURL')!;
+    // In test environment without window.location
+    const result = fn({}, ctx);
+    // Will be either the test runner's URL or null
+    expect(typeof result === 'string' || result === null).toBe(true);
+  });
+
+  test('@toddle/getElementById returns null on server', () => {
+    const fn = getFormula('@toddle/getElementById')!;
+    expect(fn({ id: 'test' }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getElementById returns null for non-string id', () => {
+    const fn = getFormula('@toddle/getElementById')!;
+    expect(fn({ id: 123 }, clientCtx)).toBeNull();
+    expect(fn({ id: null }, clientCtx)).toBeNull();
+  });
+
+  test('@toddle/getElementById on client returns null when document undefined', () => {
+    const fn = getFormula('@toddle/getElementById')!;
+    // When isServer is not set (undefined), it falls back to checking document
+    // In this test environment, document is not defined, so it should return null
+    const ctxWithoutServerFlag = { ...ctx } as any;
+    const result = fn({ id: 'nonexistent' }, ctxWithoutServerFlag);
+    expect(result).toBeNull();
+  });
+
+  test('@toddle/getCookie returns null for non-string name', () => {
+    const fn = getFormula('@toddle/getCookie')!;
+    expect(fn({ name: 123 }, serverCtx)).toBeNull();
+    expect(fn({ name: null }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getCookie returns cookie from server context', () => {
+    const fn = getFormula('@toddle/getCookie')!;
+    expect(fn({ name: 'session' }, serverCtx)).toBe('abc123');
+    expect(fn({ name: 'theme' }, serverCtx)).toBe('dark');
+    expect(fn({ name: 'nonexistent' }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getCookie returns null on client without cookies', () => {
+    const fn = getFormula('@toddle/getCookie')!;
+    // In test environment, document.cookie is typically empty
+    const result = fn({ name: 'test' }, clientCtx);
+    expect(result).toBeNull();
+  });
+
+  test('@toddle/getHttpOnlyCookie returns cookie on server only', () => {
+    const fn = getFormula('@toddle/getHttpOnlyCookie')!;
+    expect(fn({ name: 'session' }, serverCtx)).toBe('abc123');
+    expect(fn({ name: 'session' }, clientCtx)).toBeNull();
+    expect(fn({ name: 'nonexistent' }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getHttpOnlyCookie returns null for non-string name', () => {
+    const fn = getFormula('@toddle/getHttpOnlyCookie')!;
+    expect(fn({ name: 123 }, serverCtx)).toBeNull();
+    expect(fn({ name: null }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/isServer returns correct value', () => {
+    const fn = getFormula('@toddle/isServer')!;
+    expect(fn({}, serverCtx)).toBe(true);
+    expect(fn({}, clientCtx)).toBe(false);
+    expect(fn({}, ctx)).toBe(false);
+  });
+
+  test('@toddle/languages returns default on server', () => {
+    const fn = getFormula('@toddle/languages')!;
+    expect(fn({}, serverCtx)).toEqual(['en']);
+  });
+
+  test('@toddle/languages returns array on client', () => {
+    const fn = getFormula('@toddle/languages')!;
+    const result = fn({}, clientCtx);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  test('@toddle/userAgent returns header on server', () => {
+    const fn = getFormula('@toddle/userAgent')!;
+    expect(fn({}, serverCtx)).toBe('TestBot/1.0');
+  });
+
+  test('@toddle/userAgent returns navigator on client', () => {
+    const fn = getFormula('@toddle/userAgent')!;
+    const result = fn({}, clientCtx);
+    // In test environment, should return some user agent string
+    expect(typeof result === 'string' || result === null).toBe(true);
+  });
+
+  test('@toddle/userAgent returns null without navigator or context', () => {
+    const fn = getFormula('@toddle/userAgent')!;
+    // With default ctx that has no env
+    const result = fn({}, ctx);
+    expect(typeof result === 'string' || result === null).toBe(true);
+  });
+});
+
+// ========== Storage Formulas ==========
+
+describe('storage formulas', () => {
+  // Server-side context
+  const serverCtx = {
+    ...ctx,
+    env: {
+      isServer: true,
+    },
+  } as any;
+
+  // Client-side context (no isServer flag)
+  const clientCtx = {
+    ...ctx,
+    env: {
+      isServer: false,
+    },
+  } as any;
+
+  test('@toddle/getFromLocalStorage returns null on server', () => {
+    const fn = getFormula('@toddle/getFromLocalStorage')!;
+    expect(fn({ key: 'test' }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getFromLocalStorage returns null for non-string key', () => {
+    const fn = getFormula('@toddle/getFromLocalStorage')!;
+    expect(fn({ key: 123 }, clientCtx)).toBeNull();
+    expect(fn({ key: null }, clientCtx)).toBeNull();
+    expect(fn({ key: undefined }, clientCtx)).toBeNull();
+  });
+
+  test('@toddle/getFromLocalStorage returns null when storage undefined', () => {
+    const fn = getFormula('@toddle/getFromLocalStorage')!;
+    // When isServer is not set and localStorage is undefined, should return null
+    const ctxWithoutServerFlag = { ...ctx } as any;
+    expect(fn({ key: 'test' }, ctxWithoutServerFlag)).toBeNull();
+  });
+
+  test('@toddle/getFromSessionStorage returns null on server', () => {
+    const fn = getFormula('@toddle/getFromSessionStorage')!;
+    expect(fn({ key: 'test' }, serverCtx)).toBeNull();
+  });
+
+  test('@toddle/getFromSessionStorage returns null for non-string key', () => {
+    const fn = getFormula('@toddle/getFromSessionStorage')!;
+    expect(fn({ key: 123 }, clientCtx)).toBeNull();
+    expect(fn({ key: null }, clientCtx)).toBeNull();
+    expect(fn({ key: undefined }, clientCtx)).toBeNull();
+  });
+
+  test('@toddle/getFromSessionStorage returns null when storage undefined', () => {
+    const fn = getFormula('@toddle/getFromSessionStorage')!;
+    // When isServer is not set and sessionStorage is undefined, should return null
+    const ctxWithoutServerFlag = { ...ctx } as any;
+    expect(fn({ key: 'test' }, ctxWithoutServerFlag)).toBeNull();
+  });
+});

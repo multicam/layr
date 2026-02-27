@@ -120,7 +120,7 @@ Each spec includes a phase summary table at the top.
 ```bash
 bun install
 bun run dev          # Backend (3000) + Editor (5173)
-bun test             # 1491+ tests, ~95% coverage
+bun test             # 1537+ tests, ~95% coverage
 ```
 
 Demo project: `http://localhost:3000/demo/`

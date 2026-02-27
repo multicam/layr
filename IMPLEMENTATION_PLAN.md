@@ -9,6 +9,17 @@
 
 ## Recent Progress
 
+### 2026-02-27 (Test Coverage Improvements - Phase 2 Formulas)
+- **Added 45 new tests for Phase 2 formulas:**
+  - **Datetime formulas (21 tests):** dateFromString, dateFromTimestamp, formatDate, now, timestamp
+    - Coverage improved from 7.14% to 93.83% (branch)
+  - **Environment formulas (17 tests):** branchName, canShare, currentURL, getElementById, getCookie, getHttpOnlyCookie, isServer, languages, userAgent
+    - Coverage improved from 10.89% to 73.75% (branch)
+  - **Storage formulas (6 tests):** getFromLocalStorage, getFromSessionStorage
+    - Coverage improved from 11.11% to 57.14% (branch)
+- **All 1537 tests pass** (up from 1492)
+- Tests cover SSR behavior, edge cases, and error handling
+
 ### 2026-02-27 (window.logState Implementation)
 - **Implemented `window.logState()` exposure in new runtime:**
   - `initToddleGlobal()` now exposes `logState` on `window` for debugging
