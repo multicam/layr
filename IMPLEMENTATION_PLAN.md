@@ -4,11 +4,41 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1615
+**Total Tests:** 1701
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Additional Linting Rule Test Coverage Improvements)
+- **Improved linting rule test coverage with 86 new tests:**
+  - **unknownProjectFormulaRule.ts** - Coverage improved from 50% to 100%
+    - Added 16 tests covering: array formulas, object formulas, function formulas, variables
+    - Tests cover: node conditions, repeats, element attributes, component attributes, text values
+    - Tests cover: APIs (url, body, method, headers, queryParams), route formulas (title, description, icon)
+    - Tests cover: project formulas referencing other project formulas
+  - **unknownRepeatFormulaRule.ts** - Coverage improved from 50.6% to 92.77%
+    - Added 12 tests for index and item formula rules
+    - Tests cover: RepeatIndex, nested paths, function args, styles, attributes, conditions
+    - Tests cover: valid repeat config scenarios
+  - **unknownTriggerWorkflowParameterRule.ts** - Coverage improved from 54.78% to 95.54%
+    - Added 10 tests covering: Switch cases/default, Fetch callbacks, TriggerWorkflow callbacks
+    - Tests cover: Custom action events, onLoad, onAttributeChange, node events
+    - Tests cover: cross-component workflow triggers
+  - **unknownUrlParameterRule.ts** - Coverage improved from 58.68% to 97.52%
+    - Added 16 tests covering: nested formulas, variables, node repeat, attributes
+    - Tests cover: component node attributes, route formulas (title, description, icon)
+    - Tests cover: APIs (url, body, headers, queryParams with enabled formulas)
+  - **noReferenceComponentFormulaRule.ts** - Coverage improved from 59.38% to 97.92%
+    - Added 14 tests covering: apply formulas, variable initial values, node conditions/repeats
+    - Tests cover: element attributes, component attributes, text values, APIs
+    - Tests cover: headers and queryParams with enabled formulas, nested array formulas
+  - **noReferenceProjectFormulaRule.ts** - Coverage improved from 60.71% to 98.21%
+    - Added 18 tests covering: apply formulas, variable initial values, node conditions/repeats
+    - Tests cover: element attributes, component attributes, text values, APIs
+    - Tests cover: headers and queryParams with enabled formulas, route formulas
+    - Tests cover: project formulas referencing each other
+- **All 1701 tests pass** (up from 1615)
 
 ### 2026-02-27 (Linting Rule Test Coverage Improvements)
 - **Improved linting rule test coverage with 35 new tests:**

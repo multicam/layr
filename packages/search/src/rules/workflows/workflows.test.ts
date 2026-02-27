@@ -392,6 +392,436 @@ describe('unknownTriggerWorkflowParameterRule', () => {
 
     expect(issues).toHaveLength(1);
   });
+
+  test('checks TriggerWorkflow in Switch cases', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'valid' }],
+            actions: [],
+          },
+          switchWorkflow: {
+            name: 'switchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Switch',
+                data: { type: 'value', value: 'a' },
+                cases: [
+                  {
+                    condition: { type: 'value', value: 'a' },
+                    actions: [
+                      {
+                        type: 'TriggerWorkflow',
+                        name: 'targetWorkflow',
+                        parameters: [{ name: 'invalid', formula: { type: 'value', value: 1 } }],
+                      },
+                    ],
+                  },
+                ],
+                default: {
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                        name: 'targetWorkflow',
+                        parameters: [{ name: 'valid', formula: { type: 'value', value: 1 } }],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalid');
+  });
+
+  test('checks TriggerWorkflow in Fetch callbacks', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'data' }],
+            actions: [],
+          },
+          fetchWorkflow: {
+            name: 'fetchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onSuccess: {
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                      name: 'targetWorkflow',
+                      parameters: [{ name: 'invalidSuccess', formula: { type: 'value', value: 1 } }],
+                    },
+                  ],
+                },
+                onError: {
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                      name: 'targetWorkflow',
+                      parameters: [{ name: 'invalidError', formula: { type: 'value', value: 1 } }],
+                    },
+                  ],
+                },
+                onMessage: {
+                  actions: [
+                    {
+                      type: 'TriggerWorkflow',
+                      name: 'targetWorkflow',
+                      parameters: [{ name: 'invalidMessage', formula: { type: 'value', value: 1 } }],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(3);
+    const paramNames = issues.map(i => i.data.paramName);
+    expect(paramNames).toContain('invalidSuccess');
+    expect(paramNames).toContain('invalidError');
+    expect(paramNames).toContain('invalidMessage');
+  });
+
+  test('checks TriggerWorkflow in TriggerWorkflow callbacks', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'value' }],
+            actions: [],
+          },
+          callerWorkflow: {
+            name: 'callerWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'targetWorkflow',
+                parameters: [{ name: 'value', formula: { type: 'value', value: 1 } }],
+                callbacks: {
+                  onComplete: {
+                    actions: [
+                      {
+                        type: 'TriggerWorkflow',
+                        name: 'targetWorkflow',
+                        parameters: [{ name: 'invalidCallback', formula: { type: 'value', value: 1 } }],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidCallback');
+  });
+
+  test('checks TriggerWorkflow in Custom action events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'data' }],
+            actions: [],
+          },
+          customWorkflow: {
+            name: 'customWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Custom',
+                name: 'customAction',
+                events: {
+                  onComplete: {
+                    actions: [
+                      {
+                        type: 'TriggerWorkflow',
+                        name: 'targetWorkflow',
+                        parameters: [{ name: 'invalidEvent', formula: { type: 'value', value: 1 } }],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidEvent');
+  });
+
+  test('checks TriggerWorkflow in events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'targetWorkflow',
+                parameters: [{ name: 'invalidEventParam', formula: { type: 'value', value: 1 } }],
+              },
+            ],
+          },
+        },
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidEventParam');
+  });
+
+  test('checks TriggerWorkflow in onLoad', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        onLoad: {
+          actions: [
+            {
+              type: 'TriggerWorkflow',
+              name: 'targetWorkflow',
+              parameters: [{ name: 'invalidOnLoad', formula: { type: 'value', value: 1 } }],
+            },
+          ],
+        },
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidOnLoad');
+  });
+
+  test('checks TriggerWorkflow in onAttributeChange', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        onAttributeChange: {
+          actions: [
+            {
+              type: 'TriggerWorkflow',
+              name: 'targetWorkflow',
+              parameters: [{ name: 'invalidAttrChange', formula: { type: 'value', value: 1 } }],
+            },
+          ],
+        },
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidAttrChange');
+  });
+
+  test('checks TriggerWorkflow in node events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          button: {
+            type: 'element',
+            tag: 'button',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'TriggerWorkflow',
+                    name: 'targetWorkflow',
+                    parameters: [{ name: 'invalidNodeEvent', formula: { type: 'value', value: 1 } }],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidNodeEvent');
+  });
+
+  test('handles cross-component workflow triggers', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          crossWorkflow: {
+            name: 'crossWorkflow',
+            parameters: [{ name: 'validParam' }],
+            actions: [],
+          },
+        },
+      },
+      Component2: {
+        name: 'Component2',
+        nodes: {},
+        workflows: {
+          callerWorkflow: {
+            name: 'callerWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'crossWorkflow',
+                componentName: 'Component1',
+                parameters: [{ name: 'invalidCrossParam', formula: { type: 'value', value: 1 } }],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidCrossParam');
+  });
 });
 
 describe('noReferenceComponentWorkflowRule', () => {
