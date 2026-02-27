@@ -552,3 +552,253 @@ describe('string edge cases', () => {
     expect(fn({ text: 'hello', search: 'xyz' }, ctx)).toBe(-1);
   });
 });
+
+// ========== New Phase 2 Formulas ==========
+
+describe('new string formulas', () => {
+  test('@toddle/capitalize capitalizes first letter', () => {
+    const fn = getFormula('@toddle/capitalize')!;
+    expect(fn({ text: 'hello' }, ctx)).toBe('Hello');
+    expect(fn({ text: 'HELLO' }, ctx)).toBe('HELLO');
+    expect(fn({ text: '' }, ctx)).toBe('');
+  });
+
+  test('@toddle/encodeJSON stringifies to JSON', () => {
+    const fn = getFormula('@toddle/encodeJSON')!;
+    expect(fn({ value: { a: 1 } }, ctx)).toBe('{"a":1}');
+    expect(fn({ value: [1, 2, 3] }, ctx)).toBe('[1,2,3]');
+    expect(fn({ value: 'test' }, ctx)).toBe('"test"');
+  });
+
+  test('@toddle/parseJSON parses JSON string', () => {
+    const fn = getFormula('@toddle/parseJSON')!;
+    expect(fn({ text: '{"a":1}' }, ctx)).toEqual({ a: 1 });
+    expect(fn({ text: '[1,2,3]' }, ctx)).toEqual([1, 2, 3]);
+    expect(fn({ text: 'invalid' }, ctx)).toBeNull();
+  });
+
+  test('@toddle/encodeURIComponent encodes URI', () => {
+    const fn = getFormula('@toddle/encodeURIComponent')!;
+    expect(fn({ text: 'hello world' }, ctx)).toBe('hello%20world');
+    expect(fn({ text: 'test=value&foo=bar' }, ctx)).toBe('test%3Dvalue%26foo%3Dbar');
+  });
+
+  test('@toddle/decodeURIComponent decodes URI', () => {
+    const fn = getFormula('@toddle/decodeURIComponent')!;
+    expect(fn({ text: 'hello%20world' }, ctx)).toBe('hello world');
+    expect(fn({ text: 'test%3Dvalue' }, ctx)).toBe('test=value');
+  });
+
+  test('@toddle/encodeBase64 encodes to Base64', () => {
+    const fn = getFormula('@toddle/encodeBase64')!;
+    expect(fn({ text: 'hello' }, ctx)).toBe('aGVsbG8=');
+    expect(fn({ text: '' }, ctx)).toBe('');
+  });
+
+  test('@toddle/decodeBase64 decodes from Base64', () => {
+    const fn = getFormula('@toddle/decodeBase64')!;
+    expect(fn({ text: 'aGVsbG8=' }, ctx)).toBe('hello');
+    expect(fn({ text: '' }, ctx)).toBe('');
+  });
+
+  test('@toddle/parseURL parses URL', () => {
+    const fn = getFormula('@toddle/parseURL')!;
+    const result = fn({ text: 'https://example.com/path?q=test#hash' }, ctx);
+    expect(result).not.toBeNull();
+    expect(result!.protocol).toBe('https:');
+    expect(result!.hostname).toBe('example.com');
+    expect(result!.pathname).toBe('/path');
+    expect(result!.searchParams).toEqual({ q: 'test' });
+    expect(result!.hash).toBe('#hash');
+    expect(fn({ text: 'invalid' }, ctx)).toBeNull();
+  });
+
+  test('@toddle/matches tests regex', () => {
+    const fn = getFormula('@toddle/matches')!;
+    expect(fn({ text: 'hello123', pattern: '\\d+' }, ctx)).toBe(true);
+    expect(fn({ text: 'hello', pattern: '\\d+' }, ctx)).toBe(false);
+    expect(fn({ text: 'Test', pattern: 'test', flags: 'i' }, ctx)).toBe(true);
+    expect(fn({ text: 'invalid', pattern: '[' }, ctx)).toBe(false);
+  });
+});
+
+describe('new array formulas', () => {
+  test('@toddle/unique removes duplicates', () => {
+    const fn = getFormula('@toddle/unique')!;
+    expect(fn({ items: [1, 2, 2, 3, 3, 3] }, ctx)).toEqual([1, 2, 3]);
+    expect(fn({ items: ['a', 'b', 'a'] }, ctx)).toEqual(['a', 'b']);
+    expect(fn({ items: [] }, ctx)).toEqual([]);
+    expect(fn({ items: null }, ctx)).toBeNull();
+  });
+
+  test('@toddle/append adds to end', () => {
+    const fn = getFormula('@toddle/append')!;
+    expect(fn({ items: [1, 2], value: 3 }, ctx)).toEqual([1, 2, 3]);
+    expect(fn({ items: [], value: 'x' }, ctx)).toEqual(['x']);
+  });
+
+  test('@toddle/prepend adds to start', () => {
+    const fn = getFormula('@toddle/prepend')!;
+    expect(fn({ items: [2, 3], value: 1 }, ctx)).toEqual([1, 2, 3]);
+    expect(fn({ items: [], value: 'x' }, ctx)).toEqual(['x']);
+  });
+
+  test('@toddle/findIndex finds index', () => {
+    const fn = getFormula('@toddle/findIndex')!;
+    expect(fn({ items: [1, 2, 3], condition: ({ item }: any) => item === 2 }, ctx)).toBe(1);
+    expect(fn({ items: [1, 2, 3], condition: ({ item }: any) => item > 10 }, ctx)).toBe(-1);
+  });
+
+  test('@toddle/findLast finds last match', () => {
+    const fn = getFormula('@toddle/findLast')!;
+    expect(fn({ items: [1, 2, 3, 2], condition: ({ item }: any) => item === 2 }, ctx)).toBe(2);
+    expect(fn({ items: [1, 2, 3], condition: ({ item }: any) => item > 10 }, ctx)).toBeNull();
+  });
+
+  test('@toddle/drop removes first N', () => {
+    const fn = getFormula('@toddle/drop')!;
+    expect(fn({ items: [1, 2, 3, 4], count: 2 }, ctx)).toEqual([3, 4]);
+    expect(fn({ items: [1, 2], count: 5 }, ctx)).toEqual([]);
+  });
+
+  test('@toddle/dropLast removes last N', () => {
+    const fn = getFormula('@toddle/dropLast')!;
+    expect(fn({ items: [1, 2, 3, 4], count: 2 }, ctx)).toEqual([1, 2]);
+    expect(fn({ items: [1, 2], count: 5 }, ctx)).toEqual([]);
+  });
+
+  test('@toddle/take keeps first N', () => {
+    const fn = getFormula('@toddle/take')!;
+    expect(fn({ items: [1, 2, 3, 4], count: 2 }, ctx)).toEqual([1, 2]);
+    expect(fn({ items: [1, 2], count: 5 }, ctx)).toEqual([1, 2]);
+  });
+
+  test('@toddle/takeLast keeps last N', () => {
+    const fn = getFormula('@toddle/takeLast')!;
+    expect(fn({ items: [1, 2, 3, 4], count: 2 }, ctx)).toEqual([3, 4]);
+    expect(fn({ items: [1, 2], count: 5 }, ctx)).toEqual([1, 2]);
+  });
+
+  test('@toddle/shuffle randomizes order', () => {
+    const fn = getFormula('@toddle/shuffle')!;
+    const input = [1, 2, 3, 4, 5];
+    const result = fn({ items: input }, ctx) as number[];
+    // Check same elements, different order possible
+    expect(result.sort()).toEqual(input);
+    // Original should be unchanged
+    expect(input).toEqual([1, 2, 3, 4, 5]);
+    expect(fn({ items: null }, ctx)).toBeNull();
+  });
+
+  test('@toddle/sortBy sorts by key', () => {
+    const fn = getFormula('@toddle/sortBy')!;
+    const items = [{ v: 3 }, { v: 1 }, { v: 2 }];
+    const result = fn({ items, key: ({ item }: any) => item.v, ascending: true }, ctx);
+    expect(result).toEqual([{ v: 1 }, { v: 2 }, { v: 3 }]);
+    expect(fn({ items: null }, ctx)).toBeNull();
+  });
+});
+
+describe('new object formulas', () => {
+  test('@toddle/deleteKey removes key', () => {
+    const fn = getFormula('@toddle/deleteKey')!;
+    expect(fn({ object: { a: 1, b: 2 }, key: 'a' }, ctx)).toEqual({ b: 2 });
+    expect(fn({ object: null, key: 'a' }, ctx)).toBeNull();
+  });
+
+  test('@toddle/set sets key', () => {
+    const fn = getFormula('@toddle/set')!;
+    expect(fn({ object: { a: 1 }, key: 'b', value: 2 }, ctx)).toEqual({ a: 1, b: 2 });
+    expect(fn({ object: { a: 1 }, key: 'a', value: 99 }, ctx)).toEqual({ a: 99 });
+    expect(fn({ object: null, key: 'a', value: 1 }, ctx)).toBeNull();
+  });
+
+  test('@toddle/size counts keys', () => {
+    const fn = getFormula('@toddle/size')!;
+    expect(fn({ object: { a: 1, b: 2, c: 3 } }, ctx)).toBe(3);
+    expect(fn({ object: {} }, ctx)).toBe(0);
+    expect(fn({ object: null }, ctx)).toBe(0);
+  });
+
+  test('@toddle/groupBy groups by key', () => {
+    const fn = getFormula('@toddle/groupBy')!;
+    const items = [{ type: 'a', v: 1 }, { type: 'b', v: 2 }, { type: 'a', v: 3 }];
+    const result = fn({ items, key: ({ item }: any) => item.type }, ctx);
+    expect(result).toEqual({
+      a: [{ type: 'a', v: 1 }, { type: 'a', v: 3 }],
+      b: [{ type: 'b', v: 2 }],
+    });
+    expect(fn({ items: null }, ctx)).toBeNull();
+    expect(fn({ items: [1, 2], key: null }, ctx)).toBeNull();
+  });
+
+  test('@toddle/keyBy indexes by key', () => {
+    const fn = getFormula('@toddle/keyBy')!;
+    const items = [{ id: 'a', v: 1 }, { id: 'b', v: 2 }];
+    const result = fn({ items, key: ({ item }: any) => item.id }, ctx);
+    expect(result).toEqual({
+      a: { id: 'a', v: 1 },
+      b: { id: 'b', v: 2 },
+    });
+    expect(fn({ items: null }, ctx)).toBeNull();
+  });
+});
+
+describe('new number formulas', () => {
+  test('@toddle/logarithm calculates log', () => {
+    const fn = getFormula('@toddle/logarithm')!;
+    expect(fn({ value: Math.E }, ctx)).toBeCloseTo(1);
+    expect(fn({ value: 100, base: 10 }, ctx)).toBeCloseTo(2);
+    expect(fn({ value: 0 }, ctx)).toBeNull();
+    expect(fn({ value: -1 }, ctx)).toBeNull();
+    expect(fn({ value: 8, base: 2 }, ctx)).toBeCloseTo(3);
+  });
+
+  test('@toddle/randomNumber returns integer in range', () => {
+    const fn = getFormula('@toddle/randomNumber')!;
+    for (let i = 0; i < 100; i++) {
+      const result = fn({ min: 1, max: 6 }, ctx);
+      expect(result).toBeInteger();
+      expect(result).toBeGreaterThanOrEqual(1);
+      expect(result).toBeLessThanOrEqual(6);
+    }
+  });
+});
+
+describe('new utility formulas', () => {
+  test('@toddle/lastIndexOf finds last index', () => {
+    const fn = getFormula('@toddle/lastIndexOf')!;
+    expect(fn({ items: [1, 2, 3, 2, 1], value: 2 }, ctx)).toBe(3);
+    expect(fn({ items: [1, 2, 3], value: 99 }, ctx)).toBe(-1);
+    expect(fn({ items: null }, ctx)).toBe(-1);
+  });
+
+  test('@toddle/range generates sequence', () => {
+    const fn = getFormula('@toddle/range')!;
+    expect(fn({ start: 0, end: 5 }, ctx)).toEqual([0, 1, 2, 3, 4]);
+    expect(fn({ start: 0, end: 5, step: 2 }, ctx)).toEqual([0, 2, 4]);
+    expect(fn({ start: 10, end: 0, step: -2 }, ctx)).toEqual([10, 8, 6, 4, 2]);
+    expect(fn({ start: 0, end: 5, step: 0 }, ctx)).toEqual([]);
+  });
+
+  test('@toddle/json deep clones', () => {
+    const fn = getFormula('@toddle/json')!;
+    const obj = { a: { b: 1 } };
+    const cloned = fn({ value: obj }, ctx);
+    expect(cloned).toEqual(obj);
+    expect(cloned).not.toBe(obj);
+    expect(cloned.a).not.toBe(obj.a);
+    // Circular reference should return null
+    const circular: any = { a: 1 };
+    circular.self = circular;
+    expect(fn({ value: circular }, ctx)).toBeNull();
+  });
+
+  test('@toddle/formatNumber formats number', () => {
+    const fn = getFormula('@toddle/formatNumber')!;
+    expect(fn({ value: 1234.5 }, ctx)).toBe('1,234.5');
+    expect(fn({ value: 1000, locale: 'de-DE' }, ctx)).toMatch(/1[.,]000/);
+    expect(fn({ value: 0.5, options: { style: 'percent' } }, ctx)).toBe('50%');
+    expect(fn({ value: NaN }, ctx)).toBeNull();
+  });
+});

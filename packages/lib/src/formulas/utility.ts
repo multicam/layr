@@ -64,4 +64,54 @@ export function registerUtilityFormulas(): void {
     if (index < 0 || index >= items.length) return null;
     return items[index];
   });
+
+  // lastIndexOf - last index of value
+  registerFormula('@toddle/lastIndexOf', (args, ctx) => {
+    const items = args.items as any[];
+    const value = args.value;
+    if (!Array.isArray(items)) return -1;
+    return items.lastIndexOf(value);
+  });
+
+  // range - generate number sequence
+  registerFormula('@toddle/range', (args, ctx) => {
+    const start = Number(args.start ?? 0);
+    const end = Number(args.end ?? 0);
+    const step = Number(args.step ?? 1);
+    if (step === 0) return [];
+    const result: number[] = [];
+    if (step > 0) {
+      for (let i = start; i < end; i += step) {
+        result.push(i);
+      }
+    } else {
+      for (let i = start; i > end; i += step) {
+        result.push(i);
+      }
+    }
+    return result;
+  });
+
+  // json - deep clone via JSON round-trip
+  registerFormula('@toddle/json', (args, ctx) => {
+    const value = args.value;
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch {
+      return null;
+    }
+  });
+
+  // formatNumber - format number with Intl.NumberFormat
+  registerFormula('@toddle/formatNumber', (args, ctx) => {
+    const value = Number(args.value ?? 0);
+    const locale = String(args.locale ?? 'en-US');
+    const options = args.options as Intl.NumberFormatOptions | undefined;
+    if (isNaN(value)) return null;
+    try {
+      return new Intl.NumberFormat(locale, options).format(value);
+    } catch {
+      return String(value);
+    }
+  });
 }

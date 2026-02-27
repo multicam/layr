@@ -103,4 +103,23 @@ export function registerNumberFormulas(): void {
     const max = Number(args.max ?? 1);
     return Math.min(Math.max(value, min), max);
   });
+
+  // logarithm - natural logarithm
+  registerFormula('@toddle/logarithm', (args, ctx) => {
+    const value = Number(args.value ?? 0);
+    const base = args.base !== undefined ? Number(args.base) : undefined;
+    if (value <= 0) return null;
+    if (base !== undefined) {
+      if (base <= 0 || base === 1) return null;
+      return Math.log(value) / Math.log(base);
+    }
+    return Math.log(value);
+  });
+
+  // randomNumber - random integer in range (inclusive)
+  registerFormula('@toddle/randomNumber', (args, ctx) => {
+    const min = Math.floor(Number(args.min ?? 0));
+    const max = Math.floor(Number(args.max ?? 100));
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  });
 }

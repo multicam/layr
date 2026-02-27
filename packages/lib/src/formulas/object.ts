@@ -75,4 +75,59 @@ export function registerObjectFormulas(): void {
     if (typeof obj !== 'object' || obj === null) return fallback;
     return Object.prototype.hasOwnProperty.call(obj, key) ? (obj[key] ?? fallback) : fallback;
   });
+
+  // deleteKey - remove key from object (immutable)
+  registerFormula('@toddle/deleteKey', (args, ctx) => {
+    const obj = args.object as Record<string, unknown>;
+    const key = String(args.key ?? '');
+    if (typeof obj !== 'object' || obj === null) return null;
+    const result: Record<string, unknown> = { ...obj };
+    delete result[key];
+    return result;
+  });
+
+  // set - set key in object (immutable)
+  registerFormula('@toddle/set', (args, ctx) => {
+    const obj = args.object as Record<string, unknown>;
+    const key = String(args.key ?? '');
+    const value = args.value;
+    if (typeof obj !== 'object' || obj === null) return null;
+    return { ...obj, [key]: value };
+  });
+
+  // size - count of keys
+  registerFormula('@toddle/size', (args, ctx) => {
+    const obj = args.object as Record<string, unknown>;
+    if (typeof obj !== 'object' || obj === null) return 0;
+    return Object.keys(obj).length;
+  });
+
+  // groupBy - group array elements by key
+  registerFormula('@toddle/groupBy', (args, ctx) => {
+    const items = args.items as any[];
+    const keyFn = args.key as ((item: any) => string) | undefined;
+    if (!Array.isArray(items)) return null;
+    if (typeof keyFn !== 'function') return null;
+    const result: Record<string, any[]> = {};
+    for (const item of items) {
+      const key = String(keyFn({ item }) ?? '');
+      if (!result[key]) result[key] = [];
+      result[key].push(item);
+    }
+    return result;
+  });
+
+  // keyBy - index array by key
+  registerFormula('@toddle/keyBy', (args, ctx) => {
+    const items = args.items as any[];
+    const keyFn = args.key as ((item: any) => string) | undefined;
+    if (!Array.isArray(items)) return null;
+    if (typeof keyFn !== 'function') return null;
+    const result: Record<string, any> = {};
+    for (const item of items) {
+      const key = String(keyFn({ item }) ?? '');
+      result[key] = item;
+    }
+    return result;
+  });
 }

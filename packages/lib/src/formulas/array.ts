@@ -126,4 +126,119 @@ export function registerArrayFormulas(): void {
     if (!Array.isArray(items) || typeof condition !== 'function') return false;
     return items.some((item, index) => condition({ item, index }));
   });
+
+  // unique - remove duplicates
+  registerFormula('@toddle/unique', (args, ctx) => {
+    const items = args.items as any[];
+    if (!Array.isArray(items)) return null;
+    return [...new Set(items)];
+  });
+
+  // append - add element to end
+  registerFormula('@toddle/append', (args, ctx) => {
+    const items = args.items as any[];
+    const value = args.value;
+    if (!Array.isArray(items)) return null;
+    return [...items, value];
+  });
+
+  // prepend - add element to start
+  registerFormula('@toddle/prepend', (args, ctx) => {
+    const items = args.items as any[];
+    const value = args.value;
+    if (!Array.isArray(items)) return null;
+    return [value, ...items];
+  });
+
+  // findIndex - find index of first matching element
+  registerFormula('@toddle/findIndex', (args, ctx) => {
+    const items = args.items as any[];
+    const condition = args.condition as ((item: any) => boolean);
+    if (!Array.isArray(items) || typeof condition !== 'function') return -1;
+    return items.findIndex((item, index) => condition({ item, index }));
+  });
+
+  // findLast - find last matching element
+  registerFormula('@toddle/findLast', (args, ctx) => {
+    const items = args.items as any[];
+    const condition = args.condition as ((item: any) => boolean);
+    if (!Array.isArray(items) || typeof condition !== 'function') return null;
+    // Iterate from end to find last match
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (condition({ item: items[i], index: i })) {
+        return items[i];
+      }
+    }
+    return null;
+  });
+
+  // drop - remove first N elements
+  registerFormula('@toddle/drop', (args, ctx) => {
+    const items = args.items as any[];
+    const count = Math.max(0, Math.floor(Number(args.count ?? 0)));
+    if (!Array.isArray(items)) return null;
+    return items.slice(count);
+  });
+
+  // dropLast - remove last N elements
+  registerFormula('@toddle/dropLast', (args, ctx) => {
+    const items = args.items as any[];
+    const count = Math.max(0, Math.floor(Number(args.count ?? 0)));
+    if (!Array.isArray(items)) return null;
+    return items.slice(0, items.length - count);
+  });
+
+  // take - keep first N elements
+  registerFormula('@toddle/take', (args, ctx) => {
+    const items = args.items as any[];
+    const count = Math.max(0, Math.floor(Number(args.count ?? 0)));
+    if (!Array.isArray(items)) return null;
+    return items.slice(0, count);
+  });
+
+  // takeLast - keep last N elements
+  registerFormula('@toddle/takeLast', (args, ctx) => {
+    const items = args.items as any[];
+    const count = Math.max(0, Math.floor(Number(args.count ?? 0)));
+    if (!Array.isArray(items)) return null;
+    return items.slice(items.length - count);
+  });
+
+  // shuffle - randomize array order
+  registerFormula('@toddle/shuffle', (args, ctx) => {
+    const items = args.items as any[];
+    if (!Array.isArray(items)) return null;
+    // Fisher-Yates shuffle
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  });
+
+  // sortBy - sort by derived value
+  registerFormula('@toddle/sortBy', (args, ctx) => {
+    const items = args.items as any[];
+    const ascending = args.ascending !== false;
+    const keyFn = args.key as ((item: any) => any) | undefined;
+    if (!Array.isArray(items)) return null;
+    const result = [...items];
+    if (typeof keyFn === 'function') {
+      result.sort((a, b) => {
+        const keyA = keyFn({ item: a });
+        const keyB = keyFn({ item: b });
+        if (keyA < keyB) return ascending ? -1 : 1;
+        if (keyA > keyB) return ascending ? 1 : -1;
+        return 0;
+      });
+    } else {
+      result.sort((a, b) => {
+        if (a < b) return ascending ? -1 : 1;
+        if (a > b) return ascending ? 1 : -1;
+        return 0;
+      });
+    }
+    return result;
+  });
 }

@@ -9,6 +9,23 @@
 
 ## Recent Progress
 
+### 2026-02-27 (Phase 2 Standard Library - 31 New Formulas)
+- **Implemented 31 new standard library formulas (ALL PHASE 2 FORMULAS COMPLETE!):**
+  - **String (9 new):** `capitalize`, `encodeJSON`, `parseJSON`, `encodeURIComponent`, `decodeURIComponent`, `encodeBase64`, `decodeBase64`, `parseURL`, `matches`
+  - **Array (11 new):** `unique`, `append`, `prepend`, `findIndex`, `findLast`, `drop`, `dropLast`, `take`, `takeLast`, `shuffle`, `sortBy`
+  - **Object (5 new):** `deleteKey`, `set`, `size`, `groupBy`, `keyBy`
+  - **Number (2 new):** `logarithm`, `randomNumber`
+  - **Utility (4 new):** `lastIndexOf`, `range`, `json`, `formatNumber`
+- **Standard Library status:** 125/125 formulas (100% COMPLETE!)
+- **All 1491 tests pass** (up from 1460)
+- New formulas added to existing files in `packages/lib/src/formulas/`:
+  - `string.ts` - Added 9 new string formulas
+  - `array.ts` - Added 11 new array formulas
+  - `object.ts` - Added 5 new object formulas
+  - `number.ts` - Added 2 new number formulas
+  - `utility.ts` - Added 4 new utility formulas
+- 31 new tests added in `packages/lib/src/index.test.ts`
+
 ### 2026-02-27 (Skipped Tests Fixed)
 - **Fixed 2 skipped tests in runtime package:**
   - `packages/runtime/src/api/client.test.ts` - "merges headers" test now uses mocked fetch instead of network-dependent httpbin.org
@@ -148,7 +165,7 @@ Layr is a visual development platform with the following architecture:
      │
 @layr/core     ← Signal, formula, action engines
      │
-├── @layr/lib  ← 94 built-in formulas + 18 actions
+├── @layr/lib  ← 125 built-in formulas + 18 actions (100% COMPLETE!)
 │
 ├── @layr/themes ← Default theme definitions
 │
@@ -174,23 +191,23 @@ Layr is a visual development platform with the following architecture:
 | Skipped Tests | 0 | All fixed |
 | TODO/FIXME | 0 | None found in codebase |
 | Placeholder implementations | 0 | None found |
-| Partial specs | 6 | Standard library, search/linting |
+| Partial specs | 5 | Search/linting nearly complete |
 | Stale references | 0 | None detected |
 | Missing specs | 0 | All specs now created |
 
 ### Code Inventory (Verified 2026-02-27)
 
-**Formulas (94 implemented):**
-- Array: concat, every, filter, find, flat, includes, index-of, join, length, map, reduce, reverse, slice, some, sort (15)
+**Formulas (125 implemented - 100% COMPLETE!):**
+- Array: concat, every, filter, find, flat, includes, index-of, join, length, map, reduce, reverse, slice, some, sort, unique, append, prepend, findIndex, findLast, drop, dropLast, take, takeLast, shuffle, sortBy (26)
 - Comparison: between, greater-than, greater-than-or-equal, less-than, less-than-or-equal (5)
 - Date/Time: dateFromString, dateFromTimestamp, formatDate, now, timestamp (5)
 - Environment: branchName, canShare, currentURL, getElementById, getCookie, getHttpOnlyCookie, isServer, languages, userAgent (9)
 - Logic: equals, if, is-empty, is-not-null, is-null, not, not-equals, switch (8)
-- Number: abs, add, ceil, clamp, divide, floor, max, min, mod, multiply, power, random, round, sqrt, subtract (15)
-- Object: entries, from-entries, get, has-key, keys, merge, omit, pick, values (9)
+- Number: abs, add, ceil, clamp, divide, floor, max, min, mod, multiply, power, random, round, sqrt, subtract, logarithm, randomNumber (17)
+- Object: entries, from-entries, get, has-key, keys, merge, omit, pick, values, deleteKey, set, size, groupBy, keyBy (14)
 - Storage: getFromLocalStorage, getFromSessionStorage (2)
-- String: char-at, concatenate, ends-with, lowercase, pad-end, pad-start, repeat, replace, replace-all, split, starts-with, string-includes, string-index-of, string-length, substring, trim, uppercase (17)
-- Utility: default, first, last, nth, to-array, to-boolean, to-number, to-string, type-of (9)
+- String: char-at, concatenate, ends-with, lowercase, pad-end, pad-start, repeat, replace, replace-all, split, starts-with, string-includes, string-index-of, string-length, substring, trim, uppercase, capitalize, encodeJSON, parseJSON, encodeURIComponent, decodeURIComponent, encodeBase64, decodeBase64, parseURL, matches (26)
+- Utility: default, first, last, nth, to-array, to-boolean, to-number, to-string, type-of, lastIndexOf, range, json, formatNumber (13)
 
 **Actions (18 implemented):**
 - Storage: saveToLocalStorage, deleteFromLocalStorage, clearLocalStorage, saveToSessionStorage, deleteFromSessionStorage, clearSessionStorage (6)
@@ -295,80 +312,32 @@ No remaining rules to implement.
 
 ---
 
-### 1.2 Standard Library Formulas (MEDIUM PRIORITY)
+### 1.2 Standard Library Formulas (COMPLETE!)
 
 **Spec:** `specs/standard-library.md`
-**Status:** 94/97 formulas implemented (97%)
+**Status:** 125/125 formulas implemented (100% COMPLETE!)
 **Package:** `@layr/lib`
 
-**Recently Implemented (2026-02-27):**
+**All formula categories implemented:**
 
-#### Date/Time Formulas (5 formulas) - IMPLEMENTED
-- [x] `dateFromString` - Parse date string
-- [x] `dateFromTimestamp` - Create date from timestamp
-- [x] `formatDate` - Format date to string
-- [x] `now` - Current date/time
-- [x] `timestamp` - Date to Unix timestamp
+#### MVP Formulas (94) - COMPLETE
+- Array (15): map, filter, reduce, find, length, join, includes, index-of, slice, concat, reverse, sort, flat, every, some
+- String (17): concatenate, split, uppercase, lowercase, trim, substring, replace, replace-all, starts-with, ends-with, string-includes, string-length, char-at, string-index-of, pad-start, pad-end, repeat
+- Number (15): add, subtract, multiply, divide, mod, power, sqrt, abs, round, floor, ceil, min, max, random, clamp
+- Object (9): keys, values, entries, from-entries, merge, pick, omit, has-key, get
+- Logic (8): equals, not-equals, not, if, switch, is-null, is-not-null, is-empty
+- Comparison (5): greater-than, greater-than-or-equal, less-than, less-than-or-equal, between
+- Utility (9): to-string, to-number, to-boolean, to-array, type-of, default, first, last, nth
+- Datetime (5): dateFromString, dateFromTimestamp, formatDate, now, timestamp
+- Environment (9): branchName, canShare, currentURL, getElementById, getCookie, getHttpOnlyCookie, isServer, languages, userAgent
+- Storage (2): getFromLocalStorage, getFromSessionStorage
 
-#### Environment & DOM Formulas (9 formulas) - IMPLEMENTED
-- [x] `branchName` - Returns `env.branchName`
-- [x] `canShare` - Returns `navigator.canShare()` result
-- [x] `currentURL` - Returns current URL (server/client aware)
-- [x] `getElementById` - Returns `document.getElementById()`
-- [x] `getCookie` - Reads cookie (server/client aware)
-- [x] `getHttpOnlyCookie` - Reads HttpOnly cookie (server only)
-- [x] `isServer` - Returns true on server, false on client
-- [x] `languages` - Returns `navigator.languages`
-- [x] `userAgent` - Returns user agent string
-
-#### Storage Formulas (2 formulas) - IMPLEMENTED
-- [x] `getFromLocalStorage` - Read and JSON parse from `localStorage`
-- [x] `getFromSessionStorage` - Read and JSON parse from `sessionStorage`
-
-**Missing Formula Categories (3 formulas):**
-
-#### Array Formulas (not prioritized)
-- [ ] `append` - Add element to end
-- [ ] `drop` - Remove first N elements
-- [ ] `dropLast` - Remove last N elements
-- [ ] `findIndex` - Index of first match
-- [ ] `findLast` - Last matching element
-- [ ] `prepend` - Add element to start
-- [ ] `shuffle` - Random order
-- [ ] `sort_by` - Sort by derived value (different from sort)
-- [ ] `take` - Keep first N elements
-- [ ] `takeLast` - Keep last N elements
-- [ ] `unique` - Remove duplicates
-
-#### Object Formulas (not prioritized)
-- [ ] `deleteKey` - Remove key from object
-- [ ] `groupBy` - Group array elements by key
-- [ ] `keyBy` - Index array by key
-- [ ] `set` - Set key in object (immutable)
-- [ ] `size` - Count of keys
-
-#### String Formulas (not prioritized)
-- [ ] `capitalize` - Capitalize first letter
-- [ ] `decodeBase64` - Decode Base64
-- [ ] `decodeURIComponent` - Decode URI component
-- [ ] `encodeBase64` - Encode to Base64
-- [ ] `encodeJSON` - `JSON.stringify()`
-- [ ] `encodeURIComponent` - Encode URI component
-- [ ] `parseJSON` - `JSON.parse()`
-- [ ] `parseURL` - Parse URL string
-- [ ] `matches` - Regex match test
-
-#### Number Formulas (not prioritized)
-- [ ] `logarithm` - Natural logarithm
-- [ ] `randomNumber` - Random integer in range (different from random?)
-
-#### Data Utility Formulas (not prioritized)
-- [ ] `lastIndexOf` - Last index of value
-- [ ] `range` - Generate number sequence
-- [ ] `json` - Deep clone via JSON round-trip
-
-#### Formatting Formulas (not prioritized)
-- [ ] `formatNumber` - Format number with Intl.NumberFormat
+#### Phase 2 Formulas (31) - COMPLETE (2026-02-27)
+- String (9): capitalize, encodeJSON, parseJSON, encodeURIComponent, decodeURIComponent, encodeBase64, decodeBase64, parseURL, matches
+- Array (11): unique, append, prepend, findIndex, findLast, drop, dropLast, take, takeLast, shuffle, sortBy
+- Object (5): deleteKey, set, size, groupBy, keyBy
+- Number (2): logarithm, randomNumber
+- Utility (4): lastIndexOf, range, json, formatNumber
 
 ---
 

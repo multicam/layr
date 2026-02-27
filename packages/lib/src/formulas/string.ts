@@ -121,4 +121,114 @@ export function registerStringFormulas(): void {
     const count = Math.max(0, Math.floor(Number(args.count ?? 0)));
     return text.repeat(count);
   });
+
+  // capitalize - capitalize first letter
+  registerFormula('@toddle/capitalize', (args, ctx) => {
+    const text = String(args.text ?? '');
+    if (text.length === 0) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  });
+
+  // encodeJSON - stringify to JSON
+  registerFormula('@toddle/encodeJSON', (args, ctx) => {
+    const value = args.value;
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return null;
+    }
+  });
+
+  // parseJSON - parse JSON string
+  registerFormula('@toddle/parseJSON', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
+  });
+
+  // encodeURIComponent - encode URI component
+  registerFormula('@toddle/encodeURIComponent', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      return encodeURIComponent(text);
+    } catch {
+      return null;
+    }
+  });
+
+  // decodeURIComponent - decode URI component
+  registerFormula('@toddle/decodeURIComponent', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      return decodeURIComponent(text);
+    } catch {
+      return null;
+    }
+  });
+
+  // encodeBase64 - encode to Base64
+  registerFormula('@toddle/encodeBase64', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      // Handle both browser and Node.js environments
+      if (typeof btoa === 'function') {
+        return btoa(text);
+      }
+      return Buffer.from(text, 'utf-8').toString('base64');
+    } catch {
+      return null;
+    }
+  });
+
+  // decodeBase64 - decode from Base64
+  registerFormula('@toddle/decodeBase64', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      // Handle both browser and Node.js environments
+      if (typeof atob === 'function') {
+        return atob(text);
+      }
+      return Buffer.from(text, 'base64').toString('utf-8');
+    } catch {
+      return null;
+    }
+  });
+
+  // parseURL - parse URL string into components
+  registerFormula('@toddle/parseURL', (args, ctx) => {
+    const text = String(args.text ?? '');
+    try {
+      const url = new URL(text);
+      return {
+        href: url.href,
+        origin: url.origin,
+        protocol: url.protocol,
+        host: url.host,
+        hostname: url.hostname,
+        port: url.port,
+        pathname: url.pathname,
+        search: url.search,
+        searchParams: Object.fromEntries(url.searchParams),
+        hash: url.hash,
+      };
+    } catch {
+      return null;
+    }
+  });
+
+  // matches - regex match test
+  registerFormula('@toddle/matches', (args, ctx) => {
+    const text = String(args.text ?? '');
+    const pattern = String(args.pattern ?? '');
+    const flags = String(args.flags ?? '');
+    try {
+      const regex = new RegExp(pattern, flags);
+      return regex.test(text);
+    } catch {
+      return false;
+    }
+  });
 }
