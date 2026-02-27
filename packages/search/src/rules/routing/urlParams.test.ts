@@ -713,4 +713,500 @@ describe('unknownSetUrlParameterRule', () => {
     expect(issues).toHaveLength(1);
     expect(issues[0].data.paramName).toBe('page');
   });
+
+  test('checks SetURLParameter in Switch cases', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          switchWorkflow: {
+            name: 'switchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Switch',
+                data: { type: 'value', value: 'a' },
+                cases: [
+                  {
+                    condition: { type: 'value', value: 'a' },
+                    actions: [
+                      { type: 'SetURLParameter', name: 'invalidCase', data: { type: 'value', value: '123' } },
+                    ],
+                  },
+                ],
+                default: { actions: [] },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidCase');
+  });
+
+  test('checks SetURLParameter in Switch default', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          switchWorkflow: {
+            name: 'switchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Switch',
+                data: { type: 'value', value: 'a' },
+                cases: [],
+                default: {
+                  actions: [
+                    { type: 'SetURLParameter', name: 'invalidDefault', data: { type: 'value', value: '123' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidDefault');
+  });
+
+  test('checks SetURLParameter in Fetch onSuccess', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          fetchWorkflow: {
+            name: 'fetchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onSuccess: {
+                  actions: [
+                    { type: 'SetURLParameter', name: 'invalidSuccess', data: { type: 'value', value: '123' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidSuccess');
+  });
+
+  test('checks SetURLParameter in Fetch onError', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          fetchWorkflow: {
+            name: 'fetchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onError: {
+                  actions: [
+                    { type: 'SetURLParameter', name: 'invalidError', data: { type: 'value', value: '123' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidError');
+  });
+
+  test('checks SetURLParameter in Fetch onMessage', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          fetchWorkflow: {
+            name: 'fetchWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onMessage: {
+                  actions: [
+                    { type: 'SetURLParameter', name: 'invalidMessage', data: { type: 'value', value: '123' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidMessage');
+  });
+
+  test('checks SetURLParameter in TriggerWorkflow callbacks', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          callbackWorkflow: {
+            name: 'callbackWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'otherWorkflow',
+                parameters: [],
+                callbacks: {
+                  onComplete: {
+                    actions: [
+                      { type: 'SetURLParameter', name: 'invalidCallback', data: { type: 'value', value: '123' } },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          otherWorkflow: {
+            name: 'otherWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidCallback');
+  });
+
+  test('checks SetURLParameter in Custom action events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          customWorkflow: {
+            name: 'customWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Custom',
+                name: 'myCustomAction',
+                events: {
+                  onComplete: {
+                    actions: [
+                      { type: 'SetURLParameter', name: 'invalidCustom', data: { type: 'value', value: '123' } },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidCustom');
+  });
+
+  test('checks SetURLParameter in component-level events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              { type: 'SetURLParameter', name: 'invalidEvent', data: { type: 'value', value: '123' } },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidEvent');
+  });
+
+  test('checks SetURLParameter in onLoad', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        onLoad: {
+          actions: [
+            { type: 'SetURLParameter', name: 'invalidOnLoad', data: { type: 'value', value: '123' } },
+          ],
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidOnLoad');
+  });
+
+  test('checks SetURLParameter in onAttributeChange', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        onAttributeChange: {
+          actions: [
+            { type: 'SetURLParameter', name: 'invalidAttrChange', data: { type: 'value', value: '123' } },
+          ],
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidAttrChange');
+  });
+
+  test('checks SetURLParameter in node events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {
+          button: {
+            type: 'element',
+            tag: 'button',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  { type: 'SetURLParameter', name: 'invalidNodeEvent', data: { type: 'value', value: '123' } },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidNodeEvent');
+  });
+
+  test('handles null action in array', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          nullActionWorkflow: {
+            name: 'nullActionWorkflow',
+            parameters: [],
+            actions: [
+              null as any,
+              { type: 'SetURLParameter', name: 'id', data: { type: 'value', value: '123' } },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles SetURLParameters with null parameters array', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Page1: {
+        name: 'Page1',
+        route: { path: '/users/:id' },
+        nodes: {},
+        workflows: {
+          nullParamsWorkflow: {
+            name: 'nullParamsWorkflow',
+            parameters: [],
+            actions: [
+              { type: 'SetURLParameters', parameters: null } as any,
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not check components without routes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          updateParam: {
+            name: 'updateParam',
+            parameters: [],
+            actions: [
+              { type: 'SetURLParameter', name: 'invalidParam', data: { type: 'value', value: '123' } },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownSetUrlParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
 });

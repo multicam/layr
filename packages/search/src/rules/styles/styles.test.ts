@@ -173,6 +173,602 @@ describe('invalidStyleSyntaxRule', () => {
     expect(issues.length).toBeGreaterThanOrEqual(1);
     expect(issues[0].data.error).toBe('invalid hex color');
   });
+
+  test('reports unbalanced brackets', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'width', value: 'attr(data-width]' }, // unbalanced bracket
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('unbalanced brackets');
+  });
+
+  test('reports closing bracket before opening bracket', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'width', value: 'test]value' }, // ] before [
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('unbalanced brackets');
+  });
+
+  test('reports unbalanced opening bracket', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'width', value: '[100px' }, // missing closing bracket
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('unbalanced brackets');
+  });
+
+  test('does not report valid calc() syntax', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'width', value: 'calc(100px + 50px)' },
+                { property: 'height', value: 'calc(100% - 20px)' },
+                { property: 'margin', value: 'calc(10px * 2)' },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('reports invalid var() syntax - missing dashes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'color', value: 'var(invalid-var)' }, // missing --
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('invalid var() syntax');
+  });
+
+  test('does not report valid var() syntax', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'color', value: 'var(--valid-var)' },
+                { property: 'width', value: 'var(--valid-var-with-fallback, 100px)' },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('reports invalid url() syntax', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'background-image', value: 'url()' }, // url() with no argument
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('invalid url() syntax');
+  });
+
+  test('does not report valid url() syntax', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'background-image', value: 'url("image.png")' },
+                { property: 'background', value: "url('image.png')" },
+                { property: 'mask-image', value: 'url(image.png)' },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('reports invalid hex color in background property', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'background', value: '#xyz' }, // invalid hex
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('invalid hex color');
+  });
+
+  test('reports invalid hex color in border-color property', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'border-color', value: '#12' }, // invalid hex length
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.error).toBe('invalid hex color');
+  });
+
+  test('does not report valid hex colors', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'color', value: '#fff' },
+                { property: 'color', value: '#ffff' },
+                { property: 'color', value: '#ffffff' },
+                { property: 'color', value: '#ffffffff' },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('skips non-string values', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'color', value: 123 as any }, // non-string value
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null breakpoint styles', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: null as any,
+              mobile: [],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null style declaration', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [null as any],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('remove-invalid-style fix removes invalid style', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            styles: {
+              default: [
+                { property: 'color', value: 'red' },
+                { property: 'width', value: '' }, // invalid
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+
+    // Apply the fix
+    const fix = invalidStyleSyntaxRule.fixes?.['remove-invalid-style'];
+    expect(fix).toBeDefined();
+
+    const fixedFiles = fix!({
+      files,
+      path: issues[0].path,
+    });
+
+    expect(fixedFiles).toBeDefined();
+    const styles = (fixedFiles as any).components.Component1.nodes.node1.styles.default;
+    expect(styles.length).toBe(1);
+    expect(styles[0].property).toBe('color');
+  });
+
+  test('fix returns undefined for short path', () => {
+    const fix = invalidStyleSyntaxRule.fixes?.['remove-invalid-style'];
+
+    const result = fix!({
+      files: { components: {} },
+      path: ['components'], // too short
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  test('fix returns undefined when styles not found', () => {
+    const fix = invalidStyleSyntaxRule.fixes?.['remove-invalid-style'];
+
+    const result = fix!({
+      files: {
+        components: {
+          Component1: {
+            name: 'Component1',
+            nodes: {
+              node1: {
+                type: 'element',
+                tag: 'div',
+                children: [],
+              },
+            },
+          },
+        },
+      },
+      path: ['components', 'Component1', 'nodes', 'node1', 'styles', 'default', 'color'],
+    });
+
+    expect(result).toBeUndefined();
+  });
+
+  test('handles component without nodes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: undefined as any,
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null node', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: null,
+          },
+        },
+      },
+    };
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles non-element nodes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          node1: {
+            type: 'text',
+            value: { type: 'value', value: 'Hello' },
+          },
+        },
+      },
+    });
+
+    invalidStyleSyntaxRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
 });
 
 describe('unknownClassnameRule', () => {

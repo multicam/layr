@@ -4,11 +4,31 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1701
+**Total Tests:** 1762
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Additional Linting Rule Test Coverage Improvements - Phase 3)
+- **Improved linting rule test coverage with 61 new tests:**
+  - **imageWithoutDimensionRule.ts** - Coverage improved from 56.36% to 100%
+    - Added 16 tests covering: height attribute, path/function type attrs, dimension styles
+    - Tests cover: width/height/aspect-ratio styles, empty values, null attributes
+    - Tests cover: multiple breakpoints, null breakpoint styles, null style declarations
+  - **noPostNavigateAction.ts** - Coverage improved from 60.61% to 99.19%
+    - Added 15 tests covering: nested actions in Fetch callbacks, TriggerWorkflow callbacks
+    - Tests cover: Custom action events, component-level events, onLoad/onAttributeChange
+    - Tests cover: node events, auto-fix functionality
+  - **unknownSetUrlParameterRule.ts** - Coverage improved from 63.46% to 100%
+    - Added 15 tests covering: Switch cases/default, Fetch onSuccess/onError/onMessage
+    - Tests cover: TriggerWorkflow callbacks, Custom action events, component events
+    - Tests cover: onLoad/onAttributeChange, node events, null actions/parameters
+  - **invalidStyleSyntaxRule.ts** - Coverage improved from 64.75% to 100%
+    - Added 15 tests covering: unbalanced brackets, var() syntax, url() syntax
+    - Tests cover: hex color validation, calc() syntax, non-string values
+    - Tests cover: null breakpoint styles/declarations, auto-fix functionality
+- **All 1762 tests pass** (up from 1701)
 
 ### 2026-02-27 (Additional Linting Rule Test Coverage Improvements)
 - **Improved linting rule test coverage with 86 new tests:**

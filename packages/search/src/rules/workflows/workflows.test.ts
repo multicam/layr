@@ -266,6 +266,422 @@ describe('noPostNavigateAction', () => {
 
     expect(issues).toHaveLength(1);
   });
+
+  test('checks nested actions in Fetch onMessage', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          fetchAndNavigate: {
+            name: 'fetchAndNavigate',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onMessage: {
+                  actions: [
+                    { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+                    { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks nested actions in Fetch onSuccess with navigation', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          fetchAndNavigate: {
+            name: 'fetchAndNavigate',
+            parameters: [],
+            actions: [
+              {
+                type: 'Fetch',
+                name: 'myApi',
+                onSuccess: {
+                  actions: [
+                    { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+                    { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks nested actions in TriggerWorkflow callbacks', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          callbackWorkflow: {
+            name: 'callbackWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'otherWorkflow',
+                parameters: [],
+                callbacks: {
+                  onComplete: {
+                    actions: [
+                      { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+                      { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          otherWorkflow: {
+            name: 'otherWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks nested actions in Custom action events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          customWorkflow: {
+            name: 'customWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'Custom',
+                name: 'myCustomAction',
+                events: {
+                  onComplete: {
+                    actions: [
+                      { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+                      { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks component-level events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+              { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks onLoad event', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        onLoad: {
+          actions: [
+            { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+            { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+          ],
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks onAttributeChange event', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        onAttributeChange: {
+          actions: [
+            { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+            { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+          ],
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('checks node events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {
+          button: {
+            type: 'element',
+            tag: 'button',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+                  { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('remove-post-navigate fix removes unreachable actions', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          navigateAndMore: {
+            name: 'navigateAndMore',
+            parameters: [],
+            actions: [
+              { type: 'SetVariable', name: 'pre', data: { type: 'value', value: 0 } },
+              { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+              { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+              { type: 'SetVariable', name: 'y', data: { type: 'value', value: 2 } }, // unreachable!
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(2);
+    expect(issues[0].fixes).toContain('remove-post-navigate');
+
+    // The fix is applied to the path of the unreachable action
+    // The fix finds the navigation action and removes all actions after it
+    // Apply the fix
+    const fix = noPostNavigateAction.fixes?.['remove-post-navigate'];
+    expect(fix).toBeDefined();
+
+    // The fix function expects the path of the issue, but it needs to find the parent actions array
+    // The path is like ['components', 'Component1', 'workflows', 'navigateAndMore', 'actions', 2]
+    // The fix finds the navigation action (index 1) and removes actions after it
+    const fixedFiles = fix!({
+      files,
+      path: ['components', 'Component1', 'workflows', 'navigateAndMore', 'actions', 1], // Pass the goToURL action path
+    });
+
+    expect(fixedFiles).toBeDefined();
+    const fixedActions = (fixedFiles as any).components.Component1.workflows.navigateAndMore.actions;
+    expect(fixedActions).toHaveLength(2); // Only pre-action and goToURL remain
+    expect(fixedActions[0].name).toBe('pre');
+    expect(fixedActions[1].name).toBe('goToURL');
+  });
+
+  test('handles null action in array', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          nullActionWorkflow: {
+            name: 'nullActionWorkflow',
+            parameters: [],
+            actions: [
+              null as any,
+              { type: 'Custom', name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] },
+              { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } },
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('handles goToURL with undefined type', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          undefinedTypeWorkflow: {
+            name: 'undefinedTypeWorkflow',
+            parameters: [],
+            actions: [
+              { name: 'goToURL', arguments: [{ name: 'url', formula: { type: 'value', value: '/home' } }] }, // type is undefined
+              { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } }, // unreachable!
+            ],
+          },
+        },
+      },
+    });
+
+    noPostNavigateAction.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('fix returns undefined when no navigation action found', () => {
+    const fix = noPostNavigateAction.fixes?.['remove-post-navigate'];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          noNavigateWorkflow: {
+            name: 'noNavigateWorkflow',
+            parameters: [],
+            actions: [
+              { type: 'SetVariable', name: 'x', data: { type: 'value', value: 1 } },
+            ],
+          },
+        },
+      },
+    });
+
+    const result = fix!({
+      files,
+      path: ['components', 'Component1', 'workflows', 'noNavigateWorkflow', 'actions', 1],
+    });
+
+    expect(result).toBeUndefined();
+  });
 });
 
 describe('unknownTriggerWorkflowParameterRule', () => {

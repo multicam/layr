@@ -540,4 +540,440 @@ describe('imageWithoutDimensionRule', () => {
 
     expect(issues).toHaveLength(0);
   });
+
+  test('does not report img with height attribute', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              height: { type: 'value', value: 100 },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with width attribute as path', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              width: { type: 'path', path: ['Variables', 'width'] },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with width attribute as function', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              width: { type: 'function' },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with height attribute as path', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              height: { type: 'path', path: ['Variables', 'height'] },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with height attribute as function', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              height: { type: 'function' },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with width style', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [{ property: 'width', value: '100px' }],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with height style', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [{ property: 'height', value: '100px' }],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('does not report img with aspect-ratio style', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [{ property: 'aspect-ratio', value: '16/9' }],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('reports img with empty width style value', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [{ property: 'width', value: '' }],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('reports img with empty height attribute', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              height: { type: 'value', value: '' },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('reports img with null width attribute', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              width: { type: 'value', value: null },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('reports img with null height attribute', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              height: { type: 'value', value: null },
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('handles styles with null breakpoint styles', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: null,
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('handles styles with null style declarations', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [null as any],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('handles multiple breakpoints with dimension in one', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            styles: {
+              desktop: [],
+              mobile: [{ property: 'width', value: '100px' }],
+            },
+          },
+        },
+      },
+    });
+
+    imageWithoutDimensionRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
 });
