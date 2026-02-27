@@ -1343,6 +1343,490 @@ describe('unknownCSSVariableRule', () => {
   });
 });
 
+describe('unknownCSSVariableRule - additional coverage', () => {
+  test('recognizes CSS variables from themes', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  { property: 'color', value: 'var(--theme-var)' },
+                ],
+              },
+            },
+          },
+        },
+      },
+      themes: {
+        default: {
+          cssVariables: {
+            '--theme-var': 'blue',
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not report --theme-var since it's defined in theme
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null theme entries', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  { property: 'color', value: 'var(--some-var)' },
+                ],
+              },
+            },
+          },
+        },
+      },
+      themes: {
+        nullTheme: null,
+        validTheme: {},
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash and should report undefined var
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('recognizes CSS variables from component-level cssVariables', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          cssVariables: {
+            '--component-var': 'green',
+          },
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  { property: 'color', value: 'var(--component-var)' },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not report --component-var since it's defined at component level
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null component entries in cssVariables check', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        nullComponent: null,
+        Component1: {
+          name: 'Component1',
+          nodes: {},
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('reports undefined CSS variables in global styles', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {},
+      globalStyles: {
+        styles: {
+          '.my-class': {
+            color: 'var(--undefined-global-var)',
+            background: 'var(--undefined-bg-var)',
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBeGreaterThanOrEqual(2);
+    expect(issues.some(i => i.data.variable === '--undefined-global-var')).toBe(true);
+    expect(issues.some(i => i.data.variable === '--undefined-bg-var')).toBe(true);
+  });
+
+  test('does not report defined CSS variables in global styles', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {},
+      globalStyles: {
+        cssVariables: {
+          '--defined-global-var': 'red',
+        },
+        styles: {
+          '.my-class': {
+            color: 'var(--defined-global-var)',
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles global styles with non-object selector values', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {},
+      globalStyles: {
+        styles: {
+          '.string-value': 'some string',
+          '.number-value': 123,
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles global styles with nested object values', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {},
+      globalStyles: {
+        styles: {
+          '.nested': {
+            inner: {
+              deep: 'var(--deep-var)',
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Inner object is not a string, so it won't be checked
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles CSS variables without -- prefix in definitions', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {},
+      globalStyles: {
+        cssVariables: {
+          'var-without-prefix': 'blue',
+        },
+        styles: {
+          '.my-class': {
+            color: 'var(--var-without-prefix)',
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not report because definition adds both with and without --
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles formula values in styles', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  {
+                    property: 'color',
+                    value: {
+                      type: 'formula',
+                      formula: { type: 'path', path: ['Variables', 'color'] },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Formula values should be skipped (evaluated at runtime)
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles multiple CSS variables in one value', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  {
+                    property: 'background',
+                    value: 'linear-gradient(var(--var1), var(--var2))',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues.length).toBe(2);
+    expect(issues.some(i => i.data.variable === '--var1')).toBe(true);
+    expect(issues.some(i => i.data.variable === '--var2')).toBe(true);
+  });
+
+  test('handles CSS variable with fallback', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [
+                  {
+                    property: 'color',
+                    value: 'var(--undefined-with-fallback, red)',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Still reports undefined variable even with fallback
+    expect(issues.length).toBeGreaterThanOrEqual(1);
+    expect(issues[0].data.variable).toBe('--undefined-with-fallback');
+  });
+
+  test('handles null style declarations', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: [null, { property: 'color', value: 'red' }],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null breakpoint styles', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'element',
+              tag: 'div',
+              children: [],
+              styles: {
+                default: null,
+                mobile: [],
+              },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles non-element nodes', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        Component1: {
+          name: 'Component1',
+          nodes: {
+            node1: {
+              type: 'text',
+              value: { type: 'value', value: 'Hello' },
+            },
+          },
+        },
+      },
+    };
+
+    unknownCSSVariableRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+});
+
 describe('noReferenceGlobalCSSVariableRule', () => {
   test('reports unused global CSS variables', () => {
     const issues: any[] = [];

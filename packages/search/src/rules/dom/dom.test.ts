@@ -239,6 +239,235 @@ describe('missingAltAttributeRule', () => {
 
     expect(issues).toHaveLength(0);
   });
+
+  // Additional coverage tests
+  test('reports img elements with null alt value', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              alt: { type: 'value', value: null },
+            },
+          },
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('reports img elements with undefined alt value', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              alt: { type: 'value', value: undefined },
+            },
+          },
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+
+  test('does not report img with function-type alt', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          node1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {
+              alt: { type: 'function', name: '@toddle/concatenate', args: {} },
+            },
+          },
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null component gracefully', () => {
+    const issues: any[] = [];
+    const files: any = {
+      components: {
+        nullComponent: null,
+        Test: {
+          name: 'Test',
+          nodes: {},
+        },
+      },
+    };
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null node gracefully', () => {
+    const issues: any[] = [];
+    const files: any = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          nullNode: null,
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles non-element nodes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          textNode: {
+            type: 'text',
+            value: { type: 'value', value: 'Hello' },
+          },
+          componentNode: {
+            type: 'component',
+            component: 'OtherComponent',
+            children: [],
+          },
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash or report for non-element nodes
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles empty project', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({});
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles component without nodes', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        // No nodes property
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles img with empty attrs object', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Test: {
+        name: 'Test',
+        nodes: {
+          img1: {
+            type: 'element',
+            tag: 'img',
+            children: [],
+            attrs: {}, // Empty attrs
+          },
+        },
+      },
+    });
+
+    missingAltAttributeRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
 });
 
 describe('missingMetaDescriptionRule', () => {

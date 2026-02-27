@@ -603,4 +603,758 @@ describe('unknownContextWorkflowRule', () => {
 
     expect(issues).toHaveLength(0);
   });
+
+  // Additional coverage tests
+  test('detects unknown workflow in Switch case', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Switch',
+                    cases: [
+                      {
+                        condition: { type: 'value', value: true },
+                        actions: [
+                          {
+                            type: 'TriggerWorkflow',
+                            name: 'undeclaredWorkflow',
+                            componentName: 'MyProvider',
+                            parameters: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in Switch default', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Switch',
+                    cases: [],
+                    default: {
+                      actions: [
+                        {
+                          type: 'TriggerWorkflow',
+                          name: 'undeclaredWorkflow',
+                          componentName: 'MyProvider',
+                          parameters: [],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in Fetch onSuccess', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Fetch',
+                    api: 'myApi',
+                    onSuccess: {
+                      actions: [
+                        {
+                          type: 'TriggerWorkflow',
+                          name: 'undeclaredWorkflow',
+                          componentName: 'MyProvider',
+                          parameters: [],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in Fetch onError', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Fetch',
+                    api: 'myApi',
+                    onError: {
+                      actions: [
+                        {
+                          type: 'TriggerWorkflow',
+                          name: 'undeclaredWorkflow',
+                          componentName: 'MyProvider',
+                          parameters: [],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in Fetch onMessage', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Fetch',
+                    api: 'myApi',
+                    onMessage: {
+                      actions: [
+                        {
+                          type: 'TriggerWorkflow',
+                          name: 'undeclaredWorkflow',
+                          componentName: 'MyProvider',
+                          parameters: [],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in TriggerWorkflow callbacks', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'TriggerWorkflow',
+                    name: 'declaredWorkflow',
+                    componentName: 'MyProvider',
+                    parameters: [],
+                    callbacks: {
+                      onComplete: {
+                        actions: [
+                          {
+                            type: 'TriggerWorkflow',
+                            name: 'undeclaredWorkflow',
+                            componentName: 'MyProvider',
+                            parameters: [],
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in Custom action events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'Custom',
+                    name: 'customAction',
+                    events: {
+                      onSuccess: {
+                        actions: [
+                          {
+                            type: 'TriggerWorkflow',
+                            name: 'undeclaredWorkflow',
+                            componentName: 'MyProvider',
+                            parameters: [],
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('handles action with undefined type', () => {
+    const issues: any[] = [];
+    const files: any = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    // type is undefined
+                    events: {
+                      someEvent: {
+                        actions: [
+                          {
+                            type: 'TriggerWorkflow',
+                            name: 'undeclaredWorkflow',
+                            componentName: 'MyProvider',
+                            parameters: [],
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('handles null event entries', () => {
+    const issues: any[] = [];
+    const files: any = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'TriggerWorkflow',
+                    name: 'declaredWorkflow',
+                    componentName: 'MyProvider',
+                    parameters: [],
+                  },
+                ],
+              },
+              hover: null, // null event
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles component without contexts', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'TriggerWorkflow',
+                    name: 'someWorkflow',
+                    componentName: 'SomeProvider',
+                    parameters: [],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        // No contexts
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash or report (no context subscription)
+    expect(issues).toHaveLength(0);
+  });
+
+  test('detects unknown workflow in component onLoad', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {},
+        onLoad: {
+          actions: [
+            {
+              type: 'TriggerWorkflow',
+              name: 'undeclaredWorkflow',
+              componentName: 'MyProvider',
+              parameters: [],
+            },
+          ],
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in component onAttributeChange', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {},
+        onAttributeChange: {
+          actions: [
+            {
+              type: 'TriggerWorkflow',
+              name: 'undeclaredWorkflow',
+              componentName: 'MyProvider',
+              parameters: [],
+            },
+          ],
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in component workflow', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {},
+        workflows: {
+          myWorkflow: {
+            name: 'myWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'undeclaredWorkflow',
+                componentName: 'MyProvider',
+                parameters: [],
+              },
+            ],
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('detects unknown workflow in node events', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: {
+            type: 'element',
+            tag: 'div',
+            children: [],
+            events: {
+              click: {
+                actions: [
+                  {
+                    type: 'TriggerWorkflow',
+                    name: 'undeclaredWorkflow',
+                    componentName: 'MyProvider',
+                    parameters: [],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.workflowName).toBe('undeclaredWorkflow');
+  });
+
+  test('handles null node', () => {
+    const issues: any[] = [];
+    const files: any = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {
+          root: null,
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles null workflow', () => {
+    const issues: any[] = [];
+    const files: any = createProjectFiles({
+      Consumer: {
+        name: 'Consumer',
+        nodes: {},
+        workflows: {
+          nullWorkflow: null,
+        },
+        contexts: {
+          MyProvider: {
+            formulas: [],
+            workflows: ['declaredWorkflow'],
+            componentName: 'MyProvider',
+          },
+        },
+      },
+    });
+
+    unknownContextWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // Should not crash
+    expect(issues).toHaveLength(0);
+  });
 });

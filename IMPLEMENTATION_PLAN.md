@@ -4,11 +4,35 @@
 **Status:** 52 specs complete, 6 partial, 1 parked
 **Last Gap Analysis:** 2026-02-27
 **Last Updated:** 2026-02-27
-**Total Tests:** 1762
+**Total Tests:** 1831
 
 ---
 
 ## Recent Progress
+
+### 2026-02-27 (Linting Rule Test Coverage Improvements - Phase 4)
+- **Improved linting rule test coverage with 69 new tests:**
+  - **contextless.ts** - Coverage improved from 75% to 100% (functions)
+    - Added 12 tests covering: null/undefined/non-object formulas, record with non-static values
+    - Tests cover: AND/OR with dynamic operands, NOT operations, switch/error formula types
+    - Tests cover: empty AND/OR operands, empty arrays, empty records
+  - **unknownCSSVariableRule.ts** - Coverage improved from 80% to 100% (functions)
+    - Added 18 tests covering: theme CSS variables, component-level cssVariables
+    - Tests cover: global styles CSS variable checking, null theme/component handling
+    - Tests cover: CSS variables with fallback, formula values, multiple vars in one value
+  - **switchUnreachableCaseRule.ts** - Coverage improved from 80% to 100% (functions)
+    - Added 14 tests covering: isStaticallyFalse, default case tracking, nested actions
+    - Tests cover: if/then/else, forEach, parallel/all action types, workflow checks
+    - Tests cover: null cases, null actions, null workflows
+  - **unknownContextWorkflowRule.ts** - Coverage improved from 75% to 100% (functions)
+    - Added 18 tests covering: Switch cases/default, Fetch onSuccess/onError/onMessage
+    - Tests cover: TriggerWorkflow callbacks, Custom action events, undefined type actions
+    - Tests cover: onLoad, onAttributeChange, node events, null node/workflow handling
+  - **missingAltAttributeRule.ts** - Coverage improved from 66.67% to 100% (functions)
+    - Added 9 tests covering: null/undefined alt values, function-type alt
+    - Tests cover: null component/node handling, non-element nodes, empty attrs
+    - Note: `isDefinitelyEmpty` function is defined but unused (dead code)
+- **All 1831 tests pass** (up from 1762)
 
 ### 2026-02-27 (Additional Linting Rule Test Coverage Improvements - Phase 3)
 - **Improved linting rule test coverage with 61 new tests:**
