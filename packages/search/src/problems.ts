@@ -14,9 +14,11 @@ import {
   // APIs
   unknownApiRule,
   unknownApiInputRule,
+  noReferenceApiRule,
   // Attributes
   noReferenceAttributeRule,
   unknownAttributeRule,
+  unknownComponentAttributeRule,
   // Components
   unknownComponentRule,
   noReferenceComponentRule,
@@ -34,6 +36,7 @@ import {
   unknownEventRule,
   duplicateEventTriggerRule,
   noReferenceEventRule,
+  unknownTriggerEventRule,
   // Formulas
   unknownFormulaRule,
   duplicateFormulaArgumentNameRule,
@@ -43,11 +46,14 @@ import {
   noStaticNodeConditionRule,
   noUnnecessaryConditionTruthyRule,
   noUnnecessaryConditionFalsyRule,
+  unknownProjectFormulaRule,
   // Routing
   duplicateRouteRule,
   duplicateUrlParameterRule,
   unknownUrlParameterRule,
   unknownSetUrlParameterRule,
+  // Slots
+  unknownComponentSlotRule,
   // Variables
   unknownVariableRule,
   noReferenceVariableRule,
@@ -57,6 +63,8 @@ import {
   unknownWorkflowParameterRule,
   duplicateWorkflowParameterRule,
   noPostNavigateAction,
+  unknownTriggerWorkflowParameterRule,
+  noReferenceComponentWorkflowRule,
 } from './rules';
 
 // ============================================================================
@@ -227,10 +235,12 @@ function getAllRules(): Rule[] {
     // APIs
     unknownApiRule,
     unknownApiInputRule,
+    noReferenceApiRule,
 
     // Attributes
     noReferenceAttributeRule,
     unknownAttributeRule,
+    unknownComponentAttributeRule,
 
     // Components
     unknownComponentRule,
@@ -252,6 +262,7 @@ function getAllRules(): Rule[] {
     unknownEventRule,
     duplicateEventTriggerRule,
     noReferenceEventRule,
+    unknownTriggerEventRule,
 
     // Formulas
     unknownFormulaRule,
@@ -263,12 +274,16 @@ function getAllRules(): Rule[] {
     noStaticNodeConditionRule,
     noUnnecessaryConditionTruthyRule,
     noUnnecessaryConditionFalsyRule,
+    unknownProjectFormulaRule,
 
     // Routing
     duplicateRouteRule,
     duplicateUrlParameterRule,
     unknownUrlParameterRule,
     unknownSetUrlParameterRule,
+
+    // Slots
+    unknownComponentSlotRule,
 
     // Variables
     unknownVariableRule,
@@ -280,6 +295,8 @@ function getAllRules(): Rule[] {
     unknownWorkflowParameterRule,
     duplicateWorkflowParameterRule,
     noPostNavigateAction,
+    unknownTriggerWorkflowParameterRule,
+    noReferenceComponentWorkflowRule,
   ];
 }
 

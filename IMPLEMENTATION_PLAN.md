@@ -9,6 +9,33 @@
 
 ## Recent Progress
 
+### 2026-02-27 (7 New Linting Rules - 43 Total)
+- **Implemented 7 new linting rules:**
+  - `unknownTriggerEventRule` (error) - TriggerEvent actions referencing events not defined on component
+  - `unknownProjectFormulaRule` (error) - References to non-existent project formulas
+  - `unknownComponentSlotRule` (error) - Slot node references slot not declared by target component
+  - `unknownComponentAttributeRule` (error) - Component instance passes attribute not declared by target
+  - `unknownTriggerWorkflowParameterRule` (error) - TriggerWorkflow passes parameter not declared
+  - `noReferenceComponentWorkflowRule` (warning) - Workflows defined but never triggered from entry points
+  - `noReferenceApiRule` (warning) - APIs defined but never fetched
+- **Linting rules status:** 43/58 implemented (74%, up from 62%)
+- **All 1421 tests pass**
+- New rule files created in `packages/search/src/rules/`:
+  - `events/unknownTriggerEventRule.ts`
+  - `logic/unknownProjectFormulaRule.ts`
+  - `slots/unknownComponentSlotRule.ts`
+  - `attributes/unknownComponentAttributeRule.ts`
+  - `workflows/unknownTriggerWorkflowParameterRule.ts`
+  - `workflows/noReferenceComponentWorkflowRule.ts`
+  - `apis/noReferenceApiRule.ts`
+- New/updated test files:
+  - `events/events.test.ts` - Added 4 tests for unknownTriggerEventRule
+  - `logic/logic.test.ts` - 4 tests for unknownProjectFormulaRule
+  - `slots/slots.test.ts` - 4 tests for unknownComponentSlotRule
+  - `attributes/attributes.test.ts` - 5 tests for unknownComponentAttributeRule
+  - `workflows/workflows.test.ts` - Added 5 tests for new workflow rules
+  - `apis/apis.test.ts` - 5 tests for noReferenceApiRule
+
 ### 2026-02-27 (10 New Linting Rules - 36 Total)
 - **Implemented 10 new linting rules:**
   - `unknownUrlParameterRule` (error) - References to URL parameters not defined in route
@@ -64,7 +91,7 @@ Layr is a visual development platform with the following architecture:
 │
 ├── @layr/editor  ← Visual editor UI
 │
-└── @layr/search  ← Linting rules (26/58), issue detection
+└── @layr/search  ← Linting rules (43/58), issue detection
 ```
 
 ---
@@ -110,17 +137,20 @@ Layr is a visual development platform with the following architecture:
 - Sharing: copyToClipboard, share (2)
 - Theme: setTheme (1)
 
-**Linting Rules (36 implemented):**
+**Linting Rules (43 implemented):**
 - unknownActionRule, unknownComponentRule, unknownEventRule, unknownFormulaRule, unknownVariableRule (5 unknown* rules)
-- noReferenceAttributeRule, noReferenceVariableRule, noReferenceEventRule, noReferenceComponentRule (4 noReference* rules)
+- noReferenceAttributeRule, noReferenceVariableRule, noReferenceEventRule, noReferenceComponentRule, noReferenceComponentWorkflowRule, noReferenceApiRule (6 noReference* rules)
 - noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule (3 logic rules)
 - unknownAttributeRule, unknownVariableSetterRule, unknownTriggerWorkflowRule, unknownWorkflowParameterRule, unknownApiRule, unknownApiInputRule (6 error-level - 2026-02-27)
 - nonEmptyVoidElementRule, missingAltAttributeRule (2 DOM rules - 2026-02-27)
 - duplicateRouteRule, duplicateUrlParameterRule, unknownUrlParameterRule, unknownSetUrlParameterRule (4 routing rules - 2026-02-27)
 - unknownContextProviderRule, unknownContextProviderFormulaRule, unknownContextProviderWorkflowRule, noContextConsumersRule, unknownContextFormulaRule, unknownContextWorkflowRule (6 context rules - 2026-02-27)
-- duplicateWorkflowParameterRule, noPostNavigateAction (2 workflow rules - 2026-02-27)
-- duplicateEventTriggerRule (1 event rule - 2026-02-27)
+- duplicateWorkflowParameterRule, noPostNavigateAction, unknownTriggerWorkflowParameterRule (3 workflow rules - 2026-02-27)
+- duplicateEventTriggerRule, unknownTriggerEventRule (2 event rules - 2026-02-27)
 - duplicateFormulaArgumentNameRule, noReferenceComponentFormulaRule, noReferenceProjectFormulaRule (3 formula rules - 2026-02-27)
+- unknownComponentAttributeRule (1 attribute rule - 2026-02-27)
+- unknownComponentSlotRule (1 slot rule - 2026-02-27)
+- unknownProjectFormulaRule (1 logic rule - 2026-02-27)
 
 ---
 
@@ -129,16 +159,17 @@ Layr is a visual development platform with the following architecture:
 ### 1.1 Search & Linting Rules (HIGH PRIORITY)
 
 **Spec:** `specs/search-and-linting.md`
-**Status:** 36/58 rules implemented (62%)
+**Status:** 43/58 rules implemented (74%)
 **Package:** `@layr/search`
 
-**Implemented Rules (36):**
+**Implemented Rules (43):**
 - `unknownActionRule` - Actions
 - `unknownComponentRule` - Components
 - `noReferenceComponentRule` - Components (2026-02-27)
 - `unknownEventRule` - Events
 - `duplicateEventTriggerRule` - Events (2026-02-27)
 - `noReferenceEventRule` - Events (2026-02-27)
+- `unknownTriggerEventRule` - Events (2026-02-27)
 - `unknownFormulaRule` - Formulas
 - `duplicateFormulaArgumentNameRule` - Formulas (2026-02-27)
 - `noReferenceComponentFormulaRule` - Formulas (2026-02-27)
@@ -146,17 +177,22 @@ Layr is a visual development platform with the following architecture:
 - `unknownVariableRule` - Variables
 - `noReferenceAttributeRule` - Attributes
 - `noReferenceVariableRule` - Variables
+- `unknownComponentAttributeRule` - Attributes (2026-02-27)
 - `noStaticNodeConditionRule` - Logic (auto-fix)
 - `noUnnecessaryConditionTruthyRule` - Logic
 - `noUnnecessaryConditionFalsyRule` - Logic
+- `unknownProjectFormulaRule` - Logic (2026-02-27)
 - `unknownAttributeRule` - Attributes (2026-02-27)
 - `unknownVariableSetterRule` - Variables (2026-02-27)
 - `unknownTriggerWorkflowRule` - Workflows (2026-02-27)
 - `unknownWorkflowParameterRule` - Workflows (2026-02-27)
 - `duplicateWorkflowParameterRule` - Workflows (2026-02-27)
 - `noPostNavigateAction` - Workflows (auto-fix) (2026-02-27)
+- `unknownTriggerWorkflowParameterRule` - Workflows (2026-02-27)
+- `noReferenceComponentWorkflowRule` - Workflows (2026-02-27)
 - `unknownApiRule` - APIs (2026-02-27)
 - `unknownApiInputRule` - APIs (2026-02-27)
+- `noReferenceApiRule` - APIs (2026-02-27)
 - `nonEmptyVoidElementRule` - DOM (2026-02-27)
 - `missingAltAttributeRule` - DOM/accessibility (2026-02-27)
 - `duplicateRouteRule` - Routing (2026-02-27)
@@ -169,21 +205,21 @@ Layr is a visual development platform with the following architecture:
 - `noContextConsumersRule` - Contexts (2026-02-27)
 - `unknownContextFormulaRule` - Contexts (2026-02-27)
 - `unknownContextWorkflowRule` - Contexts (2026-02-27)
+- `unknownComponentSlotRule` - Slots (2026-02-27)
 
-**Missing Rules by Category (22 remaining rules):**
+**Missing Rules by Category (15 remaining rules):**
 
-#### Action Rules (2 remaining)
-- [ ] `unknownTriggerEventRule` - Unknown event triggers
-- [ ] `noReferenceComponentWorkflowRule` - Unused workflows
+#### Action Rules (0 remaining)
+- [x] `unknownTriggerEventRule` - Unknown event triggers (IMPLEMENTED 2026-02-27)
 
-#### API Rules (1 remaining)
-- [ ] `noReferenceApiRule` - Unused APIs
+#### API Rules (0 remaining)
+- [x] `noReferenceApiRule` - Unused APIs (IMPLEMENTED 2026-02-27)
 - [x] `unknownApiRule` - References to non-existent APIs (IMPLEMENTED 2026-02-27)
 - [x] `unknownApiInputRule` - Unknown API input references (IMPLEMENTED 2026-02-27)
 
-#### Attribute Rules (1 remaining)
+#### Attribute Rules (0 remaining)
 - [x] `unknownAttributeRule` - References to non-existent attributes (IMPLEMENTED 2026-02-27)
-- [ ] `unknownComponentAttributeRule` - Unknown attributes on component instances
+- [x] `unknownComponentAttributeRule` - Unknown attributes on component instances (IMPLEMENTED 2026-02-27)
 
 #### Component Rules (0 remaining)
 - [x] `noReferenceComponentRule` - Components not used anywhere (IMPLEMENTED 2026-02-27)
@@ -207,20 +243,20 @@ Layr is a visual development platform with the following architecture:
 #### Event Rules (0 remaining)
 - [x] `duplicateEventTriggerRule` - Multiple handlers for same trigger (IMPLEMENTED 2026-02-27)
 - [x] `noReferenceEventRule` - Unused event definitions (IMPLEMENTED 2026-02-27)
-- [ ] `unknownTriggerEventRule` - Unknown event trigger references (duplicate from Action)
+- [x] `unknownTriggerEventRule` - Unknown event trigger references (IMPLEMENTED 2026-02-27)
 
 #### Formula Rules (0 remaining)
 - [x] `duplicateFormulaArgumentNameRule` - Duplicate argument names (IMPLEMENTED 2026-02-27)
 - [x] `noReferenceComponentFormulaRule` - Unused component formulas (IMPLEMENTED 2026-02-27)
 - [x] `noReferenceProjectFormulaRule` - Unused project formulas (IMPLEMENTED 2026-02-27)
 
-#### Logic Rules (4 remaining)
-- [ ] `unknownFormulaRule` - Unknown formula references
-- [ ] `unknownProjectFormulaRule` - Unknown project formula references
+#### Logic Rules (3 remaining)
+- [x] `unknownProjectFormulaRule` - Unknown project formula references (IMPLEMENTED 2026-02-27)
 - [ ] `unknownRepeatIndexFormulaRule` - Unknown repeat index references
 - [ ] `unknownRepeatItemFormulaRule` - Unknown repeat item references
+- [ ] `switch unreachable case` - Switch case is unreachable
 
-#### Miscellaneous Rules (3 rules)
+#### Miscellaneous Rules (3 remaining)
 - [ ] `noReferenceNodeRule` - Orphaned nodes
 - [ ] `requireExtensionRule` - Missing required extensions
 - [ ] `unknownCookieRule` - Unknown cookie references
@@ -231,10 +267,10 @@ Layr is a visual development platform with the following architecture:
 - [x] `unknownSetUrlParameterRule` - Setting unknown URL parameters (IMPLEMENTED 2026-02-27)
 - [x] `unknownUrlParameterRule` - References to unknown URL parameters (IMPLEMENTED 2026-02-27)
 
-#### Slot Rules (1 rule)
-- [ ] `unknownComponentSlotRule` - References to non-existent slots
+#### Slot Rules (0 remaining)
+- [x] `unknownComponentSlotRule` - References to non-existent slots (IMPLEMENTED 2026-02-27)
 
-#### Style Rules (4 rules)
+#### Style Rules (4 remaining)
 - [ ] `invalidStyleSyntaxRule` - CSS that fails PostCSS parsing (with auto-fix)
 - [ ] `unknownClassnameRule` - References to non-existent class names
 - [ ] `unknownCSSVariableRule` - CSS `var()` referencing undefined variables
@@ -246,8 +282,8 @@ Layr is a visual development platform with the following architecture:
 #### Workflow Rules (0 remaining)
 - [x] `duplicateWorkflowParameterRule` - Duplicate parameter names (IMPLEMENTED 2026-02-27)
 - [x] `noPostNavigateAction` - Actions after navigation (unreachable code, with auto-fix) (IMPLEMENTED 2026-02-27)
-- [ ] `noReferenceComponentWorkflowRule` - Unused workflows (duplicate from Action)
-- [ ] `unknownTriggerWorkflowParameterRule` - Unknown workflow parameter references
+- [x] `noReferenceComponentWorkflowRule` - Unused workflows (IMPLEMENTED 2026-02-27)
+- [x] `unknownTriggerWorkflowParameterRule` - Unknown workflow parameter references (IMPLEMENTED 2026-02-27)
 - [x] `unknownTriggerWorkflowRule` - References to non-existent workflows (IMPLEMENTED 2026-02-27)
 - [x] `unknownWorkflowParameterRule` - Unknown parameter references (IMPLEMENTED 2026-02-27)
 
@@ -456,6 +492,35 @@ bun run build               # Build all packages
 ---
 
 ## Changelog
+
+### 2026-02-27 (7 New Linting Rules - 43 Total)
+- **Implemented 7 new linting rules:**
+  - `unknownTriggerEventRule` (error) - TriggerEvent actions referencing events not defined on component
+  - `unknownProjectFormulaRule` (error) - References to non-existent project formulas
+  - `unknownComponentSlotRule` (error) - Slot node references slot not declared by target component
+  - `unknownComponentAttributeRule` (error) - Component instance passes attribute not declared by target
+  - `unknownTriggerWorkflowParameterRule` (error) - TriggerWorkflow passes parameter not declared
+  - `noReferenceComponentWorkflowRule` (warning) - Workflows defined but never triggered from entry points
+  - `noReferenceApiRule` (warning) - APIs defined but never fetched
+- **Linting rules status:** 43/58 implemented (74%, up from 62%)
+- **All 1421 tests pass**
+- New rule files created in `packages/search/src/rules/`:
+  - `events/unknownTriggerEventRule.ts`
+  - `logic/unknownProjectFormulaRule.ts`
+  - `slots/unknownComponentSlotRule.ts`
+  - `attributes/unknownComponentAttributeRule.ts`
+  - `workflows/unknownTriggerWorkflowParameterRule.ts`
+  - `workflows/noReferenceComponentWorkflowRule.ts`
+  - `apis/noReferenceApiRule.ts`
+- New/updated test files:
+  - `events/events.test.ts` - Added 4 tests for unknownTriggerEventRule
+  - `logic/logic.test.ts` - 4 tests for unknownProjectFormulaRule
+  - `slots/slots.test.ts` - 4 tests for unknownComponentSlotRule
+  - `attributes/attributes.test.ts` - 5 tests for unknownComponentAttributeRule
+  - `workflows/workflows.test.ts` - Added 5 tests for new workflow rules
+  - `apis/apis.test.ts` - 5 tests for noReferenceApiRule
+- Updated `packages/search/src/rules/index.ts` to export new rules
+- Updated `packages/search/src/problems.ts` to include new rules in getAllRules()
 
 ### 2026-02-27 (10 New Linting Rules - 36 Total)
 - **Implemented 10 new linting rules:**

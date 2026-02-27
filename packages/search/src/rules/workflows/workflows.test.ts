@@ -5,6 +5,8 @@
 import { describe, test, expect } from 'bun:test';
 import { duplicateWorkflowParameterRule } from './duplicateWorkflowParameterRule';
 import { noPostNavigateAction } from './noPostNavigateAction';
+import { unknownTriggerWorkflowParameterRule } from './unknownTriggerWorkflowParameterRule';
+import { noReferenceComponentWorkflowRule } from './noReferenceComponentWorkflowRule';
 import type { ProjectFiles, Component } from '@layr/types';
 
 // Helper to create a minimal project files structure
@@ -263,5 +265,225 @@ describe('noPostNavigateAction', () => {
     );
 
     expect(issues).toHaveLength(1);
+  });
+});
+
+describe('unknownTriggerWorkflowParameterRule', () => {
+  test('reports unknown workflow parameters', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'validParam' }],
+            actions: [],
+          },
+          callerWorkflow: {
+            name: 'callerWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'targetWorkflow',
+                parameters: [
+                  { name: 'validParam', formula: { type: 'value', value: 1 } },
+                  { name: 'invalidParam', formula: { type: 'value', value: 2 } }, // unknown!
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].data.paramName).toBe('invalidParam');
+    expect(issues[0].data.workflowName).toBe('targetWorkflow');
+  });
+
+  test('does not report valid workflow parameters', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [{ name: 'id' }, { name: 'name' }],
+            actions: [],
+          },
+          callerWorkflow: {
+            name: 'callerWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'targetWorkflow',
+                parameters: [
+                  { name: 'id', formula: { type: 'value', value: 1 } },
+                  { name: 'name', formula: { type: 'value', value: 'test' } },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles workflows without parameters', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          targetWorkflow: {
+            name: 'targetWorkflow',
+            parameters: [],
+            actions: [],
+          },
+          callerWorkflow: {
+            name: 'callerWorkflow',
+            parameters: [],
+            actions: [
+              {
+                type: 'TriggerWorkflow',
+                name: 'targetWorkflow',
+                parameters: [
+                  { name: 'unexpectedParam', formula: { type: 'value', value: 1 } },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    unknownTriggerWorkflowParameterRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(1);
+  });
+});
+
+describe('noReferenceComponentWorkflowRule', () => {
+  test('reports unused workflows', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        workflows: {
+          usedWorkflow: {
+            name: 'usedWorkflow',
+            parameters: [],
+            actions: [
+              { type: 'TriggerWorkflow', name: 'unusedWorkflow', parameters: [] },
+            ],
+          },
+          unusedWorkflow: {
+            name: 'unusedWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    noReferenceComponentWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    // usedWorkflow calls unusedWorkflow, but usedWorkflow itself is never called
+    expect(issues).toHaveLength(2);
+    const workflowNames = issues.map(i => i.data.workflowName);
+    expect(workflowNames).toContain('usedWorkflow');
+    expect(workflowNames).toContain('unusedWorkflow');
+  });
+
+  test('does not report triggered workflows', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+        events: {
+          click: {
+            actions: [
+              { type: 'TriggerWorkflow', name: 'myWorkflow', parameters: [] },
+            ],
+          },
+        },
+        workflows: {
+          myWorkflow: {
+            name: 'myWorkflow',
+            parameters: [],
+            actions: [],
+          },
+        },
+      },
+    });
+
+    noReferenceComponentWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
+  });
+
+  test('handles components without workflows', () => {
+    const issues: any[] = [];
+    const files = createProjectFiles({
+      Component1: {
+        name: 'Component1',
+        nodes: {},
+      },
+    });
+
+    noReferenceComponentWorkflowRule.visit(
+      (data, path, fixes) => issues.push({ data, path, fixes }),
+      {
+        files,
+        memo: (key, factory) => factory(),
+      }
+    );
+
+    expect(issues).toHaveLength(0);
   });
 });

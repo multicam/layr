@@ -8,10 +8,12 @@ export { unknownActionRule } from './actions/unknownActionRule';
 // APIs
 export { unknownApiRule } from './apis/unknownApiRule';
 export { unknownApiInputRule } from './apis/unknownApiInputRule';
+export { noReferenceApiRule } from './apis/noReferenceApiRule';
 
 // Attributes
 export { noReferenceAttributeRule } from './attributes/noReferenceAttributeRule';
 export { unknownAttributeRule } from './attributes/unknownAttributeRule';
+export { unknownComponentAttributeRule } from './attributes/unknownComponentAttributeRule';
 
 // Components
 export { unknownComponentRule } from './components/unknownComponentRule';
@@ -33,6 +35,7 @@ export { missingAltAttributeRule } from './dom/missingAltAttributeRule';
 export { unknownEventRule } from './events/unknownEventRule';
 export { duplicateEventTriggerRule } from './events/duplicateEventTriggerRule';
 export { noReferenceEventRule } from './events/noReferenceEventRule';
+export { unknownTriggerEventRule } from './events/unknownTriggerEventRule';
 
 // Formulas
 export { unknownFormulaRule } from './formulas/unknownFormulaRule';
@@ -42,12 +45,16 @@ export { noReferenceProjectFormulaRule } from './formulas/noReferenceProjectForm
 
 // Logic
 export { noStaticNodeConditionRule, noUnnecessaryConditionTruthyRule, noUnnecessaryConditionFalsyRule } from './logic/staticConditionRule';
+export { unknownProjectFormulaRule } from './logic/unknownProjectFormulaRule';
 
 // Routing
 export { duplicateRouteRule } from './routing/duplicateRouteRule';
 export { duplicateUrlParameterRule } from './routing/duplicateUrlParameterRule';
 export { unknownUrlParameterRule } from './routing/unknownUrlParameterRule';
 export { unknownSetUrlParameterRule } from './routing/unknownSetUrlParameterRule';
+
+// Slots
+export { unknownComponentSlotRule } from './slots/unknownComponentSlotRule';
 
 // Variables
 export { unknownVariableRule } from './variables/unknownVariableRule';
@@ -59,3 +66,5 @@ export { unknownTriggerWorkflowRule } from './workflows/unknownTriggerWorkflowRu
 export { unknownWorkflowParameterRule } from './workflows/unknownWorkflowParameterRule';
 export { duplicateWorkflowParameterRule } from './workflows/duplicateWorkflowParameterRule';
 export { noPostNavigateAction } from './workflows/noPostNavigateAction';
+export { unknownTriggerWorkflowParameterRule } from './workflows/unknownTriggerWorkflowParameterRule';
+export { noReferenceComponentWorkflowRule } from './workflows/noReferenceComponentWorkflowRule';
