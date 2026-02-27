@@ -19,7 +19,7 @@ Multi-layered error detection, classification, and reporting across the Layr run
 | API error state (`{ data: null, isLoading: false, error }`) | [MVP] Implemented | In `api/client.ts` |
 | Panic screen (editor preview) | [MVP] Implemented in old runtime | Referenced in spec, not in new runtime yet |
 | Editor toast notifications | [MVP] Implemented in old runtime | Referenced in spec, not in new runtime yet |
-| `window.logState()` debug tool | [MVP] Implemented in old runtime | Not in new runtime packages yet |
+| `window.logState()` debug tool | [MVP] Implemented | Exposed on window during initToddleGlobal |
 | SSR API error serialization | [Phase 2] | Not yet built |
 | Error boundary components | [Phase 2] | Not yet built |
 | Debug panel UI | [Phase 2] | Not yet built |
@@ -338,7 +338,7 @@ A `critical` toast fires when a render error is caught that is **not** a `RangeE
 
 ---
 
-## Debug State Inspection [MVP — old runtime; Phase 2 — new runtime]
+## Debug State Inspection [MVP — Implemented]
 
 ### `window.logState()`
 

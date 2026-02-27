@@ -719,5 +719,32 @@ describe('Lifecycle System', () => {
       // Should not throw
       logState();
     });
+
+    test('exposes window.logState when window exists', () => {
+      // Mock window if not available (Bun test environment)
+      const hadWindow = typeof window !== 'undefined';
+      if (!hadWindow) {
+        (globalThis as any).window = {};
+      }
+
+      initToddleGlobal({
+        project: 'test',
+        branch: 'main',
+        commit: 'abc',
+        env: {
+          isServer: false,
+          runtime: 'page',
+          logErrors: true,
+        },
+      });
+
+      // window.logState should be defined
+      expect(typeof (window as any).logState).toBe('function');
+
+      // Cleanup
+      if (!hadWindow) {
+        delete (globalThis as any).window;
+      }
+    });
   });
 });

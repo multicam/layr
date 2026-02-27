@@ -365,6 +365,10 @@ export function initToddleGlobal(options: {
 
   if (typeof globalThis !== 'undefined') {
     (globalThis as any).__toddle = toddle;
+    // Expose logState as window.logState() for debugging
+    if (typeof window !== 'undefined') {
+      (window as any).logState = logState;
+    }
   }
 
   return toddle;

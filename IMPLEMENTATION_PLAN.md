@@ -9,6 +9,14 @@
 
 ## Recent Progress
 
+### 2026-02-27 (window.logState Implementation)
+- **Implemented `window.logState()` exposure in new runtime:**
+  - `initToddleGlobal()` now exposes `logState` on `window` for debugging
+  - Added test for window.logState availability
+  - Updated `specs/14-error-handling.md` to reflect implementation
+- **All 1492 tests pass** (up from 1491)
+- This completes the `window.logState()` debug tool per the error handling spec
+
 ### 2026-02-27 (Documentation Sync)
 - **Updated specs to reflect actual implementation state:**
   - `specs/13-search-and-linting.md` - Marked all 57 linting rules as [MVP] (was showing 9/58)
