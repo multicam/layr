@@ -1,6 +1,6 @@
-import { describe, test, expect, beforeAll } from 'bun:test';
-import './index'; // Import to register formulas
-import { formulas, getFormula } from './index';
+import { describe, test, expect, beforeAll, mock, afterEach, beforeEach } from 'bun:test';
+import './index'; // Import to register formulas and actions
+import { formulas, getFormula, actions, getAction } from './index';
 import type { FormulaContext } from '@layr/core';
 
 // Create a minimal formula context
@@ -1276,6 +1276,722 @@ describe('storage formulas', () => {
       expect(fn({ key: 'invalid-session' }, clientCtx)).toBeNull();
     } finally {
       globalThis.sessionStorage = originalSessionStorage;
+    }
+  });
+});
+
+// ========== Action Tests ==========
+
+describe('action registration', () => {
+  test('registers actions on import', () => {
+    expect(actions.size).toBeGreaterThan(10);
+  });
+
+  test('getAction returns registered action', () => {
+    expect(getAction('@toddle/setCookie')).toBeDefined();
+    expect(getAction('@toddle/nonexistent')).toBeUndefined();
+  });
+});
+
+describe('local storage actions', () => {
+  // Client-side action context
+  const actionCtx = {} as any;
+
+  test('@toddle/saveToLocalStorage saves to localStorage', () => {
+    const action = getAction('@toddle/saveToLocalStorage')!;
+
+    const storage: Record<string, string> = {};
+    const originalLocalStorage = globalThis.localStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore - mocking for test
+    globalThis.localStorage = {
+      setItem: (key: string, value: string) => { storage[key] = value; },
+      getItem: (key: string) => storage[key] ?? null,
+      removeItem: () => {},
+      clear: () => {},
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({ key: 'test-key', value: { foo: 'bar' } }, actionCtx);
+      expect(storage['test-key']).toBe('{"foo":"bar"}');
+
+      action({ key: 'string-val', value: 'hello' }, actionCtx);
+      expect(storage['string-val']).toBe('"hello"');
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/saveToLocalStorage ignores non-string key', () => {
+    const action = getAction('@toddle/saveToLocalStorage')!;
+
+    const storage: Record<string, string> = {};
+    const originalLocalStorage = globalThis.localStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.localStorage = {
+      setItem: (key: string, value: string) => { storage[key] = value; },
+      getItem: () => null,
+      removeItem: () => {},
+      clear: () => {},
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({ key: 123, value: 'test' }, actionCtx);
+      expect(Object.keys(storage).length).toBe(0);
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/deleteFromLocalStorage removes from localStorage', () => {
+    const action = getAction('@toddle/deleteFromLocalStorage')!;
+
+    const storage: Record<string, string> = { 'to-delete': '"value"' };
+    const originalLocalStorage = globalThis.localStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.localStorage = {
+      setItem: () => {},
+      getItem: () => null,
+      removeItem: (key: string) => { delete storage[key]; },
+      clear: () => {},
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({ key: 'to-delete' }, actionCtx);
+      expect(storage['to-delete']).toBeUndefined();
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/clearLocalStorage clears all', () => {
+    const action = getAction('@toddle/clearLocalStorage')!;
+
+    let cleared = false;
+    const originalLocalStorage = globalThis.localStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.localStorage = {
+      setItem: () => {},
+      getItem: () => null,
+      removeItem: () => {},
+      clear: () => { cleared = true; },
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({}, actionCtx);
+      expect(cleared).toBe(true);
+    } finally {
+      globalThis.localStorage = originalLocalStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('localStorage actions no-op when window undefined', () => {
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    delete globalThis.window;
+
+    try {
+      const saveAction = getAction('@toddle/saveToLocalStorage')!;
+      const deleteAction = getAction('@toddle/deleteFromLocalStorage')!;
+      const clearAction = getAction('@toddle/clearLocalStorage')!;
+
+      // Should not throw
+      saveAction({ key: 'test', value: 'test' }, actionCtx);
+      deleteAction({ key: 'test' }, actionCtx);
+      clearAction({}, actionCtx);
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+});
+
+describe('session storage actions', () => {
+  const actionCtx = {} as any;
+
+  test('@toddle/saveToSessionStorage saves to sessionStorage', () => {
+    const action = getAction('@toddle/saveToSessionStorage')!;
+
+    const storage: Record<string, string> = {};
+    const originalSessionStorage = globalThis.sessionStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.sessionStorage = {
+      setItem: (key: string, value: string) => { storage[key] = value; },
+      getItem: () => null,
+      removeItem: () => {},
+      clear: () => {},
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({ key: 'session-key', value: [1, 2, 3] }, actionCtx);
+      expect(storage['session-key']).toBe('[1,2,3]');
+    } finally {
+      globalThis.sessionStorage = originalSessionStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/deleteFromSessionStorage removes from sessionStorage', () => {
+    const action = getAction('@toddle/deleteFromSessionStorage')!;
+
+    const storage: Record<string, string> = { 'del': '"value"' };
+    const originalSessionStorage = globalThis.sessionStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.sessionStorage = {
+      setItem: () => {},
+      getItem: () => null,
+      removeItem: (key: string) => { delete storage[key]; },
+      clear: () => {},
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({ key: 'del' }, actionCtx);
+      expect(storage['del']).toBeUndefined();
+    } finally {
+      globalThis.sessionStorage = originalSessionStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/clearSessionStorage clears all', () => {
+    const action = getAction('@toddle/clearSessionStorage')!;
+
+    let cleared = false;
+    const originalSessionStorage = globalThis.sessionStorage;
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {};
+    // @ts-ignore
+    globalThis.sessionStorage = {
+      setItem: () => {},
+      getItem: () => null,
+      removeItem: () => {},
+      clear: () => { cleared = true; },
+      length: 0,
+      key: () => null,
+    };
+
+    try {
+      action({}, actionCtx);
+      expect(cleared).toBe(true);
+    } finally {
+      globalThis.sessionStorage = originalSessionStorage;
+      globalThis.window = originalWindow;
+    }
+  });
+});
+
+describe('cookie actions', () => {
+  const actionCtx = {} as any;
+
+  test('@toddle/setCookie sets cookie with default options', () => {
+    const action = getAction('@toddle/setCookie')!;
+
+    let cookieValue = '';
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    globalThis.document = {
+      cookie: '',
+      set cookie(val: string) { cookieValue = val; },
+      get cookie() { return cookieValue; },
+    };
+
+    try {
+      action({ name: 'test-cookie', value: 'test-value' }, actionCtx);
+      expect(cookieValue).toContain('test-cookie=test-value');
+      expect(cookieValue).toContain('Path=/');
+      expect(cookieValue).toContain('SameSite=Lax');
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setCookie sets cookie with expiry', () => {
+    const action = getAction('@toddle/setCookie')!;
+
+    let cookieValue = '';
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    globalThis.document = {
+      cookie: '',
+      set cookie(val: string) { cookieValue = val; },
+      get cookie() { return cookieValue; },
+    };
+
+    try {
+      action({ name: 'exp-cookie', value: 'exp-value', expiresIn: 3600 }, actionCtx);
+      expect(cookieValue).toContain('Expires=');
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setCookie ignores non-string name', () => {
+    const action = getAction('@toddle/setCookie')!;
+
+    let cookieValue = '';
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    globalThis.document = {
+      cookie: '',
+      set cookie(val: string) { cookieValue = val; },
+      get cookie() { return cookieValue; },
+    };
+
+    try {
+      action({ name: 123, value: 'test' }, actionCtx);
+      expect(cookieValue).toBe('');
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setCookie no-op when document undefined', () => {
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    delete globalThis.document;
+
+    try {
+      const action = getAction('@toddle/setCookie')!;
+      action({ name: 'test', value: 'test' }, actionCtx);
+      // Should not throw
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setHttpOnlyCookie makes fetch request', async () => {
+    const action = getAction('@toddle/setHttpOnlyCookie')!;
+
+    let fetchUrl = '';
+    const originalFetch = globalThis.fetch;
+    // @ts-ignore
+    globalThis.fetch = async (url: string) => {
+      fetchUrl = url;
+      return new Response();
+    };
+
+    try {
+      await action({ name: 'http-cookie', value: 'secret' }, actionCtx);
+      expect(fetchUrl).toContain('/__cookie');
+      expect(fetchUrl).toContain('name=http-cookie');
+      expect(fetchUrl).toContain('value=secret');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('@toddle/setHttpOnlyCookie ignores non-string name', async () => {
+    const action = getAction('@toddle/setHttpOnlyCookie')!;
+
+    let fetched = false;
+    const originalFetch = globalThis.fetch;
+    // @ts-ignore
+    globalThis.fetch = async () => {
+      fetched = true;
+      return new Response();
+    };
+
+    try {
+      await action({ name: 123, value: 'test' }, actionCtx);
+      expect(fetched).toBe(false);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+describe('navigation actions', () => {
+  test('@toddle/goToURL navigates to URL', () => {
+    const action = getAction('@toddle/goToURL')!;
+
+    let navigatedTo = '';
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {
+      location: {
+        set href(url: string) { navigatedTo = url; },
+        get href() { return navigatedTo; },
+      },
+    };
+
+    try {
+      action({ url: 'https://example.com' }, {} as any);
+      expect(navigatedTo).toBe('https://example.com');
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/goToURL ignores non-string URL', () => {
+    const action = getAction('@toddle/goToURL')!;
+
+    let navigatedTo = '';
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {
+      location: {
+        set href(url: string) { navigatedTo = url; },
+        get href() { return navigatedTo; },
+      },
+    };
+
+    try {
+      action({ url: 123 }, {} as any);
+      expect(navigatedTo).toBe('');
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/goToURL no navigation in preview mode', () => {
+    const action = getAction('@toddle/goToURL')!;
+
+    let navigatedTo = '';
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    globalThis.window = {
+      location: {
+        set href(url: string) { navigatedTo = url; },
+        get href() { return navigatedTo; },
+      },
+    };
+
+    try {
+      action({ url: 'https://example.com' }, { preview: true } as any);
+      expect(navigatedTo).toBe('');
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  test('@toddle/goToURL no-op when window undefined', () => {
+    const originalWindow = globalThis.window;
+    // @ts-ignore
+    delete globalThis.window;
+
+    try {
+      const action = getAction('@toddle/goToURL')!;
+      action({ url: 'https://example.com' }, {} as any);
+      // Should not throw
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+});
+
+describe('event actions', () => {
+  test('@toddle/focus calls element.focus()', () => {
+    const action = getAction('@toddle/focus')!;
+
+    let focused = false;
+    const mockElement = { focus: () => { focused = true; } };
+
+    action({ element: mockElement }, {} as any);
+    expect(focused).toBe(true);
+  });
+
+  test('@toddle/focus ignores element without focus method', () => {
+    const action = getAction('@toddle/focus')!;
+
+    // Should not throw
+    action({ element: {} }, {} as any);
+    action({ element: { focus: 'not a function' } }, {} as any);
+  });
+
+  test('@toddle/preventDefault calls event.preventDefault()', () => {
+    const action = getAction('@toddle/preventDefault')!;
+
+    let prevented = false;
+    const mockEvent = { preventDefault: () => { prevented = true; } };
+
+    action({}, { event: mockEvent } as any);
+    expect(prevented).toBe(true);
+  });
+
+  test('@toddle/stopPropagation calls event.stopPropagation()', () => {
+    const action = getAction('@toddle/stopPropagation')!;
+
+    let stopped = false;
+    const mockEvent = { stopPropagation: () => { stopped = true; } };
+
+    action({}, { event: mockEvent } as any);
+    expect(stopped).toBe(true);
+  });
+});
+
+describe('timer actions', () => {
+  test('@toddle/sleep resolves after delay', async () => {
+    const action = getAction('@toddle/sleep')!;
+
+    const start = Date.now();
+    await action({ delay: 10 }, {} as any);
+    const elapsed = Date.now() - start;
+
+    expect(elapsed).toBeGreaterThanOrEqual(8); // Allow some variance
+  });
+
+  test('@toddle/sleep ignores non-number delay', async () => {
+    const action = getAction('@toddle/sleep')!;
+
+    // Should resolve immediately
+    await action({ delay: 'not a number' }, {} as any);
+  });
+
+  test('@toddle/sleep registers cleanup callback', async () => {
+    const action = getAction('@toddle/sleep')!;
+
+    const cleanupCallbacks: (() => void)[] = [];
+    const ctx = { onUnmount: (cb: () => void) => cleanupCallbacks.push(cb) } as any;
+
+    // Start sleep with a long delay (we won't wait for it)
+    action({ delay: 10000 }, ctx);
+
+    // Should have registered a cleanup callback
+    expect(cleanupCallbacks.length).toBe(1);
+
+    // Verify the cleanup function can be called without error
+    cleanupCallbacks[0]();
+  });
+
+  test('@toddle/interval calls onTick repeatedly', async () => {
+    const action = getAction('@toddle/interval')!;
+
+    let tickCount = 0;
+    const cleanupCallbacks: (() => void)[] = [];
+    const ctx = { onUnmount: (cb: () => void) => cleanupCallbacks.push(cb) } as any;
+
+    action({ delay: 5, onTick: () => { tickCount++; } }, ctx);
+
+    // Wait for a few ticks
+    await new Promise(r => setTimeout(r, 25));
+
+    expect(tickCount).toBeGreaterThanOrEqual(2);
+
+    // Cleanup
+    cleanupCallbacks[0]();
+  });
+
+  test('@toddle/interval ignores non-number delay', () => {
+    const action = getAction('@toddle/interval')!;
+
+    // Should not throw
+    action({ delay: 'not a number', onTick: () => {} }, {} as any);
+  });
+});
+
+describe('debug actions', () => {
+  test('@toddle/logToConsole logs with label', () => {
+    const action = getAction('@toddle/logToConsole')!;
+
+    const logs: any[] = [];
+    const originalLog = console.log;
+    console.log = (...args: any[]) => { logs.push(args); };
+
+    try {
+      action({ label: 'TestLabel', data: { foo: 'bar' } }, {} as any);
+      expect(logs.length).toBe(1);
+      expect(logs[0]).toEqual(['TestLabel', { foo: 'bar' }]);
+    } finally {
+      console.log = originalLog;
+    }
+  });
+
+  test('@toddle/logToConsole logs with default label', () => {
+    const action = getAction('@toddle/logToConsole')!;
+
+    const logs: any[] = [];
+    const originalLog = console.log;
+    console.log = (...args: any[]) => { logs.push(args); };
+
+    try {
+      action({ data: 'test' }, {} as any);
+      expect(logs[0]).toEqual(['Log', 'test']);
+    } finally {
+      console.log = originalLog;
+    }
+  });
+});
+
+describe('sharing actions', () => {
+  test('@toddle/copyToClipboard writes to clipboard', async () => {
+    const action = getAction('@toddle/copyToClipboard')!;
+
+    let copiedText = '';
+    const originalNavigator = globalThis.navigator;
+    // @ts-ignore
+    globalThis.navigator = {
+      clipboard: {
+        writeText: async (text: string) => { copiedText = text; },
+      },
+    };
+
+    try {
+      await action({ value: 'copy me' }, {} as any);
+      expect(copiedText).toBe('copy me');
+    } finally {
+      globalThis.navigator = originalNavigator;
+    }
+  });
+
+  test('@toddle/copyToClipboard ignores non-string value', async () => {
+    const action = getAction('@toddle/copyToClipboard')!;
+
+    let copied = false;
+    const originalNavigator = globalThis.navigator;
+    // @ts-ignore
+    globalThis.navigator = {
+      clipboard: {
+        writeText: async () => { copied = true; },
+      },
+    };
+
+    try {
+      await action({ value: 123 }, {} as any);
+      expect(copied).toBe(false);
+    } finally {
+      globalThis.navigator = originalNavigator;
+    }
+  });
+
+  test('@toddle/copyToClipboard no-op when navigator undefined', async () => {
+    const originalNavigator = globalThis.navigator;
+    // @ts-ignore
+    delete globalThis.navigator;
+
+    try {
+      const action = getAction('@toddle/copyToClipboard')!;
+      await action({ value: 'test' }, {} as any);
+      // Should not throw
+    } finally {
+      globalThis.navigator = originalNavigator;
+    }
+  });
+
+  test('@toddle/share calls navigator.share', async () => {
+    const action = getAction('@toddle/share')!;
+
+    let sharedData: any = null;
+    const originalNavigator = globalThis.navigator;
+    // @ts-ignore
+    globalThis.navigator = {
+      share: async (data: any) => { sharedData = data; },
+    };
+
+    try {
+      await action({ url: 'https://example.com', title: 'Test', text: 'Hello' }, {} as any);
+      expect(sharedData).toEqual({
+        url: 'https://example.com',
+        title: 'Test',
+        text: 'Hello',
+      });
+    } finally {
+      globalThis.navigator = originalNavigator;
+    }
+  });
+
+  test('@toddle/share no-op when share API not available', async () => {
+    const action = getAction('@toddle/share')!;
+
+    const originalNavigator = globalThis.navigator;
+    // @ts-ignore - no share API
+    globalThis.navigator = {};
+
+    try {
+      await action({ url: 'https://example.com' }, {} as any);
+      // Should not throw
+    } finally {
+      globalThis.navigator = originalNavigator;
+    }
+  });
+});
+
+describe('theme actions', () => {
+  test('@toddle/setTheme sets data-nc-theme attribute', () => {
+    const action = getAction('@toddle/setTheme')!;
+
+    let themeAttr = '';
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    globalThis.document = {
+      documentElement: {
+        setAttribute: (_name: string, value: string) => { themeAttr = value; },
+        removeAttribute: () => { themeAttr = ''; },
+      },
+    };
+
+    try {
+      action({ name: 'dark' }, {} as any);
+      expect(themeAttr).toBe('dark');
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setTheme removes attribute when null', () => {
+    const action = getAction('@toddle/setTheme')!;
+
+    let removed = false;
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    globalThis.document = {
+      documentElement: {
+        setAttribute: () => {},
+        removeAttribute: () => { removed = true; },
+      },
+    };
+
+    try {
+      action({ name: null }, {} as any);
+      expect(removed).toBe(true);
+    } finally {
+      globalThis.document = originalDocument;
+    }
+  });
+
+  test('@toddle/setTheme no-op when document undefined', () => {
+    const originalDocument = globalThis.document;
+    // @ts-ignore
+    delete globalThis.document;
+
+    try {
+      const action = getAction('@toddle/setTheme')!;
+      action({ name: 'dark' }, {} as any);
+      // Should not throw
+    } finally {
+      globalThis.document = originalDocument;
     }
   });
 });
