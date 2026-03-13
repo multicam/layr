@@ -119,8 +119,8 @@ Each spec includes a phase summary table at the top.
 
 ```bash
 bun install
-bun run dev          # Backend (3000) + Editor (5173)
+bun run dev          # Backend + Editor (ports from layr.yaml)
 bun test             # 1537+ tests, ~95% coverage
 ```
 
-Demo project: `http://localhost:3000/demo/`
+Demo project: `http://localhost:3000/demo/` (port configured in `layr.yaml`)

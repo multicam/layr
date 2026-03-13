@@ -9,6 +9,7 @@ import { handlePage } from './routes/page';
 import { listProjects } from './loader/project';
 import { staticMiddleware } from './static/index';
 import { escapeHtml } from '@layr/ssr';
+import { config } from '../../../config';
 
 const app = new Hono();
 
@@ -51,7 +52,7 @@ app.get('/', (c) => {
   `);
 });
 
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || config.ports.backend;
 
 console.log(`Server starting on http://localhost:${port}`);
 

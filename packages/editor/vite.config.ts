@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { config } from '../../config';
 
 export default defineConfig({
   plugins: [react()],
@@ -10,14 +11,14 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: config.ports.editor,
     watch: {
       usePolling: true,
       interval: 1000,
     },
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/health': 'http://localhost:3000',
+      '/api': `http://localhost:${config.ports.backend}`,
+      '/health': `http://localhost:${config.ports.backend}`,
     },
   },
 });

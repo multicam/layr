@@ -38,7 +38,7 @@ Hono-based HTTP server that loads `project.json` files from `/projects/`, SSR-re
 
 **Start command:** `bun src/server.ts` (production), `bun --watch src/server.ts` (dev)
 
-**Port:** `process.env.PORT || 3000`
+**Port:** `process.env.PORT || config.ports.backend` (from `layr.yaml`, default 3000)
 
 ### Middleware Stack
 
@@ -442,7 +442,7 @@ Disallow: /cdn-cgi/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Server port | `3000` |
+| `PORT` | Server port | `layr.yaml` → `ports.backend` (default 3000) |
 | `NODE_ENV` | Environment mode | — |
 
 ---

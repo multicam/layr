@@ -29,7 +29,7 @@ Development loop, hot reload behavior, test runner configuration, and the `@layr
 ```bash
 bun install                # Install all workspace dependencies
 bun run dev                # Start backend + editor in parallel
-bun run dev:backend        # Backend only (port 3000)
+bun run dev:backend        # Backend only (port from layr.yaml)
 bun run dev:editor         # Editor only (Vite dev server)
 bun test                   # Run all tests
 bun run build              # Build all packages
@@ -45,8 +45,8 @@ Runs two processes in parallel (using `&`):
 
 | Process | Command | Default Port |
 |---------|---------|-------------|
-| Backend | `bun --watch src/server.ts` | 3000 |
-| Editor | `vite` | 5173 |
+| Backend | `bun --watch src/server.ts` | `layr.yaml` → `ports.backend` (default 3000) |
+| Editor | `vite` | `layr.yaml` → `ports.editor` (default 5173) |
 
 ### Backend Watch Mode
 

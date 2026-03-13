@@ -15,6 +15,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "bun-types": "latest",
     "happy-dom": "^20.6.1",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "yaml": "^2.7.0"
   }
 }

@@ -1,0 +1,4 @@
+ports:
+  backend: 4030
+  editor: 6030
+  preview: 8030
